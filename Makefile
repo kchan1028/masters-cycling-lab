@@ -3,7 +3,7 @@ UV := uv --directory backend
 NPM := npm --prefix frontend
 COMPOSE := docker compose
 
-.PHONY: help bootstrap lint typecheck test test-integration build api-types check-api-types \
+.PHONY: help bootstrap lint typecheck test test-integration test-model build api-types check-api-types \
 	up down migrate download-model ingest corpus-verify evaluate smoke
 
 help: ## List commands
@@ -30,7 +30,10 @@ test: ## Fast offline tests: no database, model download or LLM provider
 	$(NPM) test
 
 test-integration: ## Tests against real PostgreSQL in throwaway databases (needs 'make up')
-	$(UV) run pytest -m integration
+	$(UV) run pytest -m "integration and not model"
+
+test-model: ## Tests that load the real embedding model (downloads it to data/models on first run)
+	$(UV) run pytest -m model
 
 build: ## Production frontend bundle
 	$(NPM) run build
@@ -51,6 +54,15 @@ down: ## Stop the stack. Data stays in the Docker volumes
 migrate: ## Apply database migrations (the only command that changes the schema)
 	$(COMPOSE) run --rm migrate
 
+download-model: ## Download the pinned embedding model into the models volume (about 130 MB, once)
+	$(COMPOSE) run --rm --no-deps -e HF_HUB_OFFLINE=0 worker mcl download-model
+
+ingest: ## Upload one PDF and wait for the worker: make ingest FILE=/absolute/path/paper.pdf
+	@test -n "$(FILE)" || { echo "Usage: make ingest FILE=/absolute/path/paper.pdf" >&2; exit 1; }
+	@test -f "$(FILE)" || { echo "No such file: $(FILE)" >&2; exit 1; }
+	$(COMPOSE) run --rm --no-deps -v "$(abspath $(FILE)):/tmp/upload.pdf:ro" worker \
+		mcl ingest /tmp/upload.pdf --filename "$$(basename "$(FILE)")" --wait
+
 # Commands from the roadmap that later milestones implement. They fail loudly until then.
-download-model ingest corpus-verify evaluate smoke:
+corpus-verify evaluate smoke:
 	@echo "'make $@' is not implemented yet. docs/roadmap.md lists the milestone that adds it." >&2; exit 1

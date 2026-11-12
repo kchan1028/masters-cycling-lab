@@ -1,7 +1,9 @@
+from collections.abc import Iterator
 from typing import Annotated
 
 from fastapi import Depends, Request
 from sqlalchemy import Engine
+from sqlalchemy.orm import Session
 
 from masters_cycling_lab.config import Settings
 from masters_cycling_lab.infrastructure.storage.local_files import LocalFileStorage
@@ -23,6 +25,12 @@ def get_storage(request: Request) -> LocalFileStorage:
     return storage
 
 
+def get_session(request: Request) -> Iterator[Session]:
+    with Session(get_engine(request)) as session:
+        yield session
+
+
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 EngineDep = Annotated[Engine, Depends(get_engine)]
 StorageDep = Annotated[LocalFileStorage, Depends(get_storage)]
+SessionDep = Annotated[Session, Depends(get_session)]

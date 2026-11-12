@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from masters_cycling_lab.api.errors import ErrorResponse, install_error_handlers
 from masters_cycling_lab.api.request_checks import rejected_request
-from masters_cycling_lab.api.routes import health
+from masters_cycling_lab.api.routes import documents, health, ingestion
 from masters_cycling_lab.config import Settings, get_settings
 from masters_cycling_lab.infrastructure.db.models import EMBEDDING_DIMENSION
 from masters_cycling_lab.infrastructure.db.session import make_engine
@@ -65,5 +65,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     install_error_handlers(app)
 
     error_responses: dict[int | str, dict[str, object]] = {"default": {"model": ErrorResponse}}
+    # Routes with inputs also document 422 as the error envelope, replacing FastAPI's default validation schema.
+    input_error_responses: dict[int | str, dict[str, object]] = {422: {"model": ErrorResponse}, **error_responses}
     app.include_router(health.router, prefix="/api/v1", responses=error_responses)
+    app.include_router(documents.router, prefix="/api/v1", responses=input_error_responses)
+    app.include_router(ingestion.router, prefix="/api/v1", responses=input_error_responses)
     return app

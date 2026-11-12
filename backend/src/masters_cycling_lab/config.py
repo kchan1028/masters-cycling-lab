@@ -28,6 +28,12 @@ class Settings(BaseSettings):
     embedding_model_revision: str = "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a"
     embedding_dimension: int = Field(default=384, gt=0)
     embedding_batch_size: int = Field(default=32, gt=0, le=512)
+    # Downloaded model files (make download-model). Relative paths are resolved against the repository root.
+    model_cache_dir: Path = Path("data/models")
+
+    # Chunk size in model tokens, without the two special tokens the model adds. bge-small reads at most 512.
+    chunk_max_tokens: int = Field(default=300, gt=0, le=510)
+    chunk_overlap_tokens: int = Field(default=40, ge=0)
 
     # Any OpenAI-compatible /chat/completions endpoint. Leaving these empty disables answer generation.
     llm_base_url: str | None = None
@@ -53,9 +59,9 @@ class Settings(BaseSettings):
             raise ValueError('"*" is not allowed; list the exact origins')
         return value
 
-    @field_validator("storage_root")
+    @field_validator("storage_root", "model_cache_dir")
     @classmethod
-    def resolve_storage_root(cls, value: Path) -> Path:
+    def resolve_relative_path(cls, value: Path) -> Path:
         return value if value.is_absolute() else REPO_ROOT / value
 
     @field_validator("embedding_model_revision")
@@ -77,6 +83,8 @@ class Settings(BaseSettings):
     def check_limits(self) -> Self:
         if self.retrieval_context_k > self.retrieval_candidate_k:
             raise ValueError("RETRIEVAL_CONTEXT_K cannot be larger than RETRIEVAL_CANDIDATE_K")
+        if self.chunk_overlap_tokens >= self.chunk_max_tokens:
+            raise ValueError("CHUNK_OVERLAP_TOKENS must be smaller than CHUNK_MAX_TOKENS")
         if self.llm_max_output_tokens >= self.llm_context_window_tokens:
             raise ValueError("LLM_MAX_OUTPUT_TOKENS must leave room in LLM_CONTEXT_WINDOW_TOKENS for the prompt")
         return self

@@ -5,7 +5,7 @@ so these tests never touch your real data.
 """
 
 import uuid
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 
 import pytest
 from sqlalchemy import URL, Engine, create_engine, make_url, text
@@ -14,7 +14,10 @@ from sqlalchemy.orm import Session
 
 from masters_cycling_lab.config import Settings
 from masters_cycling_lab.infrastructure.db.migrations import upgrade
+from masters_cycling_lab.infrastructure.db.models import Base
 from masters_cycling_lab.infrastructure.db.session import make_engine
+from masters_cycling_lab.infrastructure.storage.local_files import LocalFileStorage
+from tests.integration.lab import Lab
 
 
 def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
@@ -72,6 +75,29 @@ def migrated_engine(migrated_database: str) -> Iterator[Engine]:
     engine = make_engine(migrated_database)
     yield engine
     engine.dispose()
+
+
+def empty_all_tables(engine: Engine) -> None:
+    tables = ", ".join(table.name for table in Base.metadata.sorted_tables)
+    with engine.begin() as connection:
+        connection.execute(text(f"TRUNCATE {tables} CASCADE"))
+
+
+@pytest.fixture
+def clean_database(migrated_database: str, migrated_engine: Engine) -> Iterator[str]:
+    """The migrated test database, empty before and after the test. For tests that commit, like the worker's."""
+    empty_all_tables(migrated_engine)
+    yield migrated_database
+    empty_all_tables(migrated_engine)
+
+
+@pytest.fixture
+def lab(clean_database: str, migrated_engine: Engine, make_settings: Callable[..., Settings]) -> Lab:
+    # Small chunks and batches, so a few short pages exercise several chunks and several embedding batches.
+    settings = make_settings(
+        database_url=clean_database, chunk_max_tokens=20, chunk_overlap_tokens=5, embedding_batch_size=4
+    )
+    return Lab(settings, migrated_engine, LocalFileStorage(settings.storage_root))
 
 
 @pytest.fixture

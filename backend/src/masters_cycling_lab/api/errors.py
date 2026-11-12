@@ -8,7 +8,16 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException
 
+from masters_cycling_lab.application.errors import Conflict, NotFound, ServiceError, UnsupportedFile, UploadTooLarge
+
 log = logging.getLogger(__name__)
+
+SERVICE_ERROR_STATUS: dict[type[ServiceError], int] = {
+    NotFound: 404,
+    Conflict: 409,
+    UploadTooLarge: 413,
+    UnsupportedFile: 415,
+}
 
 HTTP_ERROR_CODES = {
     400: "BAD_REQUEST",
@@ -66,6 +75,10 @@ def install_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(ApiError)
     async def handle_api_error(request: Request, exc: ApiError) -> JSONResponse:
         return error_response(request, exc.status_code, exc.code, exc.message, exc.details)
+
+    @app.exception_handler(ServiceError)
+    async def handle_service_error(request: Request, exc: ServiceError) -> JSONResponse:
+        return error_response(request, SERVICE_ERROR_STATUS.get(type(exc), 400), exc.code, exc.message)
 
     @app.exception_handler(HTTPException)
     async def handle_http_error(request: Request, exc: HTTPException) -> JSONResponse:

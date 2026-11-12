@@ -9,6 +9,7 @@ How to run, check and reset the local stack. Everything here is for one person o
 | `frontend` | http://127.0.0.1:8080 | nginx: serves the React build and proxies `/api` to the API |
 | `api` | inside Docker only (`api:8000`) | Use it through http://127.0.0.1:8080/api/... |
 | `db` | `127.0.0.1:5433` | Published on loopback for integration tests and `psql`. Remove the `ports` entry in `compose.yaml` if you don't need it |
+| `worker` | inside Docker only | Extracts, chunks and embeds PDFs. Capped at 3 GB of memory and 2 CPUs |
 | `migrate` | one-shot | Runs `alembic upgrade head` and exits. Only started by `make migrate` |
 
 Nothing is published on other network interfaces. The app has no login, so keep it that way.
@@ -29,8 +30,49 @@ make up
 make migrate
 ```
 
+```bash
+make download-model
+```
+
 `make up` builds the images and waits until the containers are healthy. The first build downloads torch and takes a few
 minutes. The API starts without migrations on purpose; readiness tells you when it's missing them.
+
+`make download-model` fetches the pinned embedding model (`BAAI/bge-small-en-v1.5` at a fixed commit, about 140 MB)
+into the `models` volume. It is the only step that contacts Hugging Face; the containers run with `HF_HUB_OFFLINE=1`.
+Until the model is there, the worker logs "Run `make download-model`" every 30 seconds and leaves jobs queued. It
+refuses an incomplete download rather than letting sentence-transformers fall back to a different model.
+
+## Adding documents
+
+Upload through the API (or the UI, from milestone 5):
+
+```bash
+curl -F "file=@/absolute/path/paper.pdf" http://127.0.0.1:8080/api/v1/documents
+```
+
+or from the command line, which also waits and prints progress:
+
+```bash
+make ingest FILE=/absolute/path/paper.pdf
+```
+
+- A new file returns `202` with a queued job. The same file again (same SHA-256) returns `200` with
+  `"duplicate": true` and the existing document; nothing new is stored or queued.
+- `GET /api/v1/ingestion-jobs/{id}` shows the stage (`extracting`, `embedding`, `activating`), progress, attempts and,
+  on failure, a stable `error_code` with a readable message.
+- Codes that need you to act: `PDF_ENCRYPTED` (remove the password), `OCR_REQUIRED` (scanned PDF; OCR is not
+  supported), `PDF_CORRUPT`, `PDF_TOO_MANY_PAGES` (raise `MAX_PDF_PAGES` or split the file).
+- `INGESTION_ERROR` means an unexpected error; the job is retried up to 3 times with growing delays. `WORKER_LOST`
+  means workers died on it 3 times. `docker compose logs worker` has the details; logs never include document text.
+- `POST /api/v1/documents/{id}/ingestions` rebuilds a document's index. The current index stays searchable until the
+  new one is ready, and stays if the rebuild fails.
+- `DELETE /api/v1/documents/{id}` is permanent: the PDF, its index, and any answer history that quoted it are
+  removed. A worker processing the document stops at its next step without publishing anything.
+- `GET /api/v1/documents/{id}/pages/{n}` returns the stored text of physical page `n` with its extraction warnings
+  (removed headers, pages without text). Check these for important papers.
+
+If a worker is killed mid-job, its lease (5 minutes) expires and the next worker takes the job over; the
+half-built index version is discarded.
 
 ## Is it working?
 
@@ -56,8 +98,9 @@ Data lives in two Docker volumes and survives `make down`, `make up` and image r
 
 - `masters-cycling-lab_pgdata`: PostgreSQL
 - `masters-cycling-lab_storage`: uploaded PDFs
+- `masters-cycling-lab_models`: the downloaded embedding model
 
-`docker compose down --volumes` deletes both permanently. Backup and restore steps arrive in milestone 6, once there
+`docker compose down --volumes` deletes all three permanently. Backup and restore steps arrive in milestone 6, once there
 is real data worth keeping; until then treat the local database as disposable.
 
 ## Schema changes
@@ -83,8 +126,14 @@ make test
 make test-integration
 ```
 
+```bash
+make test-model
+```
+
 `make test` needs nothing running. `make test-integration` needs the `db` container. It creates throwaway databases
 named `mcl_test_*` next to your real one and drops them when it finishes, so it never touches your data.
+`make test-model` loads the real embedding model (downloading it into `data/models/` on first use) and runs the
+tests that depend on its tokenizer and vectors.
 
 ## Troubleshooting
 

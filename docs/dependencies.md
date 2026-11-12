@@ -33,9 +33,11 @@ automatically the newest release.
 | sentence-transformers | 6.3.0 | Apache-2.0 | Local embeddings |
 | torch | 2.15.0 (CPU build on Linux) | BSD-3-Clause plus bundled Apache-2.0, MIT and other permissive code | Required by sentence-transformers |
 | httpx | 0.28.1 | BSD-3-Clause | LLM provider client, test client |
+| python-multipart | 0.0.33 | Apache-2.0 | Multipart form parsing for PDF uploads |
 | pytest / ruff / mypy | 9.2.0 / 0.17.4 / 2.4.1 | MIT | Dev only |
 
-Transitive packages include transformers 5.22.2, tokenizers, huggingface_hub, safetensors (Apache-2.0), numpy,
+Transitive packages include transformers 5.22.2, tokenizers, huggingface_hub 2.4.0 (also called directly to
+check the model cache), safetensors (Apache-2.0), numpy,
 scipy, scikit-learn (BSD) and certifi, pathspec, tqdm (MPL-2.0, file-level copyleft, used unmodified).
 
 ### Deliberately not on the newest version

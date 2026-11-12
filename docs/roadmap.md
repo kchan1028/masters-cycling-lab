@@ -7,8 +7,8 @@ Later milestones start only when the earlier ones pass their acceptance checks.
 |---|---|---|
 | 0 | Repository, design, dependency plan | Done |
 | 1 | Compose, migrations, schema, storage, readiness | Done |
-| 2 | Durable PDF ingestion | Next |
-| 3 | Retrieval and first research validation | Not started |
+| 2 | Durable PDF ingestion | Done |
+| 3 | Retrieval and first research validation | Next |
 | 4 | Grounded answers with citations | Not started |
 | 5 | React workspace | Not started |
 | 6 | Evaluation and handoff | Not started |
@@ -65,34 +65,39 @@ These are outside the code and can stall acceptance:
 Verified: fresh database migrates; downgrade and re-upgrade work; 31 integration tests on constraints, migrations
 and readiness pass; data in both volumes survived `make down && make up`. See [operations.md](operations.md).
 
-## Milestone 2: durable ingestion
+## Milestone 2: durable ingestion (done)
 
-1. `POST /documents`: streamed upload, byte limit, `%PDF-` magic check, SHA-256, duplicate returns the existing
-   document (`200`) instead of a new job (`202`).
-2. Worker process and its Compose service: claim with `FOR UPDATE SKIP LOCKED`, commit the claim, then heartbeat
-   and renew the lease. Each claim gets a new token; writes and activation check it, so a worker that lost its lease
-   cannot publish. Readiness also reports whether the embedding model is available.
-3. PyMuPDF extraction per physical page, keeping printed page labels separately. Clear errors for encrypted,
-   corrupt, empty and image-only PDFs ("OCR required").
-4. Conservative header/footer removal with recorded warnings.
-5. Tokenizer-aware, page-local chunks under the model's 512-token limit, with spans back to the page text.
-6. Batched embeddings, staged index version, validation, then one transaction that switches the active index.
-7. Delete and reindex endpoints. Deletion hides the document from search immediately and cancels jobs.
+- Document API: upload (content-checked PDF, size limit enforced before the body is read, SHA-256 dedupe: `202` new,
+  `200` duplicate), list, get, metadata corrections, original file, page text, reindex, delete. Ingestion job status.
+- Worker service: PostgreSQL queue with `FOR UPDATE SKIP LOCKED`, five-minute leases renewed on every write, a new
+  claim token per attempt checked inside every write (fencing), bounded retries with backoff, `WORKER_LOST` after
+  repeated crashes, permanent failures with stable codes (`PDF_ENCRYPTED`, `PDF_CORRUPT`, `OCR_REQUIRED`,
+  `PDF_TOO_MANY_PAGES`, `MODEL_MISMATCH`...).
+- PyMuPDF extraction per physical page with printed labels kept separately; pages without text are kept empty with a
+  warning, and a PDF with no text at all fails with `OCR_REQUIRED`.
+- Conservative removal of repeated first/last lines (running headers, footers, page numbers), recorded as page
+  warnings.
+- Page-local chunks of up to 300 model tokens with 40 tokens of overlap, cut on word boundaries, each with a span
+  back to its page; every chunk is re-counted against the model's 512-token limit before embedding.
+- Batched CPU embeddings with the pinned bge-small model; the new index version is activated in one transaction and
+  the previous one retired. A failed rebuild leaves the old version active.
+- Deletion: hidden and jobs canceled at once, then file, index data and any answer history that quoted it removed.
+- `make download-model`, `make ingest FILE=...`, `make test-model`.
 
-Acceptance: a real PDF reaches `ready`; spans rebuild chunk text; re-upload is idempotent; killed workers
-recover; a stale worker cannot activate; a failed reindex leaves the old index searchable; bad PDFs give useful
-errors; deletion during ingestion is safe.
-Commands: `make download-model`, `make ingest FILE=...`, integration tests.
+Verified: unit, integration (real PostgreSQL, real PDFs, test embedder) and real-model tests; a generated PDF went
+through `make ingest` in Docker to `ready`, reindexed (old version retired), and was deleted with no files or rows
+left. Readiness does not check the embedding model yet: the API only needs it once search exists (milestone 3).
 
 ## Milestone 3: retrieval and first validation
 
 1. Exact cosine search (`<=>`) over active, ready index versions only, with document and year filters and
    deterministic tie-breaks.
-2. `POST /retrieval/search` with ranks, distances, similarity (`1 - distance`), and model and chunking config.
-3. Lexical baseline (PostgreSQL full-text search) behind the same interface.
-4. `research/corpus/manifest.jsonl` and `make corpus-verify` (hashes, licences, access status).
-5. `research/evaluation/questions.jsonl` format with gold evidence anchored to file hash, page and quotation.
-6. `make evaluate SPLIT=dev` for retrieval metrics: Recall@k, MRR@k, nDCG@k, evidence-span coverage@k.
+2. The API loads the embedding model once for query embeddings; readiness reports it.
+3. `POST /retrieval/search` with ranks, distances, similarity (`1 - distance`), and model and chunking config.
+4. Lexical baseline (PostgreSQL full-text search) behind the same interface.
+5. `research/corpus/manifest.jsonl` and `make corpus-verify` (hashes, licences, access status).
+6. `research/evaluation/questions.jsonl` format with gold evidence anchored to file hash, page and quotation.
+7. `make evaluate SPLIT=dev` for retrieval metrics: Recall@k, MRR@k, nDCG@k, evidence-span coverage@k.
 
 Acceptance: real embeddings and PostgreSQL search work together; ranking, filters and score direction are
 tested; the 20-paper / 25-question target is met or recorded as externally blocked.
