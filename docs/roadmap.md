@@ -141,13 +141,13 @@ beat the lexical baseline on every measure. Details and analysis in [evaluation.
 - `make smoke`: upload → indexed → search → page text → original file → answer → delete, against the running
   stack.
 
-Verified: 14 frontend tests (views against a stubbed API: cited answer, abstention, `503`, document states, upload,
-delete confirmation, retrieval, evaluations, navigation), lint, typecheck, build; `make smoke` passed against Docker
+Verified: 15 frontend tests (views against a stubbed API: cited answer, abstention, `503`, document states, upload,
+delete confirmation, a failed metadata save, retrieval, evaluations, navigation), lint, typecheck, build; `make smoke` passed against Docker
 with the answer step skipped (`LLM_NOT_CONFIGURED`). Checked by hand in a browser against the 20-paper corpus: the
 document list, page viewer, retrieval search, evaluation runs, and a question submitted from the keyboard showing the
 `503` failure; a file link with `#page=3` opened the PDF on page 3. Upload and delete in the UI are covered by the
-view tests (and the same API calls by `make smoke`); editing metadata and reindexing from the UI have no test yet and
-were not tried by hand, to leave the corpus as it is.
+view tests (and the same API calls by `make smoke`). A successful metadata edit and a reindex from the UI have no
+test yet and were not tried by hand, to leave the corpus as it is.
 Blocked: a cited answer in the browser from a real provider needs `LLM_BASE_URL` and `LLM_MODEL`.
 
 ## Milestone 6: evaluation and handoff
