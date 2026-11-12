@@ -17,6 +17,7 @@ from masters_cycling_lab.infrastructure.db.models import Document, IndexVersion,
 from masters_cycling_lab.infrastructure.db.session import make_engine
 from masters_cycling_lab.infrastructure.storage.local_files import LocalFileStorage
 from masters_cycling_lab.main import create_app
+from masters_cycling_lab.smoke import run_smoke
 
 FINISHED = ("succeeded", "failed", "canceled")
 
@@ -249,6 +250,9 @@ def main(argv: list[str] | None = None) -> int:
     evaluate_parser.add_argument("--k", type=int, default=10, help="passages retrieved per question")
     evaluate_parser.add_argument("--check-labels", action="store_true", help="only check the gold quotations")
 
+    smoke_parser = commands.add_parser("smoke", help="end-to-end check against a running stack")
+    smoke_parser.add_argument("--base-url", default="http://127.0.0.1:8080", help="the frontend's address")
+
     args = parser.parse_args(argv)
     if args.command == "openapi":
         return write_openapi(args.output)
@@ -258,4 +262,6 @@ def main(argv: list[str] | None = None) -> int:
         return evaluate(args.split, args.modes, args.k, args.check_labels)
     if args.command == "corpus":
         return corpus_command(args.action, args.manifest, args.check_index, args.wait)
+    if args.command == "smoke":
+        return run_smoke(args.base_url)
     return ingest(args.path, args.filename, args.wait)

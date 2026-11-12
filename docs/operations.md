@@ -91,6 +91,12 @@ curl -s http://127.0.0.1:8080/api/v1/health/ready
 
 `/api/v1/health/live` only says the API process is up.
 
+`make smoke` checks the whole stack through the frontend's address: it uploads a one-page synthetic PDF, waits for
+the worker, searches it, reads its page text and original file back, asks a question and deletes it again. Without
+LLM settings the answer step is reported as skipped (`503 LLM_NOT_CONFIGURED`); any other failure fails the check.
+It needs the embedding model (`make download-model`) and takes about a minute, mostly the API loading the model on
+its first search.
+
 ## Stopping and data
 
 ```bash
