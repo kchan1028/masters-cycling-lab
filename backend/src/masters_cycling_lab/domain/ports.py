@@ -18,6 +18,7 @@ class Embedder(Protocol):
     revision: str
     dimension: int
     max_tokens: int  # the model's input limit, including its special tokens
+    query_instruction: str | None  # prefix added to queries (not passages), if the model wants one
 
     def token_offsets(self, text: str) -> list[tuple[int, int]]:
         """Character range of each token, without special tokens."""
@@ -29,4 +30,8 @@ class Embedder(Protocol):
 
     def embed_documents(self, texts: list[str]) -> npt.NDArray[np.float32]:
         """One unit-length vector per text."""
+        ...
+
+    def embed_query(self, text: str) -> npt.NDArray[np.float32]:
+        """A unit-length vector for a search query, with any query-side instruction the model expects."""
         ...

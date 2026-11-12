@@ -1,11 +1,12 @@
-from pathlib import Path
-
 import numpy as np
 import numpy.typing as npt
-from huggingface_hub import try_to_load_from_cache
 from sentence_transformers import SentenceTransformer
 
 from masters_cycling_lab.config import Settings
+from masters_cycling_lab.infrastructure.embeddings.model_cache import model_files_present
+
+# bge's recommended instruction for short queries that search longer passages. Passages get no prefix.
+QUERY_INSTRUCTION = "Represent this sentence for searching relevant passages: "
 
 
 class ModelNotDownloaded(Exception):
@@ -19,13 +20,13 @@ class SentenceTransformerEmbedder:
         self.model_id = settings.embedding_model_id
         self.revision = settings.embedding_model_revision
         self.batch_size = settings.embedding_batch_size
+        self.query_instruction: str | None = QUERY_INSTRUCTION
         cache_dir = settings.model_cache_dir
         missing = ModelNotDownloaded(
             f"{self.model_id}@{self.revision[:7]} is not in {cache_dir}. Run `make download-model`."
         )
-        # Without modules.json, sentence-transformers quietly builds a different model (mean pooling instead of
-        # bge's CLS pooling) that still returns 384 numbers. Refuse to load a partial download.
-        if not allow_download and not self.has_model_config(cache_dir):
+        # Refuse a partial download rather than let sentence-transformers fall back to a different model.
+        if not allow_download and not model_files_present(settings, cache_dir):
             raise missing
         try:
             self.model = SentenceTransformer(
@@ -37,7 +38,7 @@ class SentenceTransformerEmbedder:
             )
         except OSError as exc:
             raise missing from exc
-        if not self.has_model_config(cache_dir):
+        if not model_files_present(settings, cache_dir):
             raise missing
 
         dimension = self.model.get_embedding_dimension()
@@ -51,10 +52,6 @@ class SentenceTransformerEmbedder:
                 f"{self.model_id} produces {self.dimension}-dimensional vectors, "
                 f"but EMBEDDING_DIMENSION is {settings.embedding_dimension}."
             )
-
-    def has_model_config(self, cache_dir: Path) -> bool:
-        cached = try_to_load_from_cache(self.model_id, "modules.json", cache_dir=cache_dir, revision=self.revision)
-        return isinstance(cached, str)
 
     def token_offsets(self, text: str) -> list[tuple[int, int]]:
         encoded = self.model.tokenizer(text, add_special_tokens=False, return_offsets_mapping=True, verbose=False)
@@ -73,3 +70,13 @@ class SentenceTransformerEmbedder:
             show_progress_bar=False,
         )
         return np.asarray(vectors, dtype=np.float32)
+
+    def embed_query(self, text: str) -> npt.NDArray[np.float32]:
+        vector = self.model.encode(
+            [text],
+            prompt=self.query_instruction,
+            normalize_embeddings=True,
+            convert_to_numpy=True,
+            show_progress_bar=False,
+        )[0]
+        return np.asarray(vector, dtype=np.float32)

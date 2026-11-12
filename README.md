@@ -6,8 +6,8 @@ a hands-on project for learning how retrieval-augmented generation works, with e
 
 It uses pretrained models only. It does not give personal training or medical advice.
 
-**Status: milestone 2 of 6 done.** PDFs can be uploaded, extracted, chunked and embedded by a durable worker, with
-every chunk traceable to its page. Search and answers are not built yet. See [docs/roadmap.md](docs/roadmap.md).
+**Status: milestone 3 of 6 done.** 20 open-access papers are indexed, search works (vector and a lexical baseline),
+and a labelled evaluation measures it. Grounded answers come next. See [docs/roadmap.md](docs/roadmap.md).
 
 ## Requirements
 
@@ -85,7 +85,8 @@ Open http://127.0.0.1:5173. API docs are at http://127.0.0.1:8000/api/docs.
 | `make corpus-download` | Fetch the 20 corpus PDFs from PMC Open Access (checked by SHA-256) | now |
 | `make corpus-verify` | Check corpus PDFs against the manifest and report how many are searchable | now |
 | `make corpus-ingest` | Upload the corpus with its manifest metadata and wait for the worker | now |
-| `make evaluate SPLIT=dev` | Run the labelled evaluation | milestone 3 |
+| `make labels-check` | Check every gold quotation against the stored page text | now |
+| `make evaluate SPLIT=dev` | Retrieval evaluation (vector and lexical) with a stored artifact | now |
 | `make smoke` | End-to-end check against a running stack | milestone 5 |
 
 Commands that are not implemented yet exit with an error instead of pretending to work.
@@ -106,6 +107,7 @@ each one. Things to know:
 - [Roadmap](docs/roadmap.md): milestones, acceptance checks, assumptions and blockers
 - [Architecture](docs/architecture.md): processes, layers, data model, security boundaries
 - [Operations](docs/operations.md): running, checking and resetting the local stack
+- [Evaluation](docs/evaluation.md): metrics, targets and results
 - [Dependencies and licences](docs/dependencies.md): pinned versions and what the licences mean
 - [Decisions](docs/decisions/): why the stack, model, queue and retrieval work the way they do
 

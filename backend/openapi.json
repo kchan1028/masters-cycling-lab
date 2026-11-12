@@ -43,7 +43,7 @@
           "health"
         ],
         "summary": "Ready",
-        "description": "Checks the database, migrations, the vector extension and file storage. Never calls the LLM provider.",
+        "description": "Checks the database, migrations, the vector extension, file storage and the embedding model files.\nNever calls the LLM provider.",
         "operationId": "ready_api_v1_health_ready_get",
         "responses": {
           "200": {
@@ -583,6 +583,177 @@
           }
         }
       }
+    },
+    "/api/v1/retrieval/search": {
+      "post": {
+        "tags": [
+          "retrieval"
+        ],
+        "summary": "Search",
+        "description": "Rank passages from active, fully indexed documents. Exact search: every chunk is compared.",
+        "operationId": "search_api_v1_retrieval_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/evaluation-runs": {
+      "get": {
+        "tags": [
+          "evaluations"
+        ],
+        "summary": "List Runs",
+        "operationId": "list_runs_api_v1_evaluation_runs_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationRunList"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/evaluation-runs/{run_id}": {
+      "get": {
+        "tags": [
+          "evaluations"
+        ],
+        "summary": "Get Run",
+        "operationId": "get_run_api_v1_evaluation_runs__run_id__get",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationRunDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -950,6 +1121,266 @@
         "title": "ErrorResponse",
         "description": "Every non-2xx response from /api/v1 has this shape."
       },
+      "EvaluationResultOut": {
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "title": "Question Id"
+          },
+          "retrieval": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Retrieval"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metrics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question_id",
+          "retrieval",
+          "metrics"
+        ],
+        "title": "EvaluationResultOut"
+      },
+      "EvaluationRunDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "split": {
+            "type": "string",
+            "title": "Split"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "dataset_sha256": {
+            "type": "string",
+            "title": "Dataset Sha256"
+          },
+          "corpus_sha256": {
+            "type": "string",
+            "title": "Corpus Sha256"
+          },
+          "code_revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code Revision"
+          },
+          "config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Config"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metrics"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/EvaluationResultOut"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "split",
+          "status",
+          "dataset_sha256",
+          "corpus_sha256",
+          "code_revision",
+          "config",
+          "metrics",
+          "started_at",
+          "finished_at",
+          "results"
+        ],
+        "title": "EvaluationRunDetail"
+      },
+      "EvaluationRunList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EvaluationRunOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "EvaluationRunList"
+      },
+      "EvaluationRunOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "split": {
+            "type": "string",
+            "title": "Split"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "dataset_sha256": {
+            "type": "string",
+            "title": "Dataset Sha256"
+          },
+          "corpus_sha256": {
+            "type": "string",
+            "title": "Corpus Sha256"
+          },
+          "code_revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code Revision"
+          },
+          "config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Config"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metrics"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "split",
+          "status",
+          "dataset_sha256",
+          "corpus_sha256",
+          "code_revision",
+          "config",
+          "metrics",
+          "started_at",
+          "finished_at"
+        ],
+        "title": "EvaluationRunOut"
+      },
+      "FiltersIn": {
+        "properties": {
+          "document_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "title": "Document Ids"
+          },
+          "publication_year_from": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 2100.0,
+                "minimum": 1800.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Year From"
+          },
+          "publication_year_to": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 2100.0,
+                "minimum": 1800.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Year To"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "FiltersIn"
+      },
       "JobOut": {
         "properties": {
           "id": {
@@ -1248,6 +1679,41 @@
         ],
         "title": "PageOut"
       },
+      "PageRef": {
+        "properties": {
+          "page_number": {
+            "type": "integer",
+            "title": "Page Number"
+          },
+          "page_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Label"
+          },
+          "start_offset": {
+            "type": "integer",
+            "title": "Start Offset"
+          },
+          "end_offset": {
+            "type": "integer",
+            "title": "End Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "page_number",
+          "page_label",
+          "start_offset",
+          "end_offset"
+        ],
+        "title": "PageRef"
+      },
       "ReadyStatus": {
         "properties": {
           "status": {
@@ -1278,6 +1744,241 @@
           "llm"
         ],
         "title": "ReadyStatus"
+      },
+      "SearchRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Query"
+          },
+          "candidate_k": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate K",
+            "description": "Defaults to RETRIEVAL_CANDIDATE_K"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "vector",
+              "lexical"
+            ],
+            "title": "Mode",
+            "default": "vector"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/FiltersIn"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "SearchRequest"
+      },
+      "SearchResponse": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "vector",
+              "lexical"
+            ],
+            "title": "Mode"
+          },
+          "candidate_k": {
+            "type": "integer",
+            "title": "Candidate K"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/SearchResultOut"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "searched_documents": {
+            "type": "integer",
+            "title": "Searched Documents"
+          },
+          "embedding_model_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Embedding Model Id"
+          },
+          "embedding_model_revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Embedding Model Revision"
+          },
+          "query_instruction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query Instruction"
+          },
+          "timings_ms": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Timings Ms"
+          },
+          "score_note": {
+            "type": "string",
+            "title": "Score Note",
+            "default": "Cosine distance (lower is closer) and similarity (1 - distance) only order the results. They are not probabilities that a passage is relevant or correct."
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "mode",
+          "candidate_k",
+          "results",
+          "searched_documents",
+          "embedding_model_id",
+          "embedding_model_revision",
+          "query_instruction",
+          "timings_ms"
+        ],
+        "title": "SearchResponse"
+      },
+      "SearchResultOut": {
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "chunk_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Chunk Id"
+          },
+          "document_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Document Id"
+          },
+          "index_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Index Version Id"
+          },
+          "document_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Title"
+          },
+          "publication_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Year"
+          },
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/PageRef"
+            },
+            "type": "array",
+            "title": "Pages"
+          },
+          "excerpt": {
+            "type": "string",
+            "title": "Excerpt"
+          },
+          "cosine_distance": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cosine Distance"
+          },
+          "similarity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Similarity"
+          },
+          "lexical_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lexical Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rank",
+          "chunk_id",
+          "document_id",
+          "index_version_id",
+          "document_title",
+          "publication_year",
+          "pages",
+          "excerpt",
+          "cosine_distance",
+          "similarity",
+          "lexical_score"
+        ],
+        "title": "SearchResultOut"
       },
       "UploadOut": {
         "properties": {
