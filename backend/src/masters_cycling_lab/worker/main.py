@@ -62,7 +62,14 @@ def main() -> None:
             stop.wait(settings.worker_poll_seconds)
             continue
         log.info("Job %s: claimed (attempt %s)", claim.job_id, claim.attempt)
-        JobRunner(engine, storage, embedder, extract_pdf, settings, claim).run()
+        try:
+            JobRunner(engine, storage, embedder, extract_pdf, settings, claim).run()
+        except Exception:
+            # Usually the database went away mid-job. Keep the worker alive; the job's lease expires and a later
+            # claim picks it up again.
+            log.exception(
+                "Job %s: could not record the outcome; it will be retried after its lease expires", claim.job_id
+            )
 
     engine.dispose()
     log.info("Worker stopped")

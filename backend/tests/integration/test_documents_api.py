@@ -2,6 +2,7 @@
 
 import uuid
 from collections.abc import Callable
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -16,7 +17,7 @@ def client(lab: Lab) -> TestClient:
     return TestClient(create_app(lab.settings))
 
 
-def upload(client: TestClient, content: bytes, name: str = "paper.pdf", **form: str) -> dict:  # type: ignore[type-arg]
+def upload(client: TestClient, content: bytes, name: str = "paper.pdf", **form: str) -> dict[str, Any]:
     response = client.post("/api/v1/documents", files={"file": (name, content, "application/pdf")}, data=form)
     return {"status": response.status_code, **response.json()}
 

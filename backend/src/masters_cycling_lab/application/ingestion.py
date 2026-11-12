@@ -93,6 +93,11 @@ def claim_next_job(engine: Engine, worker_id: str, lease: timedelta = LEASE) -> 
             job.finished_at = datetime.now(UTC)
             job.error_code = "WORKER_LOST"
             job.error_message = "The worker stopped before finishing, too many times."
+            session.execute(
+                update(IndexVersion)
+                .where(IndexVersion.document_id == job.document_id, IndexVersion.status == "building")
+                .values(status="failed", completed_at=job.finished_at)
+            )
             log.warning("Job %s: giving up after %s lost attempts", job.id, job.attempt_count)
             return None
 

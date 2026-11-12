@@ -90,7 +90,7 @@ class MetadataPatch(BaseModel):
     publication_year: int | None = Field(default=None, ge=1800, le=2100)
     doi: str | None = Field(default=None, pattern=DOI_PATTERN, max_length=200)
     source_url: AnyHttpUrl | None = None
-    license: Annotated[str, StringConstraints(strip_whitespace=True, max_length=200)] | None = None
+    license: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)] | None = None
     access_status: AccessStatus = "unknown"
 
 
@@ -123,7 +123,7 @@ def upload_document(
     publication_year: Annotated[int | None, Form(ge=1800, le=2100)] = None,
     doi: Annotated[str | None, Form(pattern=DOI_PATTERN, max_length=200)] = None,
     source_url: Annotated[str | None, Form(pattern=r"^https?://\S+$", max_length=2000)] = None,
-    license: Annotated[str | None, Form(max_length=200)] = None,
+    license: Annotated[str | None, Form(min_length=1, max_length=200)] = None,
     access_status: Annotated[AccessStatus | None, Form()] = None,
 ) -> UploadOut:
     """Upload a PDF and queue it for ingestion (202). The same file again returns the existing document (200)."""

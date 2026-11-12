@@ -58,9 +58,9 @@ download-model: ## Download the pinned embedding model into the models volume (a
 	$(COMPOSE) run --rm --no-deps -e HF_HUB_OFFLINE=0 worker mcl download-model
 
 ingest: ## Upload one PDF and wait for the worker: make ingest FILE=/absolute/path/paper.pdf
-	@test -n "$(FILE)" || { echo "Usage: make ingest FILE=/absolute/path/paper.pdf" >&2; exit 1; }
+	@case "$(FILE)" in /*) ;; *) echo "Usage: make ingest FILE=/absolute/path/paper.pdf" >&2; exit 1;; esac
 	@test -f "$(FILE)" || { echo "No such file: $(FILE)" >&2; exit 1; }
-	$(COMPOSE) run --rm --no-deps -v "$(abspath $(FILE)):/tmp/upload.pdf:ro" worker \
+	$(COMPOSE) run --rm --no-deps -v "$(FILE):/tmp/upload.pdf:ro" worker \
 		mcl ingest /tmp/upload.pdf --filename "$$(basename "$(FILE)")" --wait
 
 # Commands from the roadmap that later milestones implement. They fail loudly until then.

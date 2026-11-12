@@ -135,8 +135,14 @@ def test_killed_worker_is_recovered_after_its_lease_expires(lab: Lab) -> None:
 
 
 def test_job_fails_when_its_workers_keep_dying(lab: Lab) -> None:
-    lab.upload(sample_pdf())
+    document_id = lab.upload(sample_pdf())
     claim = lab.claim()
+
+    def killed(call: int) -> None:
+        raise WorkerKilled
+
+    with pytest.raises(WorkerKilled):
+        lab.runner(claim, embedder=FakeEmbedder(lab.settings, on_embed=killed)).run()
     with Session(lab.engine) as session:
         session.execute(update(IngestionJob).where(IngestionJob.id == claim.job_id).values(max_attempts=1))
         session.commit()
@@ -145,6 +151,7 @@ def test_job_fails_when_its_workers_keep_dying(lab: Lab) -> None:
     assert claim_next_job(lab.engine, "worker-b") is None
     job = lab.job(claim.job_id)
     assert (job.status, job.error_code) == ("failed", "WORKER_LOST")
+    assert [v.status for v in lab.versions(document_id)] == ["failed"]
 
 
 def test_unexpected_error_is_retried_later(lab: Lab) -> None:
