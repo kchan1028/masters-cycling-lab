@@ -109,8 +109,40 @@ Data lives in two Docker volumes and survives `make down`, `make up` and image r
 - `masters-cycling-lab_storage`: uploaded PDFs
 - `masters-cycling-lab_models`: the downloaded embedding model
 
-`docker compose down --volumes` deletes all three permanently. Backup and restore steps arrive in milestone 6, once there
-is real data worth keeping; until then treat the local database as disposable.
+`docker compose down --volumes` deletes all three permanently.
+
+## Backup and restore
+
+```bash
+make backup
+```
+
+With the stack running, this writes `backups/<UTC time>/` (git-ignored): `database.dump` (`pg_dump` custom format:
+documents, index versions, chunks and embeddings, answers, evaluation runs), `storage.tar` (the uploaded PDFs) and
+`SHA256SUMS`. It reads both parts back before it reports success. The embedding model is not included;
+`make download-model` fetches it again. The two parts are copied one after the other, so take a backup while
+nothing is being uploaded or deleted. Copy the folder somewhere off this machine to make it a real backup.
+
+```bash
+make restore BACKUP=backups/20261112T174634Z
+```
+
+Restore replaces everything: it checks the hashes, asks you to type `restore`, stops the API and worker, drops and
+recreates the database, loads the dump, replaces the stored PDFs and starts the API and worker again. If it fails
+part way, run it again with the same backup. Then run `make migrate`: the dump holds the schema at the version it was taken with, so newer code
+needs its migrations applied (with the same code it does nothing). To move to a new machine: clone, set up `.env`,
+`make up`, `make download-model`, `make restore`, then `make migrate`.
+
+Verified on 2026-11-12 in a separate Compose project: backup of the 20-paper corpus, delete a document, restore,
+and the document, its file (same SHA-256), every gold quotation and the evaluation metrics were back. The restored
+API container gets a new address; nginx looks it up again within 10 seconds, so the page may show errors briefly.
+
+## Deleting a document
+
+`DELETE /api/v1/documents/{id}` (or Delete on the Documents page) is permanent and hides the document at once: its
+PDF, index versions, pages, chunks and embeddings, and every stored answer that quoted it are removed. Not removed:
+evaluation runs (in the database and in `artifacts/evaluations/`) keep up to 300 characters of each passage they
+returned, so a deleted paper's excerpts stay in older runs; and backups made before the deletion still contain it.
 
 ## Schema changes
 
@@ -146,6 +178,11 @@ tests that depend on its tokenizer and vectors.
 
 ## Troubleshooting
 
+- **A command ends with `Error 137`.** Docker killed the container for memory. The worker is capped at 3 GB, and
+  the whole Docker VM may be short if other projects' containers are running. Stop what you don't need (or give
+  Docker more memory) and run the command again. The same pressure can kill the worker mid-job: jobs are retried, and
+  a document that still ends in `WORKER_LOST` only needs Reindex once memory is free. On 2026-11-12, with other
+  projects' containers filling the Docker VM, 18 of 20 corpus papers recovered on their own and 2 needed a reindex.
 - **Port 8080 or 5433 already in use.** Stop the other program or change the host side of the port in
   `compose.yaml`.
 - **`HOST_NOT_ALLOWED` (400).** The request used a host name that isn't in `ALLOWED_HOSTS`. Use `127.0.0.1` or

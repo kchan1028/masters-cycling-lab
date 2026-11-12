@@ -4,6 +4,7 @@ import subprocess
 import time
 import uuid
 from collections import Counter
+from datetime import date
 from pathlib import Path
 
 from sqlalchemy import Engine, select
@@ -13,6 +14,7 @@ from sqlalchemy.orm import Session
 from masters_cycling_lab.application import corpus, documents, evaluation
 from masters_cycling_lab.application.errors import ServiceError
 from masters_cycling_lab.config import REPO_ROOT, get_settings
+from masters_cycling_lab.domain import evaluation as metrics
 from masters_cycling_lab.infrastructure.db.models import Document, IndexVersion, IngestionJob
 from masters_cycling_lab.infrastructure.db.session import make_engine
 from masters_cycling_lab.infrastructure.storage.local_files import LocalFileStorage
@@ -174,6 +176,11 @@ def evaluate(split: str, modes: list[str], k: int, check_only: bool) -> int:
     except (evaluation.LabelError, corpus.ManifestError) as error:
         print(f"Label or manifest problems:\n{error}")
         return 1
+    revision = code_revision()
+    # A held-out result has to be tied to a commit, or nobody can tell what produced it.
+    if split == "test" and not check_only and (revision is None or revision.endswith("-dirty")):
+        print("The test split runs only from a clean git checkout. Commit or stash your changes first.")
+        return 1
     engine = make_engine(settings.database_url)
     with Session(engine) as session:
         index = evaluation.corpus_index(session, entries)
@@ -185,6 +192,9 @@ def evaluate(split: str, modes: list[str], k: int, check_only: bool) -> int:
         print("All gold quotations were found on their stated pages.")
         if check_only:
             return 0
+        chosen = [question for question in questions if question.split == split]
+        counts = evaluation.review_counts(chosen)
+        print(f"Labels for the {split} split: {counts['reviewed']} of {len(chosen)} reviewed by a person.")
         if split == "test":
             print("Note: the test split is held out. Use it to report results, not to tune settings.")
 
@@ -202,7 +212,7 @@ def evaluate(split: str, modes: list[str], k: int, check_only: bool) -> int:
             k=k,
             dataset_sha256=evaluation.file_sha256(evaluation.DEFAULT_QUESTIONS),
             corpus_sha256=evaluation.file_sha256(corpus.DEFAULT_MANIFEST),
-            code_revision=code_revision(),
+            code_revision=revision,
             artifacts_dir=REPO_ROOT / "artifacts" / "evaluations",
         )
     print(f"\nEvaluation run {run_id} ({split}); artifact: {artifact}")
@@ -214,11 +224,79 @@ def evaluate(split: str, modes: list[str], k: int, check_only: bool) -> int:
     return 0
 
 
+APP_URL = "http://127.0.0.1:8080"
+CONTEXT_CHARS = 300
+
+
+def review(reviewer: str, split: str | None, question_id: str | None) -> int:
+    """Show each provisional question with its gold quotations in context, and record a person's verdict."""
+    path = evaluation.DEFAULT_QUESTIONS
+    try:
+        questions = evaluation.load_questions(path)
+        entries = corpus.load_manifest(corpus.DEFAULT_MANIFEST)
+    except (evaluation.LabelError, corpus.ManifestError) as error:
+        print(f"Label or manifest problems:\n{error}")
+        return 1
+    if question_id:
+        todo = [question for question in questions if question.id == question_id]
+    else:
+        todo = [q for q in questions if q.annotation.review_status == "provisional" and split in (None, q.split)]
+    if not todo:
+        print("Nothing to review.")
+        return 0
+    titles = {entry.corpus_id: entry.title for entry in entries}
+    engine = make_engine(get_settings().database_url)
+    with Session(engine) as session:
+        index = evaluation.corpus_index(session, entries)
+        document_ids = {corpus_id: document_id for document_id, corpus_id in index.corpus_ids.items()}
+        for number, question in enumerate(todo, start=1):
+            print(f"\n=== {number}/{len(todo)}  {question.id} ({question.split}, {question.question_type}) ===")
+            print(question.question)
+            print(f"Answerability: {question.answerability}. Population: {question.population_applicability}")
+            print("Expected points:", *[f"  - {point}" for point in question.expected_points], sep="\n")
+            print("Expected limitations:", *[f"  - {item}" for item in question.expected_limitations], sep="\n")
+            print("Document grades (2 answers, 1 related, 0 not relevant; others unjudged):")
+            for corpus_id, grade in sorted(question.document_relevance.items()):
+                print(f"  {grade}  {corpus_id}  {titles.get(corpus_id, '?')}")
+            for item in question.evidence:
+                version = index.active_versions.get(item.corpus_id)
+                text = evaluation.page_text(session, version, item.page) if version else ""
+                found = metrics.find_quote(text, item.quote)
+                print(f"\n  Gold passage, {item.corpus_id} page {item.page} (relevance {item.relevance}):")
+                if found is None:
+                    print(f"  NOT FOUND on the stored page: {item.quote}")
+                    continue
+                start, end = found
+                before, after = text[max(0, start - CONTEXT_CHARS) : start], text[end : end + CONTEXT_CHARS]
+                print(f"  ...{before}>>>{text[start:end]}<<<{after}...")
+                print(f"  PDF: {APP_URL}/api/v1/documents/{document_ids[item.corpus_id]}/file#page={item.page}")
+            print(f"\nRationale: {question.annotation.rationale}")
+            try:
+                choice = input("\n[a]ccept as reviewed, [n]ote a problem (stays provisional), [s]kip, [q]uit: ").strip()
+                if choice.lower() == "q":
+                    break
+                if choice.lower() not in ("a", "n"):
+                    continue
+                note = input("Note (optional for accept): ").strip() or None
+            except EOFError:  # input closed: stop, keeping what was recorded
+                break
+            if choice.lower() == "n" and not note:
+                print("No note given; nothing recorded.")
+                continue
+            evaluation.record_review(
+                path, question.id, reviewer=reviewer, reviewed=choice.lower() == "a", note=note, on=date.today()
+            )
+            print("Recorded.")
+    return 0
+
+
 def code_revision() -> str | None:
-    """The git commit, with "-dirty" when there are uncommitted changes. None outside a git checkout."""
+    """The git commit, with "-dirty" when tracked files have uncommitted changes. None outside a git checkout."""
     try:
         commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True, cwd=REPO_ROOT)
-        dirty = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, cwd=REPO_ROOT)
+        dirty = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=no"], capture_output=True, text=True, cwd=REPO_ROOT
+        )
     except (OSError, subprocess.CalledProcessError):
         return None
     return commit.stdout.strip() + ("-dirty" if dirty.stdout.strip() else "")
@@ -250,6 +328,11 @@ def main(argv: list[str] | None = None) -> int:
     evaluate_parser.add_argument("--k", type=int, default=10, help="passages retrieved per question")
     evaluate_parser.add_argument("--check-labels", action="store_true", help="only check the gold quotations")
 
+    review_parser = commands.add_parser("review", help="review provisional labels against the papers")
+    review_parser.add_argument("--reviewer", required=True, help="your name, stored with each verdict")
+    review_parser.add_argument("--split", choices=["dev", "test"], help="only this split")
+    review_parser.add_argument("--question", help="one question by ID, reviewed or not")
+
     smoke_parser = commands.add_parser("smoke", help="end-to-end check against a running stack")
     smoke_parser.add_argument("--base-url", default="http://127.0.0.1:8080", help="the frontend's address")
 
@@ -262,6 +345,8 @@ def main(argv: list[str] | None = None) -> int:
         return evaluate(args.split, args.modes, args.k, args.check_labels)
     if args.command == "corpus":
         return corpus_command(args.action, args.manifest, args.check_index, args.wait)
+    if args.command == "review":
+        return review(args.reviewer, args.split, args.question)
     if args.command == "smoke":
         return run_smoke(args.base_url)
     return ingest(args.path, args.filename, args.wait)

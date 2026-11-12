@@ -6,9 +6,10 @@ a hands-on project for learning how retrieval-augmented generation works, with e
 
 It uses pretrained models only. It does not give personal training or medical advice.
 
-**Status: milestone 5 of 6 done.** Upload papers, search them, ask questions and check every citation against the
-PDF page in the browser. A real LLM provider has not been tested yet (no credentials configured), so answers return
-`503` until one is set. Evaluation and handoff come next. See [docs/roadmap.md](docs/roadmap.md).
+**Status: MVP complete, with two open blockers.** Upload papers, search them, ask questions and check every citation
+against the PDF page in the browser. Not done yet: no LLM provider has been tested (no credentials), so answers return
+`503` until one is configured; and none of the evaluation labels has been reviewed by a person. The
+[handoff](docs/handoff.md) lists what works, what was verified, the results and the next steps.
 
 ## Requirements
 
@@ -46,8 +47,15 @@ make migrate
 make download-model
 ```
 
+Add your own PDFs from the Documents page or with `make ingest FILE=/absolute/path/paper.pdf`. To load the 20-paper
+open-access research corpus the evaluation uses (about 10 minutes on CPU):
+
 ```bash
-make ingest FILE=/absolute/path/paper.pdf
+make corpus-download
+```
+
+```bash
+make corpus-ingest
 ```
 
 Open http://127.0.0.1:8080. Check readiness at http://127.0.0.1:8080/api/v1/health/ready.
@@ -68,27 +76,30 @@ Open http://127.0.0.1:5173. API docs are at http://127.0.0.1:8000/api/docs.
 
 ## Commands
 
-| Command | What it does | Available |
-|---|---|---|
-| `make bootstrap` | Install locked dependencies | now |
-| `make lint` | Ruff and ESLint | now |
-| `make typecheck` | mypy and tsc | now |
-| `make test` | Fast offline tests (no database, model download or LLM) | now |
-| `make test-integration` | Tests against PostgreSQL in throwaway databases (needs `make up`) | now |
-| `make test-model` | Tests with the real embedding model (downloads it on first use) | now |
-| `make build` | Production frontend bundle | now |
-| `make api-types` | Regenerate `backend/openapi.json` and the frontend's TypeScript types | now |
-| `make check-api-types` | Fail if those generated files are out of date | now |
-| `make up` / `make down` | Start / stop the Compose stack; data stays in Docker volumes | now |
-| `make migrate` | Apply database migrations (the only thing that changes the schema) | now |
-| `make download-model` | Download the pinned embedding model into the Docker volume | now |
-| `make ingest FILE=/abs/path.pdf` | Upload one PDF and wait for the worker | now |
-| `make corpus-download` | Fetch the 20 corpus PDFs from PMC Open Access (checked by SHA-256) | now |
-| `make corpus-verify` | Check corpus PDFs against the manifest and report how many are searchable | now |
-| `make corpus-ingest` | Upload the corpus with its manifest metadata and wait for the worker | now |
-| `make labels-check` | Check every gold quotation against the stored page text | now |
-| `make evaluate SPLIT=dev` | Retrieval evaluation (vector and lexical) with a stored artifact | now |
-| `make smoke` | End-to-end check against the running stack: upload, index, search, page, file, answer, delete | now |
+| Command | What it does |
+|---|---|
+| `make bootstrap` | Install locked dependencies |
+| `make lint` | Ruff and ESLint |
+| `make typecheck` | mypy and tsc |
+| `make test` | Fast offline tests (no database, model download or LLM) |
+| `make test-integration` | Tests against PostgreSQL in throwaway databases (needs `make up`) |
+| `make test-model` | Tests with the real embedding model (downloads it on first use) |
+| `make build` | Production frontend bundle |
+| `make api-types` | Regenerate `backend/openapi.json` and the frontend's TypeScript types |
+| `make check-api-types` | Fail if those generated files are out of date |
+| `make up` / `make down` | Start / stop the Compose stack; data stays in Docker volumes |
+| `make migrate` | Apply database migrations (the only thing that changes the schema) |
+| `make download-model` | Download the pinned embedding model into the Docker volume |
+| `make ingest FILE=/abs/path.pdf` | Upload one PDF and wait for the worker |
+| `make corpus-download` | Fetch the 20 corpus PDFs from PMC Open Access (checked by SHA-256) |
+| `make corpus-verify` | Check corpus PDFs against the manifest and report how many are searchable |
+| `make corpus-ingest` | Upload the corpus with its manifest metadata and wait for the worker |
+| `make labels-check` | Check every gold quotation against the stored page text |
+| `make review REVIEWER="Your Name"` | Review provisional labels against the papers and record the verdict |
+| `make evaluate SPLIT=dev` | Retrieval evaluation (vector and lexical) with a stored artifact; `SPLIT=test` for the held-out split, from a clean checkout |
+| `make test-live` | Opt-in: answer tests against the configured LLM provider (costs money) |
+| `make backup` / `make restore BACKUP=backups/<time>` | Copy the database and PDFs out; replace all data from a copy |
+| `make smoke` | End-to-end check against the running stack: upload, index, search, page, file, answer, delete |
 
 ## Configuration
 
@@ -103,6 +114,7 @@ each one. Things to know:
 
 ## Documentation
 
+- [Handoff](docs/handoff.md): what works, what was verified, results, open blockers and next steps
 - [Roadmap](docs/roadmap.md): milestones, acceptance checks, assumptions and blockers
 - [Architecture](docs/architecture.md): processes, layers, data model, security boundaries
 - [Operations](docs/operations.md): running, checking and resetting the local stack
