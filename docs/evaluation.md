@@ -78,6 +78,43 @@ the same index, and query latency p95 stays under 500 ms on CPU once the model i
   [research/evaluation/README.md](../research/evaluation/README.md#reviewing-labels)). Every number below was
   measured against labels no person has checked yet.
 
+## Experiments (dev only, nothing adopted yet)
+
+### 2026-11-12: three ways to improve retrieval
+
+Measured before changing any code, on the 16 scored dev questions, with
+[research/evaluation/experiments/retrieval_levers.py](../research/evaluation/experiments/retrieval_levers.py).
+It is read-only: other chunk sizes are built in memory from the stored page text with the project's chunker and
+the pinned model. The current setup (300-token chunks, vector search) reproduces the official dev run exactly, so
+the comparisons are like for like. Metrics at 10 passages unless stated.
+
+| Variant | recall | MRR | nDCG | evidence coverage | papers in top 10 |
+|---|---|---|---|---|---|
+| Current: vector search, 300-token chunks | 0.82 | 0.97 | 0.88 | 0.53 | 2.6 |
+| At most 3 passages per paper | 0.94 | 0.97 | 0.92 | 0.18 | 4.9 |
+| At most 2 passages per paper | 0.97 | 0.97 | 0.93 | 0.18 | 6.2 |
+| 150-token chunks, 20 passages (same ~3,000 tokens) | 0.89 | 1.00 | 0.95 | 0.48 | |
+| 100-token chunks, 30 passages (same ~3,000 tokens) | 0.94 | 1.00 | 0.95 | 0.53 | |
+| Rank fusion, vector + lexical, equal weight | 0.82 | 0.89 | 0.83 | 0.67 | |
+| Rank fusion, lexical at half weight | 0.87 | 0.92 | 0.87 | 0.68 | |
+
+What it shows:
+
+- **A cap per paper** finds the secondary papers (recall 0.94 to 0.97) but throws away the passage that answers
+  the question: evidence coverage falls from 0.53 to 0.18. The gold sentence is usually the 4th or later passage of
+  the right paper, so the real weakness is ranking passages within a paper, not variety of papers. Not adopted.
+- **Smaller chunks** at the same token budget find more papers but do not improve evidence coverage. At 10 passages
+  they cover less text and do worse (0.29 to 0.38). Not adopted.
+- **Reciprocal rank fusion** with the lexical ranking (k = 60, 100 candidates from each) is the only change that
+  lifts evidence coverage, to 0.67 or 0.68. With lexical at half weight it also raises recall (0.87) and keeps
+  nDCG (0.87), at a cost to MRR (0.92: the first relevant paper is sometimes second). It is sensitive to settings:
+  with 50 candidates from each ranking, the half-weight version scored recall 0.83, MRR 0.92, nDCG 0.84 and
+  evidence coverage 0.61. Promising, not proven.
+
+Caveats: 16 questions with provisional labels, so one question is about 6 points; the fusion weight and candidate
+depth were picked on these same questions. Rank fusion is the candidate to evaluate properly next, as its own mode
+next to vector and lexical in every run, before it is used for answers.
+
 ## Results
 
 ### 2026-11-12, dataset v1, tie order fixed, runs at commit d830fa8
