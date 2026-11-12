@@ -4,7 +4,7 @@ NPM := npm --prefix frontend
 COMPOSE := docker compose
 
 .PHONY: help bootstrap lint typecheck test test-integration test-model build api-types check-api-types \
-	up down migrate download-model ingest corpus-download corpus-verify corpus-ingest model-host labels-check evaluate smoke
+	up down migrate download-model ingest corpus-download corpus-verify corpus-ingest model-host labels-check evaluate test-live smoke
 
 help: ## List commands
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -72,6 +72,9 @@ corpus-verify: ## Check every corpus PDF against the manifest, and report ingest
 corpus-ingest: ## Upload the corpus PDFs with their manifest metadata and wait for the worker
 	$(COMPOSE) run --rm --no-deps -v "$(CURDIR)/research/corpus:/corpus:ro" worker \
 		mcl corpus ingest --manifest /corpus/manifest.jsonl --wait
+
+test-live: ## Opt-in: calls the configured LLM provider (costs money; needs LLM_BASE_URL and LLM_MODEL)
+	$(UV) run pytest -m live -rs
 
 model-host: ## Download the pinned embedding model into data/models for commands run on the host
 	$(UV) run mcl download-model

@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from masters_cycling_lab.api.errors import ApiError
 from masters_cycling_lab.config import Settings
-from masters_cycling_lab.domain.ports import Embedder
+from masters_cycling_lab.domain.ports import Embedder, LanguageModel
 from masters_cycling_lab.infrastructure.storage.local_files import LocalFileStorage
 
 
@@ -60,3 +60,14 @@ def query_embedder(request: Request) -> Embedder:
                     raise ApiError(503, "EMBEDDING_MODEL_UNAVAILABLE", str(exc)) from exc
     embedder: Embedder = state.embedder
     return embedder
+
+
+def language_model(request: Request) -> LanguageModel | None:
+    """The configured provider client, or None when LLM_BASE_URL or LLM_MODEL is not set."""
+    state = request.app.state
+    if state.llm is None and state.settings.llm_configured:
+        from masters_cycling_lab.infrastructure.llm.openai_compatible import OpenAICompatibleClient
+
+        state.llm = OpenAICompatibleClient(state.settings)
+    llm: LanguageModel | None = state.llm
+    return llm

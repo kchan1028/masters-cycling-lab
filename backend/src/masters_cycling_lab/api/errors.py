@@ -8,7 +8,15 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException
 
-from masters_cycling_lab.application.errors import Conflict, NotFound, ServiceError, UnsupportedFile, UploadTooLarge
+from masters_cycling_lab.application.errors import (
+    Conflict,
+    GenerationFailed,
+    NotFound,
+    ProviderUnavailable,
+    ServiceError,
+    UnsupportedFile,
+    UploadTooLarge,
+)
 
 log = logging.getLogger(__name__)
 
@@ -17,6 +25,8 @@ SERVICE_ERROR_STATUS: dict[type[ServiceError], int] = {
     Conflict: 409,
     UploadTooLarge: 413,
     UnsupportedFile: 415,
+    GenerationFailed: 502,
+    ProviderUnavailable: 503,
 }
 
 HTTP_ERROR_CODES = {

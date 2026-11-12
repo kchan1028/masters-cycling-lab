@@ -9,8 +9,8 @@ Later milestones start only when the earlier ones pass their acceptance checks.
 | 1 | Compose, migrations, schema, storage, readiness | Done |
 | 2 | Durable PDF ingestion | Done |
 | 3 | Retrieval and first research validation | Done |
-| 4 | Grounded answers with citations | Next |
-| 5 | React workspace | Not started |
+| 4 | Grounded answers with citations | Done (live provider test blocked: no credentials) |
+| 5 | React workspace | Next |
 | 6 | Evaluation and handoff | Not started |
 
 The MVP is not complete until milestone 6 passes on a real corpus. Placeholder code, a fabricated corpus,
@@ -105,16 +105,22 @@ left. Readiness does not check the embedding model yet: the API only needs it on
 First dev run: vector search met the recall, MRR and nDCG targets and missed evidence coverage (0.53 vs 0.60); it
 beat the lexical baseline on every measure. Details and analysis in [evaluation.md](evaluation.md).
 
-## Milestone 4: grounded answers
+## Milestone 4: grounded answers (done, except the live provider check)
 
-1. OpenAI-compatible adapter with a documented minimum contract and clear provider errors.
-2. Versioned prompt; passages labelled `E1..En` and treated as untrusted evidence.
-3. Context budget: instructions, question and output tokens reserved first.
-4. Structured claims validated on the server. Unknown evidence IDs fail. One repair attempt, then a clear error.
-5. Citations resolved from stored snapshots, never from model output.
-6. No usable evidence means abstaining without calling the LLM. Provider outages are `503`, not abstentions.
-
-Acceptance: see the spec. A live smoke test runs only when credentials exist (`pytest -m live`).
+- `POST /api/v1/answers`, `GET /api/v1/answers/{id}`, `GET /api/v1/answers/{id}/debug`.
+- Provider adapter for any OpenAI-compatible `/chat/completions` endpoint with a minimal contract: `model`,
+  `messages`, `temperature`, `max_tokens`, reply text in `choices[0].message.content`. No JSON mode, tools or usage
+  reporting is required; usage is stored only when the provider reports it.
+- Versioned prompt (`answer-v1`): passages are labelled `E1..En`, wrapped as untrusted quoted evidence (they can't close
+  or forge an evidence block), and the model is told to separate findings, limitations and population mismatch.
+- Context selection in rank order: overlapping passages skipped, at most `RETRIEVAL_CONTEXT_K`, within a token budget
+  that reserves room for instructions, question and output. Every candidate is stored with the reason it was or wasn't
+  sent, plus a snapshot of exactly the text that was sent.
+- Strict validation: valid JSON, every claim cites only labels that were sent, `answered` needs claims. One repair
+  attempt, then `502 GENERATION_INVALID`. Citations (titles, pages, excerpts, file links) come from the stored
+  snapshot, never from model text. No usable evidence: `insufficient_evidence` without calling the model. Provider
+  down or not configured: `503`, never an abstention.
+- Blocked: `make test-live` (real provider) needs `LLM_BASE_URL` and `LLM_MODEL`; none are configured, so it skips.
 
 ## Milestone 5: React workspace
 

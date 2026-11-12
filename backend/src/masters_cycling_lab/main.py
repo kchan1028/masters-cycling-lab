@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from masters_cycling_lab.api.errors import ErrorResponse, install_error_handlers
 from masters_cycling_lab.api.request_checks import rejected_request
-from masters_cycling_lab.api.routes import documents, evaluations, health, ingestion, retrieval
+from masters_cycling_lab.api.routes import answers, documents, evaluations, health, ingestion, retrieval
 from masters_cycling_lab.config import Settings, get_settings
 from masters_cycling_lab.infrastructure.db.models import EMBEDDING_DIMENSION
 from masters_cycling_lab.infrastructure.db.session import make_engine
@@ -44,6 +44,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.engine = make_engine(settings.database_url)
     app.state.storage = LocalFileStorage(settings.storage_root)
     app.state.embedder = None  # loaded on first search; see api/dependencies.py
+    app.state.llm = None  # created on first answer, only if LLM settings are present
 
     # CORS only matters for a dev frontend on another origin. It is not access control.
     app.add_middleware(
@@ -73,4 +74,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(ingestion.router, prefix="/api/v1", responses=input_error_responses)
     app.include_router(retrieval.router, prefix="/api/v1", responses=input_error_responses)
     app.include_router(evaluations.router, prefix="/api/v1", responses=input_error_responses)
+    app.include_router(answers.router, prefix="/api/v1", responses=input_error_responses)
     return app
