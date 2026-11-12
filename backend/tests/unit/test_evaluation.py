@@ -1,7 +1,18 @@
+import json
+from datetime import date
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError
 
-from masters_cycling_lab.application.evaluation import DEFAULT_QUESTIONS, Question, load_questions
+from masters_cycling_lab.application.evaluation import (
+    DEFAULT_QUESTIONS,
+    LabelError,
+    Question,
+    load_questions,
+    record_review,
+    review_counts,
+)
 from masters_cycling_lab.domain import evaluation as m
 from masters_cycling_lab.domain.evaluation import EvidenceSpan
 
@@ -75,3 +86,53 @@ def test_evidence_must_come_from_a_relevant_document() -> None:
 def test_answerable_questions_need_evidence() -> None:
     with pytest.raises(ValidationError, match="gold evidence"):
         Question.model_validate(question(evidence=[]))
+
+
+def test_a_reviewed_question_names_its_reviewer() -> None:
+    annotation = {"author": "t", "date": "2026-11-12", "review_status": "reviewed", "rationale": "t"}
+    with pytest.raises(ValidationError, match="reviewed_by"):
+        Question.model_validate(question(annotation=annotation))
+
+
+def write_questions(path: Path) -> list[str]:
+    lines = [json.dumps(question(id=qid, question=f"Question {qid} – with a dash?"), ensure_ascii=False)
+             for qid in ("q901", "q902")]  # fmt: skip
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return lines
+
+
+def test_recording_a_review_changes_only_that_question(tmp_path: Path) -> None:
+    path = tmp_path / "questions.jsonl"
+    original = write_questions(path)
+
+    record_review(path, "q902", reviewer="Pat", reviewed=True, note="Grades checked.", on=date(2026, 11, 13))
+
+    lines = path.read_text(encoding="utf-8").splitlines()
+    assert lines[0] == original[0]
+    annotation = json.loads(lines[1])["annotation"]
+    assert annotation["review_status"] == "reviewed"
+    assert annotation["reviewed_by"] == "Pat"
+    assert annotation["reviewed_on"] == "2026-11-13"
+    assert annotation["review_notes"] == ["2026-11-13 Pat: Grades checked."]
+    assert review_counts(load_questions(path)) == {"reviewed": 1, "provisional": 1}
+
+
+def test_a_note_alone_keeps_the_question_provisional(tmp_path: Path) -> None:
+    path = tmp_path / "questions.jsonl"
+    write_questions(path)
+
+    record_review(
+        path, "q901", reviewer="Pat", reviewed=False, note="mcl-004 should be graded 1.", on=date(2026, 11, 13)
+    )
+    record_review(path, "q901", reviewer="Sam", reviewed=False, note="Agreed.", on=date(2026, 11, 14))
+
+    annotation = load_questions(path)[0].annotation
+    assert annotation.review_status == "provisional"
+    assert annotation.review_notes == ["2026-11-13 Pat: mcl-004 should be graded 1.", "2026-11-14 Sam: Agreed."]
+
+
+def test_reviewing_an_unknown_question_fails(tmp_path: Path) -> None:
+    path = tmp_path / "questions.jsonl"
+    write_questions(path)
+    with pytest.raises(LabelError, match="q999"):
+        record_review(path, "q999", reviewer="Pat", reviewed=True, note=None, on=date(2026, 11, 13))

@@ -109,6 +109,7 @@ function RunDetail({ id }: { id: string }) {
   if (!run) return <p>Loading run…</p>
 
   const modes = (run.config.modes as string[] | undefined) ?? ['vector']
+  const labels = run.config.labels as { reviewed: number; provisional: number } | undefined
   return (
     <article aria-labelledby="run-heading" className="stack">
       <h3 id="run-heading">
@@ -118,6 +119,7 @@ function RunDetail({ id }: { id: string }) {
         {String(run.config.embedding_model_id)} · top {String(run.config.candidate_k)} ·{' '}
         {String(run.config.searchable_corpus_documents)} documents · dataset {run.dataset_sha256.slice(0, 8)} · corpus{' '}
         {run.corpus_sha256.slice(0, 8)}
+        {labels && ` · labels: ${labels.reviewed} reviewed by a person, ${labels.provisional} provisional`}
       </p>
       <table>
         <caption className="visually-hidden">Mean scores by retrieval mode</caption>

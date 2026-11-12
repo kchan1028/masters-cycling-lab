@@ -17,6 +17,7 @@ frontend/dist/
 # Runtime data: uploaded PDFs, model weights, run outputs
 data/
 models/
+backups/
 artifacts/*
 !artifacts/.gitkeep
 

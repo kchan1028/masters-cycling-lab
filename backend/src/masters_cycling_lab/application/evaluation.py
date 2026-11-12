@@ -37,6 +37,7 @@ from masters_cycling_lab.infrastructure.db.models import (
 DEFAULT_QUESTIONS = REPO_ROOT / "research" / "evaluation" / "questions.jsonl"
 CUTOFFS = (5, 10)
 Grade = Literal[0, 1, 2]
+Day = date  # inside Annotation, "date" is a field name
 
 
 class GoldEvidence(BaseModel):
@@ -55,6 +56,16 @@ class Annotation(BaseModel):
     date: date
     review_status: Literal["provisional", "reviewed"]
     rationale: str
+    # Set by `mcl review` when a person has checked the labels against the paper.
+    reviewed_by: str | None = None
+    reviewed_on: Day | None = None
+    review_notes: list[str] = []
+
+    @model_validator(mode="after")
+    def reviewed_by_someone(self) -> Self:
+        if self.review_status == "reviewed" and not (self.reviewed_by and self.reviewed_on):
+            raise ValueError("a reviewed question needs reviewed_by and reviewed_on")
+        return self
 
 
 class Question(BaseModel):
@@ -85,6 +96,30 @@ class Question(BaseModel):
 
 class LabelError(Exception):
     pass
+
+
+def review_counts(questions: list[Question]) -> dict[str, int]:
+    reviewed = sum(question.annotation.review_status == "reviewed" for question in questions)
+    return {"reviewed": reviewed, "provisional": len(questions) - reviewed}
+
+
+def record_review(path: Path, question_id: str, *, reviewer: str, reviewed: bool, note: str | None, on: date) -> None:
+    """Record a person's review of one question. Every other line of the file stays exactly as it was."""
+    lines = path.read_text(encoding="utf-8").splitlines()
+    for number, line in enumerate(lines):
+        if not line.strip() or json.loads(line)["id"] != question_id:
+            continue
+        data = json.loads(line)
+        annotation = data["annotation"]
+        if reviewed:
+            annotation.update(review_status="reviewed", reviewed_by=reviewer, reviewed_on=on.isoformat())
+        if note:
+            annotation["review_notes"] = [*annotation.get("review_notes", []), f"{on.isoformat()} {reviewer}: {note}"]
+        Question.model_validate(data)  # never write a line that loading would reject
+        lines[number] = json.dumps(data, ensure_ascii=False)
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        return
+    raise LabelError(f"no question {question_id} in {path}")
 
 
 def load_questions(path: Path) -> list[Question]:
@@ -138,12 +173,7 @@ def locate_evidence(
             if version is None:
                 problems.append(f"{question.id}: {item.corpus_id} is not ingested (run make corpus-ingest)")
                 continue
-            page_text = session.scalar(
-                select(DocumentPage.text).where(
-                    DocumentPage.index_version_id == version, DocumentPage.page_number == item.page
-                )
-            )
-            found = metrics.find_quote(page_text or "", item.quote)
+            found = metrics.find_quote(page_text(session, version, item.page), item.quote)
             if found is None:
                 problems.append(
                     f"{question.id}: quote not found on {item.corpus_id} page {item.page}: {item.quote[:60]!r}"
@@ -152,6 +182,15 @@ def locate_evidence(
             spans.append(EvidenceSpan(item.corpus_id, item.page, *found))
         located[question.id] = spans
     return located, problems
+
+
+def page_text(session: Session, index_version_id: uuid.UUID, page: int) -> str:
+    text = session.scalar(
+        select(DocumentPage.text).where(
+            DocumentPage.index_version_id == index_version_id, DocumentPage.page_number == page
+        )
+    )
+    return text or ""
 
 
 def score_question(
@@ -210,6 +249,7 @@ def run_evaluation(
 
     started = datetime.now(UTC)
     config = run_config(session, embedder, modes, k, index)
+    config["labels"] = review_counts(chosen)
     # The first query pays one-off model warm-up costs; latency is measured with the model already warm.
     embedder.embed_query("warm up")
     outputs: dict[str, dict[str, Any]] = {question.id: {"question": question.question} for question in chosen}

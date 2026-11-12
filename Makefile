@@ -4,7 +4,7 @@ NPM := npm --prefix frontend
 COMPOSE := docker compose
 
 .PHONY: help bootstrap lint typecheck test test-integration test-model build api-types check-api-types \
-	up down migrate download-model ingest corpus-download corpus-verify corpus-ingest model-host labels-check evaluate test-live smoke
+	up down migrate download-model ingest corpus-download corpus-verify corpus-ingest model-host labels-check review evaluate test-live backup restore smoke
 
 help: ## List commands
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -82,8 +82,18 @@ model-host: ## Download the pinned embedding model into data/models for commands
 labels-check: ## Check every gold quotation in research/evaluation/questions.jsonl against the stored pages
 	$(UV) run mcl evaluate --check-labels
 
+review: ## Review provisional labels against the papers: make review REVIEWER="Your Name" (stack running)
+	@test -n "$(REVIEWER)" || { echo 'Usage: make review REVIEWER="Your Name" [SPLIT=dev]' >&2; exit 1; }
+	$(UV) run mcl review --reviewer "$(REVIEWER)" $(if $(SPLIT),--split $(SPLIT))
+
 evaluate: model-host ## Retrieval evaluation, vector and lexical: make evaluate SPLIT=dev (or SPLIT=test)
 	$(UV) run mcl evaluate --split $(or $(SPLIT),dev)
+
+backup: ## Copy the database and uploaded PDFs to backups/<time>/ (stack running)
+	scripts/backup.sh
+
+restore: ## Replace ALL data with a backup: make restore BACKUP=backups/<time> (asks first)
+	scripts/restore.sh "$(BACKUP)"
 
 smoke: ## End-to-end check of the running stack: upload, index, search, page, file, answer, delete
 	$(UV) run mcl smoke --base-url $(or $(BASE_URL),http://127.0.0.1:8080)
