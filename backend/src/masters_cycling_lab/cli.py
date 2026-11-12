@@ -176,6 +176,11 @@ def evaluate(split: str, modes: list[str], k: int, check_only: bool) -> int:
     except (evaluation.LabelError, corpus.ManifestError) as error:
         print(f"Label or manifest problems:\n{error}")
         return 1
+    revision = code_revision()
+    # A held-out result has to be tied to a commit, or nobody can tell what produced it.
+    if split == "test" and not check_only and (revision is None or revision.endswith("-dirty")):
+        print("The test split runs only from a clean git checkout. Commit or stash your changes first.")
+        return 1
     engine = make_engine(settings.database_url)
     with Session(engine) as session:
         index = evaluation.corpus_index(session, entries)
@@ -190,12 +195,7 @@ def evaluate(split: str, modes: list[str], k: int, check_only: bool) -> int:
         chosen = [question for question in questions if question.split == split]
         counts = evaluation.review_counts(chosen)
         print(f"Labels for the {split} split: {counts['reviewed']} of {len(chosen)} reviewed by a person.")
-        revision = code_revision()
         if split == "test":
-            # A held-out result has to be tied to a commit, or nobody can tell what produced it.
-            if revision is None or revision.endswith("-dirty"):
-                print("The test split runs only from a clean git checkout. Commit or stash your changes first.")
-                return 1
             print("Note: the test split is held out. Use it to report results, not to tune settings.")
 
         from masters_cycling_lab.infrastructure.embeddings.sentence_transformers_adapter import (
@@ -271,12 +271,15 @@ def review(reviewer: str, split: str | None, question_id: str | None) -> int:
                 print(f"  ...{before}>>>{text[start:end]}<<<{after}...")
                 print(f"  PDF: {APP_URL}/api/v1/documents/{document_ids[item.corpus_id]}/file#page={item.page}")
             print(f"\nRationale: {question.annotation.rationale}")
-            choice = input("\n[a]ccept as reviewed, [n]ote a problem (stays provisional), [s]kip, [q]uit: ").strip()
-            if choice.lower() == "q":
+            try:
+                choice = input("\n[a]ccept as reviewed, [n]ote a problem (stays provisional), [s]kip, [q]uit: ").strip()
+                if choice.lower() == "q":
+                    break
+                if choice.lower() not in ("a", "n"):
+                    continue
+                note = input("Note (optional for accept): ").strip() or None
+            except EOFError:  # input closed: stop, keeping what was recorded
                 break
-            if choice.lower() not in ("a", "n"):
-                continue
-            note = input("Note (optional for accept): ").strip() or None
             if choice.lower() == "n" and not note:
                 print("No note given; nothing recorded.")
                 continue

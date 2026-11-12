@@ -13,7 +13,11 @@ if [ -z "$dir" ] || [ ! -f "$dir/database.dump" ] || [ ! -f "$dir/storage.tar" ]
 fi
 (cd "$dir" && shasum -a 256 --check --quiet SHA256SUMS) || { echo "$dir does not match its SHA256SUMS." >&2; exit 1; }
 
-read -r -p "This replaces ALL current data with $dir. Type 'restore' to continue: " answer
+# exec reads stdin unless told otherwise, which would swallow the answer to the prompt below.
+docker compose exec -T db pg_isready --username mcl --quiet < /dev/null \
+  || { echo "The db container is not running: make up" >&2; exit 1; }
+
+read -r -p "This replaces ALL current data with $dir. Type 'restore' to continue: " answer || answer=""
 if [ "$answer" != restore ]; then
   echo "Nothing changed."
   exit 1
@@ -27,4 +31,5 @@ docker compose exec -T db pg_restore --username mcl --dbname mcl --exit-on-error
 docker compose run --rm --no-deps -T worker \
   sh -c 'find /data/storage -mindepth 1 -delete && tar -C /data/storage -xf -' < "$dir/storage.tar"
 docker compose start api worker
-echo "Restored $dir. Check http://127.0.0.1:8080/api/v1/health/ready"
+echo "Restored $dir. Run 'make migrate' (needed if the code is newer than the backup), then check"
+echo "http://127.0.0.1:8080/api/v1/health/ready"

@@ -129,8 +129,9 @@ make restore BACKUP=backups/20261112T174634Z
 
 Restore replaces everything: it checks the hashes, asks you to type `restore`, stops the API and worker, drops and
 recreates the database, loads the dump, replaces the stored PDFs and starts the API and worker again. If it fails
-part way, run it again with the same backup. To move to a new machine: clone, set up `.env`, `make up`,
-`make download-model`, then `make restore` (no `make migrate` needed; the dump includes the schema at its version).
+part way, run it again with the same backup. Then run `make migrate`: the dump holds the schema at the version it was taken with, so newer code
+needs its migrations applied (with the same code it does nothing). To move to a new machine: clone, set up `.env`,
+`make up`, `make download-model`, `make restore`, then `make migrate`.
 
 Verified on 2026-11-12 in a separate Compose project: backup of the 20-paper corpus, delete a document, restore,
 and the document, its file (same SHA-256), every gold quotation and the evaluation metrics were back. The restored

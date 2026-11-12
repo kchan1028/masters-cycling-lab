@@ -20,5 +20,5 @@ tar -tf "$dir/storage.tar" > /dev/null
 (cd "$dir" && shasum -a 256 database.dump storage.tar > SHA256SUMS)
 
 documents=$(docker compose exec -T db psql --username mcl --dbname mcl --tuples-only --no-align \
-  --command "select count(*) from documents where deleted_at is null")
+  --command "select count(*) from documents where deleted_at is null" || echo "?")
 echo "Backed up $documents documents to $dir ($(du -sh "$dir" | cut -f1))."
