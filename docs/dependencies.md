@@ -72,6 +72,18 @@ comes in through ESLint 10 and typescript-eslint, which only see glob patterns f
 in the bundle. Forcing `minimatch` 11 would be a major-version override that ESLint does not declare support for,
 so it is left as is and rechecked when ESLint updates.
 
+## Container images
+
+| Image | Version | Licence | Used for |
+|---|---|---|---|
+| `pgvector/pgvector` | `0.8.7-pg17-trixie` | PostgreSQL licence | Database. PostgreSQL 17, because the 18 images moved the data directory layout |
+| `python` | `3.12.16-slim-trixie` | PSF | Backend image |
+| `ghcr.io/astral-sh/uv` | `0.13.7` | MIT / Apache-2.0 | Installs the locked backend dependencies in the image |
+| `node` | `24.21.0-alpine` | MIT | Frontend build stage |
+| `nginxinc/nginx-unprivileged` | `1.30.6-alpine` (stable) | BSD-2-Clause | Serves the frontend as a non-root user |
+
+The backend image is large (torch). Inside Linux containers torch comes from the CPU-only index.
+
 ## Embedding model
 
 `BAAI/bge-small-en-v1.5`, MIT licence, pinned to revision `5c38ec7c405ec4b44b94cc5a9bb96e735b38267a`. Weights are

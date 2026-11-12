@@ -6,8 +6,8 @@ Later milestones start only when the earlier ones pass their acceptance checks.
 | Milestone | Scope | Status |
 |---|---|---|
 | 0 | Repository, design, dependency plan | Done |
-| 1 | Compose, migrations, schema, storage, readiness | Next |
-| 2 | Durable PDF ingestion | Not started |
+| 1 | Compose, migrations, schema, storage, readiness | Done |
+| 2 | Durable PDF ingestion | Next |
 | 3 | Retrieval and first research validation | Not started |
 | 4 | Grounded answers with citations | Not started |
 | 5 | React workspace | Not started |
@@ -44,36 +44,34 @@ These are outside the code and can stall acceptance:
 - Decisions recorded in [decisions/](decisions/). Architecture in [architecture.md](architecture.md).
 - Commands: `make bootstrap`, `make lint`, `make typecheck`, `make test`, `make build`.
 
-## Milestone 1: persistence and infrastructure
+## Milestone 1: persistence and infrastructure (done)
 
-Small changes, in order:
+- `compose.yaml`: `db` (pgvector 0.8.7 on PostgreSQL 17), one-shot `migrate`, `api`, and `frontend` (nginx serving
+  the build and proxying `/api`). Published ports on `127.0.0.1` only, named volumes, health checks, non-root
+  containers. The `worker` service is added with the worker itself in milestone 2.
+- SQLAlchemy engine and Alembic. The first migration creates the `vector` extension and all 13 tables. No
+  `create_all()` anywhere; a test fails if models and migrations drift apart.
+- Invariants enforced by PostgreSQL: one active ingestion job per document, a document's active index must be one
+  of its own versions, chunk spans stay inside one index version, citations can only point at evidence from their
+  own query run, a fixed `vector(384)` column, and deleting a document with query history fails unless that
+  history is purged on purpose.
+- Local file storage: generated keys, atomic writes, size limit while streaming, no user-controlled paths.
+- `GET /api/v1/health/ready`: database, migrations, `vector` extension and storage. LLM shown as configured or not;
+  the provider is never called.
+- `Host` allow-list (blocks DNS rebinding) and an `Origin` check on browser writes.
+- `make check-api-types` fails when `backend/openapi.json` or the generated frontend types are stale. Checks run
+  locally; the project has no hosted CI.
 
-1. `compose.yaml` with `db` (pgvector image), `migrate` (one-shot), `api`, `worker` and `frontend` (nginx serving
-   the build and proxying `/api`). Ports bound to `127.0.0.1`. Named volumes. Health checks. Non-root containers.
-2. SQLAlchemy engine/session setup and Alembic. The first migration runs `CREATE EXTENSION vector`. No
-   `create_all()` anywhere.
-3. Schema migration: `documents`, `ingestion_jobs`, `index_versions`, `document_pages`, `chunks`, `chunk_spans`,
-   `chunk_embeddings` (`vector(384)`), `query_runs`, `query_evidence`, `answer_claims`, `answer_citations`,
-   `evaluation_runs`, `evaluation_results`. UUID keys, `timestamptz`, check constraints, and a partial unique
-   index allowing one active job per document.
-4. Local file storage: generated keys, atomic write, no user-controlled paths.
-5. `GET /api/v1/health/ready`: database reachable and migrated, `vector` extension present, storage writable.
-   LLM shown as "configured" or "not configured", never "available".
-6. Origin check for browser mutations (`POST`, `PATCH`, `DELETE`), and a `Host` header allow-list so a
-   DNS-rebinding page cannot reach the API through `127.0.0.1`.
-7. CI (GitHub Actions) running `make lint typecheck test build`, plus a check that
-   `frontend/src/api/generated/schema.ts` matches `backend/openapi.json`.
-
-Acceptance: a fresh database migrates; constraints reject bad rows in integration tests; data survives
-`make down && make up`.
-Commands: `make up`, `make migrate`, `uv run pytest -m integration`.
+Verified: fresh database migrates; downgrade and re-upgrade work; 31 integration tests on constraints, migrations
+and readiness pass; data in both volumes survived `make down && make up`. See [operations.md](operations.md).
 
 ## Milestone 2: durable ingestion
 
 1. `POST /documents`: streamed upload, byte limit, `%PDF-` magic check, SHA-256, duplicate returns the existing
    document (`200`) instead of a new job (`202`).
-2. Worker: claim with `FOR UPDATE SKIP LOCKED`, commit the claim, then heartbeat and renew the lease. Each claim
-   gets a new token; writes and activation check it, so a worker that lost its lease cannot publish.
+2. Worker process and its Compose service: claim with `FOR UPDATE SKIP LOCKED`, commit the claim, then heartbeat
+   and renew the lease. Each claim gets a new token; writes and activation check it, so a worker that lost its lease
+   cannot publish. Readiness also reports whether the embedding model is available.
 3. PyMuPDF extraction per physical page, keeping printed page labels separately. Clear errors for encrypted,
    corrupt, empty and image-only PDFs ("OCR required").
 4. Conservative header/footer removal with recorded warnings.

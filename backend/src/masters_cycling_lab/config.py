@@ -6,7 +6,9 @@ from typing import Literal, Self
 from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+# backend/ in a checkout, /app in the Docker image. Alembic's migrations/ live here.
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+REPO_ROOT = BACKEND_DIR.parent
 
 
 class Settings(BaseSettings):
@@ -15,8 +17,11 @@ class Settings(BaseSettings):
 
     app_env: Literal["development", "test", "production"] = "development"
     allowed_origins: list[str] = ["http://127.0.0.1:5173", "http://localhost:5173"]
+    # Host header values the API answers to. Anything else is rejected, which blocks DNS rebinding.
+    allowed_hosts: list[str] = ["127.0.0.1", "localhost"]
 
     database_url: str
+    # Relative paths are resolved against the repository root.
     storage_root: Path = Path("/data/storage")
 
     embedding_model_id: str = "BAAI/bge-small-en-v1.5"
@@ -47,6 +52,11 @@ class Settings(BaseSettings):
         if "*" in value:
             raise ValueError('"*" is not allowed; list the exact origins')
         return value
+
+    @field_validator("storage_root")
+    @classmethod
+    def resolve_storage_root(cls, value: Path) -> Path:
+        return value if value.is_absolute() else REPO_ROOT / value
 
     @field_validator("embedding_model_revision")
     @classmethod

@@ -6,14 +6,14 @@ a hands-on project for learning how retrieval-augmented generation works, with e
 
 It uses pretrained models only. It does not give personal training or medical advice.
 
-**Status: milestone 0 of 6.** The backend and frontend skeletons, configuration and dependency plan are in place.
-Uploading, search and answers are not built yet. See [docs/roadmap.md](docs/roadmap.md).
+**Status: milestone 1 of 6 done.** The Docker stack, database schema, migrations, file storage and readiness checks
+are in place. Uploading, search and answers are not built yet. See [docs/roadmap.md](docs/roadmap.md).
 
 ## Requirements
 
-- Python 3.12 and [uv](https://docs.astral.sh/uv/) 0.13+
+- Docker with Compose
+- Python 3.12 and [uv](https://docs.astral.sh/uv/) 0.13+ (for local checks and tests)
 - Node.js 24 (`nvm use` reads `.nvmrc`)
-- Docker with Compose (from milestone 1)
 - GNU Make
 
 ## Setup
@@ -22,14 +22,30 @@ Uploading, search and answers are not built yet. See [docs/roadmap.md](docs/road
 cp .env.example .env
 ```
 
+Set your own `POSTGRES_PASSWORD` in `.env` and use the same password in `DATABASE_URL`.
+
 ```bash
 make bootstrap
 ```
 
-`make bootstrap` installs the locked backend and frontend dependencies. It creates `.env` from `.env.example`
-only if `.env` does not exist; it never overwrites it.
+`make bootstrap` installs the locked backend and frontend dependencies for local checks. It creates `.env` from
+`.env.example` only if `.env` does not exist; it never overwrites it.
 
-Run the API and the frontend dev server in two terminals:
+## Run it
+
+```bash
+make up
+```
+
+```bash
+make migrate
+```
+
+Open http://127.0.0.1:8080. Check readiness at http://127.0.0.1:8080/api/v1/health/ready.
+[docs/operations.md](docs/operations.md) covers ports, volumes, resets and troubleshooting.
+
+For frontend or API development without Docker, run the database with `make up`, then the API and the Vite dev
+server on the host in two terminals:
 
 ```bash
 uv --directory backend run uvicorn masters_cycling_lab.main:create_app --factory --port 8000
@@ -49,10 +65,12 @@ Open http://127.0.0.1:5173. API docs are at http://127.0.0.1:8000/api/docs.
 | `make lint` | Ruff and ESLint | now |
 | `make typecheck` | mypy and tsc | now |
 | `make test` | Fast offline tests (no database, model download or LLM) | now |
+| `make test-integration` | Tests against PostgreSQL in throwaway databases (needs `make up`) | now |
 | `make build` | Production frontend bundle | now |
 | `make api-types` | Regenerate `backend/openapi.json` and the frontend's TypeScript types | now |
-| `make up` / `make down` | Start / stop the Compose stack | milestone 1 |
-| `make migrate` | Apply database migrations | milestone 1 |
+| `make check-api-types` | Fail if those generated files are out of date | now |
+| `make up` / `make down` | Start / stop the Compose stack; data stays in Docker volumes | now |
+| `make migrate` | Apply database migrations (the only thing that changes the schema) | now |
 | `make download-model` | Download the pinned embedding model | milestone 2 |
 | `make ingest FILE=/abs/path.pdf` | Ingest one PDF from the command line | milestone 2 |
 | `make corpus-verify` | Check the corpus manifest against stored files | milestone 3 |
@@ -75,7 +93,8 @@ each one. Things to know:
 ## Documentation
 
 - [Roadmap](docs/roadmap.md): milestones, acceptance checks, assumptions and blockers
-- [Architecture](docs/architecture.md): processes, layers, data flow, security boundaries
+- [Architecture](docs/architecture.md): processes, layers, data model, security boundaries
+- [Operations](docs/operations.md): running, checking and resetting the local stack
 - [Dependencies and licences](docs/dependencies.md): pinned versions and what the licences mean
 - [Decisions](docs/decisions/): why the stack, model, queue and retrieval work the way they do
 

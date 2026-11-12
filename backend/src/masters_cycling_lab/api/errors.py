@@ -22,6 +22,17 @@ HTTP_ERROR_CODES = {
 }
 
 
+class ApiError(Exception):
+    """Raise from a route to send the error envelope with a specific status and code."""
+
+    def __init__(self, status_code: int, code: str, message: str, details: dict[str, Any] | None = None) -> None:
+        super().__init__(message)
+        self.status_code = status_code
+        self.code = code
+        self.message = message
+        self.details = details or {}
+
+
 class ErrorBody(BaseModel):
     code: str
     message: str
@@ -52,6 +63,10 @@ def error_response(
 
 
 def install_error_handlers(app: FastAPI) -> None:
+    @app.exception_handler(ApiError)
+    async def handle_api_error(request: Request, exc: ApiError) -> JSONResponse:
+        return error_response(request, exc.status_code, exc.code, exc.message, exc.details)
+
     @app.exception_handler(HTTPException)
     async def handle_http_error(request: Request, exc: HTTPException) -> JSONResponse:
         code = HTTP_ERROR_CODES.get(exc.status_code, "HTTP_ERROR")

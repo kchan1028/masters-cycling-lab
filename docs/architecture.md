@@ -19,10 +19,30 @@ browser ── frontend (static build) ──/api──► api (FastAPI)  ──
 | `db` | PostgreSQL with the `vector` extension | Internal to Compose; published on `127.0.0.1` only for host-side tests |
 | `migrate` | `alembic upgrade head`, then exits | The only thing that changes the schema. API and worker never migrate on startup |
 | `api` | `uvicorn masters_cycling_lab.main:create_app --factory` | Loads the embedding model once, for query embeddings |
-| `worker` | `python -m masters_cycling_lab.worker` | Claims ingestion jobs from PostgreSQL. Loads the model once |
+| `worker` | `python -m masters_cycling_lab.worker` | Milestone 2. Claims ingestion jobs from PostgreSQL. Loads the model once |
 | `frontend` | nginx serving the Vite build | Proxies `/api` so the browser sees one origin |
 
-Compose arrives in milestone 1. Until then the API runs with `uv run` and the frontend with `npm run dev`.
+Ports, volumes and day-to-day commands are in [operations.md](operations.md).
+
+## Data model
+
+Thirteen tables, created by Alembic migrations (`backend/migrations`) from the models in
+`infrastructure/db/models.py`:
+
+- **Corpus:** `documents`, `ingestion_jobs`, `index_versions`, `document_pages`, `chunks`, `chunk_spans`,
+  `chunk_embeddings`.
+- **Answers:** `query_runs`, `query_evidence`, `answer_claims`, `answer_citations`.
+- **Evaluation runs:** `evaluation_runs`, `evaluation_results`. The labelled questions themselves live in git.
+
+The database enforces the invariants that matter most, so a bug in application code fails instead of storing bad
+data. Composite foreign keys keep a document's active index among its own versions, keep chunk spans and their
+page in one index version, and keep citations inside their own query run. A partial unique index allows one active
+ingestion job per document. Status columns have check constraints tying them to timestamps, leases and error
+codes.
+
+**Deletion and history.** `query_evidence.document_id` deliberately has no cascade. Deleting a document that
+appears in past answers fails until those query runs are purged on purpose (milestone 2 implements this), so
+deleted document text cannot linger in answer history by accident.
 
 ## Code layout and dependency direction
 
@@ -77,7 +97,9 @@ supports the claim. Support is judged separately during evaluation.
 - Local, single-user. No authentication, so it must not be exposed beyond `127.0.0.1`. Shared or remote use
   needs authentication and authorization first.
 - CORS is limited to `ALLOWED_ORIGINS` and is only for the Vite dev server. It is not access control.
-  Milestone 1 adds an `Origin` check on mutating requests.
+- Every request's `Host` must be in `ALLOWED_HOSTS`, which stops a web page from reaching the API through DNS
+  rebinding. Browser writes (`POST`, `PUT`, `PATCH`, `DELETE`) must come from the app's own origin or
+  `ALLOWED_ORIGINS`.
 - Uploaded files get generated storage keys. Filenames are metadata, never paths. No server-side URL fetching.
 - Document text is untrusted input to the LLM and is escaped when rendered in the browser.
 - Provider keys stay on the server. Questions and selected passages are sent to the configured LLM provider when
