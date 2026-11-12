@@ -81,7 +81,7 @@ so it is left as is and rechecked when ESLint updates.
 | `ghcr.io/astral-sh/uv` | `0.13.7` | MIT / Apache-2.0 | Installs the locked backend dependencies in the image |
 | `node` | `24.21.0-alpine` | MIT | Frontend build stage |
 | `nginxinc/nginx-unprivileged` | `1.30.6-alpine` (stable) | BSD-2-Clause | Serves the frontend as a non-root user |
-| `actions/checkout`, `actions/setup-node`, `astral-sh/setup-uv` | v7, v7, v10 | MIT | CI |
+| `actions/checkout`, `actions/setup-node`, `astral-sh/setup-uv` | v7, v7, v10.3.3 | MIT | CI |
 
 The backend image is large (torch). Inside Linux containers torch comes from the CPU-only index.
 

@@ -13,7 +13,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      # setup-uv publishes exact tags only (no floating v10).
+      - uses: astral-sh/setup-uv@v10.3.3
         with:
           version: "0.13.7"
           enable-cache: true
@@ -54,7 +55,8 @@ jobs:
       DATABASE_URL: postgresql+psycopg://mcl:ci-only@127.0.0.1:5433/mcl
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      # setup-uv publishes exact tags only (no floating v10).
+      - uses: astral-sh/setup-uv@v10.3.3
         with:
           version: "0.13.7"
           enable-cache: true
