@@ -4,7 +4,7 @@ NPM := npm --prefix frontend
 COMPOSE := docker compose
 
 .PHONY: help bootstrap lint typecheck test test-integration test-model build api-types check-api-types \
-	up down migrate download-model ingest corpus-verify evaluate smoke
+	up down migrate download-model ingest corpus-download corpus-verify corpus-ingest evaluate smoke
 
 help: ## List commands
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -63,6 +63,16 @@ ingest: ## Upload one PDF and wait for the worker: make ingest FILE=/absolute/pa
 	$(COMPOSE) run --rm --no-deps -v "$(FILE):/tmp/upload.pdf:ro" worker \
 		mcl ingest /tmp/upload.pdf --filename "$$(basename "$(FILE)")" --wait
 
+corpus-download: ## Fetch the corpus PDFs listed in research/corpus/manifest.jsonl (checked by SHA-256)
+	$(UV) run mcl corpus download
+
+corpus-verify: ## Check every corpus PDF against the manifest, and report ingestion status if the database is up
+	$(UV) run mcl corpus verify --check-index
+
+corpus-ingest: ## Upload the corpus PDFs with their manifest metadata and wait for the worker
+	$(COMPOSE) run --rm --no-deps -v "$(CURDIR)/research/corpus:/corpus:ro" worker \
+		mcl corpus ingest --manifest /corpus/manifest.jsonl --wait
+
 # Commands from the roadmap that later milestones implement. They fail loudly until then.
-corpus-verify evaluate smoke:
+evaluate smoke:
 	@echo "'make $@' is not implemented yet. docs/roadmap.md lists the milestone that adds it." >&2; exit 1

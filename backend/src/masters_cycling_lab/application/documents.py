@@ -119,13 +119,16 @@ def get_document(session: Session, document_id: uuid.UUID) -> DocumentView:
     return view_of(session, live_document(session, document_id))
 
 
-def update_metadata(session: Session, document_id: uuid.UUID, changes: Mapping[str, Any]) -> DocumentView:
+def update_metadata(
+    session: Session, document_id: uuid.UUID, changes: Mapping[str, Any], source: str = "user_supplied"
+) -> DocumentView:
+    """`source` records where the values came from: a person (user_supplied) or the corpus manifest."""
     document = live_document(session, document_id)
     for field, value in changes.items():
         if field in METADATA_FIELDS:
             setattr(document, field, value)
     if changes:
-        document.metadata_source = "user_supplied"
+        document.metadata_source = source
     session.commit()
     return view_of(session, document)
 

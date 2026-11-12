@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 from masters_cycling_lab.config import Settings
 from masters_cycling_lab.infrastructure.db.migrations import upgrade
 from masters_cycling_lab.infrastructure.db.models import Base
-from masters_cycling_lab.infrastructure.db.session import make_engine
+from masters_cycling_lab.infrastructure.db.session import CONNECT_ARGS, make_engine
 from masters_cycling_lab.infrastructure.storage.local_files import LocalFileStorage
 from tests.integration.lab import Lab
 
@@ -33,12 +33,16 @@ def server_url() -> URL:
 
 @pytest.fixture(scope="session")
 def admin_engine(server_url: URL) -> Iterator[Engine]:
-    engine = create_engine(server_url, isolation_level="AUTOCOMMIT")
-    try:
-        with engine.connect():
-            pass
-    except OperationalError:
-        pytest.fail("PostgreSQL is not reachable at DATABASE_URL. Start it with `make up`.", pytrace=False)
+    engine = create_engine(server_url, isolation_level="AUTOCOMMIT", connect_args=CONNECT_ARGS)
+    # Docker Desktop sometimes stalls a brand-new connection through the published port for several seconds, and
+    # every test here depends on this one, so try a few times before giving up.
+    for attempt in range(1, 4):
+        try:
+            with engine.connect():
+                break
+        except OperationalError:
+            if attempt == 3:
+                pytest.fail("PostgreSQL is not reachable at DATABASE_URL. Start it with `make up`.", pytrace=False)
     yield engine
     engine.dispose()
 

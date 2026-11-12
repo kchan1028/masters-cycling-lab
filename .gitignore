@@ -22,5 +22,7 @@ artifacts/*
 
 # Research PDFs are often copyrighted. Keep them out of git; the manifest records hashes and sources instead.
 *.pdf
+research/corpus/pdfs/
+*.part
 
 .DS_Store

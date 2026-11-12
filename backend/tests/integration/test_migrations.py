@@ -5,10 +5,11 @@ from sqlalchemy import Engine, create_engine, inspect, text
 
 from masters_cycling_lab.infrastructure.db.migrations import alembic_config, head_revision, upgrade
 from masters_cycling_lab.infrastructure.db.models import Base
+from masters_cycling_lab.infrastructure.db.session import CONNECT_ARGS
 
 
 def table_names(url: str) -> set[str]:
-    engine = create_engine(url)
+    engine = create_engine(url, connect_args=CONNECT_ARGS)
     try:
         return set(inspect(engine).get_table_names())
     finally:

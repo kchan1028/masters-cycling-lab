@@ -5,6 +5,7 @@ from sqlalchemy import create_engine, pool
 
 from masters_cycling_lab.config import get_settings
 from masters_cycling_lab.infrastructure.db.models import Base
+from masters_cycling_lab.infrastructure.db.session import CONNECT_ARGS
 
 config = context.config
 if config.config_file_name and "database_url" not in config.attributes:
@@ -26,7 +27,7 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    engine = create_engine(database_url(), poolclass=pool.NullPool)
+    engine = create_engine(database_url(), poolclass=pool.NullPool, connect_args=CONNECT_ARGS)
     with engine.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata, compare_type=True)
         with context.begin_transaction():

@@ -71,6 +71,9 @@ make ingest FILE=/absolute/path/paper.pdf
 - `GET /api/v1/documents/{id}/pages/{n}` returns the stored text of physical page `n` with its extraction warnings
   (removed headers, pages without text). Check these for important papers.
 
+To load the research corpus, run `make corpus-download`, then `make corpus-ingest` (about 10 minutes for 20 papers on
+CPU). Details in [research/corpus/README.md](../research/corpus/README.md).
+
 If a worker is killed mid-job, its lease (5 minutes) expires and the next worker takes the job over; the
 half-built index version is discarded.
 
