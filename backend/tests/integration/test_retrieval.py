@@ -3,12 +3,13 @@
 import uuid
 from datetime import UTC, datetime
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from masters_cycling_lab.application import documents, retrieval
-from masters_cycling_lab.domain.retrieval import SearchFilters, SearchMode
+from masters_cycling_lab.domain.retrieval import SearchFilters, SearchHit, SearchMode
 from masters_cycling_lab.infrastructure.db.models import Chunk, Document
 from masters_cycling_lab.main import create_app
 from tests.helpers import FakeEmbedder, make_pdf
@@ -30,6 +31,18 @@ def a_chunk_text(lab: Lab, document_id: uuid.UUID) -> str:
         version = session.get_one(Document, document_id).active_index_version_id
         query = select(Chunk.text).where(Chunk.index_version_id == version).order_by(Chunk.ordinal)
         return session.scalars(query).first() or ""
+
+
+def paper_positions(lab: Lab, hits: list[SearchHit]) -> list[tuple[str, int]]:
+    """Each hit's paper (file SHA-256) and the chunk's position in it."""
+    with Session(lab.engine) as session:
+        rows = session.execute(
+            select(Chunk.id, Document.sha256, Chunk.ordinal)
+            .join(Document, Document.active_index_version_id == Chunk.index_version_id)
+            .where(Chunk.id.in_([hit.chunk_id for hit in hits]))
+        )
+        position = {chunk_id: (sha256, ordinal) for chunk_id, sha256, ordinal in rows}
+    return [position[hit.chunk_id] for hit in hits]
 
 
 def search(
@@ -102,6 +115,28 @@ def test_lexical_baseline_ranks_word_matches(lab: Lab) -> None:
     scores = [hit.lexical_score or 0 for hit in result.hits]
     assert scores == sorted(scores, reverse=True)
     assert search(lab, "zzzz qqqq", mode="lexical").hits == []
+
+
+@pytest.mark.parametrize("mode", ["vector", "lexical"])
+def test_ties_are_ordered_by_paper_and_position_on_every_ingest(lab: Lab, mode: SearchMode) -> None:
+    # Two files with the same text: every chunk has a twin with exactly the same score.
+    pages = ["Cadence drills for older riders. " * 8] * 2
+    papers = [ingest(lab, make_pdf(pages, title=title)) for title in ("Copy A", "Copy B")]
+    query = "cadence" if mode == "lexical" else a_chunk_text(lab, papers[0])
+
+    hits = search(lab, query, mode=mode).hits
+    scores = [(hit.cosine_distance or 0.0) if mode == "vector" else -(hit.lexical_score or 0.0) for hit in hits]
+    positions = paper_positions(lab, hits)
+    assert len(set(scores)) < len(scores)  # without ties this test proves nothing
+    assert list(zip(scores, positions, strict=True)) == sorted(zip(scores, positions, strict=True))
+
+    for document_id in papers:  # a rebuild gives every chunk a new random ID
+        with Session(lab.engine) as session:
+            documents.request_ingestion(session, lab.settings, document_id)
+        lab.ingest_next()
+    rebuilt = search(lab, query, mode=mode).hits
+    assert {hit.chunk_id for hit in rebuilt}.isdisjoint(hit.chunk_id for hit in hits)
+    assert paper_positions(lab, rebuilt) == positions
 
 
 def test_search_endpoint(lab: Lab) -> None:

@@ -27,6 +27,10 @@ from masters_cycling_lab.infrastructure.db.models import (
     IndexVersion,
 )
 
+# Ties go to the paper (its file hash) and the chunk's position in it. Both stay the same when the same PDFs are
+# ingested again with the same chunking, so results reproduce; chunk IDs are random on every ingest.
+TIE_BREAK = (Document.sha256, Chunk.ordinal)
+
 
 @dataclass
 class SearchResult:
@@ -75,7 +79,7 @@ def vector_rows(
         .join(ChunkEmbedding, ChunkEmbedding.chunk_id == Chunk.id)
         # Only vectors from the model that embedded the query are comparable.
         .where(ChunkEmbedding.embedding_model_id == model_id, ChunkEmbedding.embedding_model_revision == revision)
-        .order_by(distance, Chunk.id)
+        .order_by(distance, *TIE_BREAK)
         .limit(k)
     )
     return list(session.execute(query).all())
@@ -93,7 +97,7 @@ def lexical_rows(session: Session, query: str, filters: SearchFilters, k: int) -
         searchable_chunks(filters)
         .add_columns(score)
         .where(chunk_text.op("@@")(ts_query))
-        .order_by(score.desc(), Chunk.id)
+        .order_by(score.desc(), *TIE_BREAK)
         .limit(k)
     )
     return list(session.execute(query_statement).all())
