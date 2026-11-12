@@ -82,7 +82,9 @@ Open http://127.0.0.1:5173. API docs are at http://127.0.0.1:8000/api/docs.
 | `make migrate` | Apply database migrations (the only thing that changes the schema) | now |
 | `make download-model` | Download the pinned embedding model into the Docker volume | now |
 | `make ingest FILE=/abs/path.pdf` | Upload one PDF and wait for the worker | now |
-| `make corpus-verify` | Check the corpus manifest against stored files | milestone 3 |
+| `make corpus-download` | Fetch the 20 corpus PDFs from PMC Open Access (checked by SHA-256) | now |
+| `make corpus-verify` | Check corpus PDFs against the manifest and report how many are searchable | now |
+| `make corpus-ingest` | Upload the corpus with its manifest metadata and wait for the worker | now |
 | `make evaluate SPLIT=dev` | Run the labelled evaluation | milestone 3 |
 | `make smoke` | End-to-end check against a running stack | milestone 5 |
 

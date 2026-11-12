@@ -2,15 +2,17 @@ import argparse
 import json
 import time
 import uuid
+from collections import Counter
 from pathlib import Path
 
-from sqlalchemy import Engine
+from sqlalchemy import Engine, select
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
-from masters_cycling_lab.application import documents
+from masters_cycling_lab.application import corpus, documents
 from masters_cycling_lab.application.errors import ServiceError
 from masters_cycling_lab.config import get_settings
-from masters_cycling_lab.infrastructure.db.models import IndexVersion, IngestionJob
+from masters_cycling_lab.infrastructure.db.models import Document, IndexVersion, IngestionJob
 from masters_cycling_lab.infrastructure.db.session import make_engine
 from masters_cycling_lab.infrastructure.storage.local_files import LocalFileStorage
 from masters_cycling_lab.main import create_app
@@ -83,6 +85,85 @@ def wait_for_job(engine: Engine, job_id: uuid.UUID) -> int:
         time.sleep(2)
 
 
+def corpus_command(action: str, manifest: Path, check_index: bool, wait: bool) -> int:
+    try:
+        entries = corpus.load_manifest(manifest)
+    except corpus.ManifestError as error:
+        print(f"Problems in {manifest}:\n{error}")
+        return 1
+
+    if action == "download":
+        outcomes = corpus.download_missing(manifest, entries)
+        for corpus_id, outcome in outcomes:
+            print(f"{corpus_id}: {outcome}")
+        return 0 if all(outcome in ("already present", "downloaded") for _, outcome in outcomes) else 1
+
+    if action == "verify":
+        checks = corpus.verify_files(manifest, entries)
+        for check in checks:
+            print(f"{check.corpus_id}: {'ok' if not check.problems else '; '.join(check.problems)}")
+        print(f"\n{len(entries)} papers, {sum(e.full_text for e in entries)} with full text.")
+        for relevance, count in sorted(Counter(e.population_relevance for e in entries).items()):
+            print(f"  {relevance}: {count}")
+        provisional = sum(e.description_review_status == "provisional" for e in entries)
+        print(f"Population descriptions awaiting human review: {provisional}")
+        if check_index:
+            print_index_status(entries)
+        failed = [check for check in checks if check.problems]
+        print(f"\n{'All files match the manifest.' if not failed else f'{len(failed)} files have problems.'}")
+        return 1 if failed else 0
+
+    settings = get_settings()
+    engine = make_engine(settings.database_url)
+    with Session(engine) as session:
+        results = corpus.ingest(session, LocalFileStorage(settings.storage_root), settings, manifest, entries)
+        for entry, _, duplicate in results:
+            print(f"{entry.corpus_id}: {'already in the corpus, metadata refreshed' if duplicate else 'queued'}")
+    if not wait:
+        return 0
+    return wait_for_corpus(engine, entries)
+
+
+def print_index_status(entries: list[corpus.ManifestEntry]) -> None:
+    try:
+        with Session(make_engine(get_settings().database_url)) as session:
+            status = corpus.index_status(session, entries)
+    except OperationalError as exc:
+        print(
+            f"\nIndex status unavailable: could not use the database ({type(exc.orig).__name__}). Is `make up` running?"
+        )
+        return
+    print("\nIndex status:")
+    for state, count in sorted(Counter(status.values()).items()):
+        print(f"  {state}: {count}")
+
+
+def wait_for_corpus(engine: Engine, entries: list[corpus.ManifestEntry]) -> int:
+    last = ""
+    while True:
+        with Session(engine) as session:
+            status = corpus.index_status(session, entries)
+            ids = list(
+                session.scalars(
+                    select(Document.id).where(
+                        Document.sha256.in_([entry.sha256 for entry in entries]), Document.deleted_at.is_(None)
+                    )
+                )
+            )
+            jobs = documents.latest_jobs(session, ids)
+            running = sum(job.status in ("queued", "running") for job in jobs.values())
+            failed = [job for job in jobs.values() if job.status == "failed"]
+            line = f"searchable {list(status.values()).count('searchable')}/{len(entries)}, in progress {running}"
+            if line != last:
+                print(line)
+                last = line
+            if running == 0:
+                for job in failed:
+                    print(f"failed: document {job.document_id}: {job.error_code} {job.error_message}")
+                return 0 if all(state == "searchable" for state in status.values()) else 1
+        time.sleep(3)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="mcl", description="Masters Cycling Lab command line tools")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -97,9 +178,17 @@ def main(argv: list[str] | None = None) -> int:
     ingest_command.add_argument("--filename", help="name to record for the document (default: the file's name)")
     ingest_command.add_argument("--wait", action="store_true", help="wait for the worker and show progress")
 
+    corpus_command_parser = commands.add_parser("corpus", help="research corpus: download, verify or ingest")
+    corpus_command_parser.add_argument("action", choices=["download", "verify", "ingest"])
+    corpus_command_parser.add_argument("--manifest", type=Path, default=corpus.DEFAULT_MANIFEST)
+    corpus_command_parser.add_argument("--check-index", action="store_true", help="also report ingestion status")
+    corpus_command_parser.add_argument("--wait", action="store_true", help="after ingest, wait for the worker")
+
     args = parser.parse_args(argv)
     if args.command == "openapi":
         return write_openapi(args.output)
     if args.command == "download-model":
         return download_model()
+    if args.command == "corpus":
+        return corpus_command(args.action, args.manifest, args.check_index, args.wait)
     return ingest(args.path, args.filename, args.wait)

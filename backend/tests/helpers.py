@@ -1,8 +1,10 @@
 """Test-only stand-ins. Real application paths never use these."""
 
 import hashlib
+import json
 import re
 from collections.abc import Callable
+from pathlib import Path
 
 import numpy as np
 import numpy.typing as npt
@@ -66,3 +68,47 @@ class FakeEmbedder:
             rows.append(np.random.default_rng(seed).standard_normal(self.dimension))
         vectors = np.array(rows, dtype=np.float32)
         return vectors / np.linalg.norm(vectors, axis=1, keepdims=True)
+
+
+def manifest_entry(pdf: bytes, **overrides: object) -> dict[str, object]:
+    """A valid corpus manifest line for `pdf`, saved as pdfs/paper.pdf, with any field overridden."""
+    values: dict[str, object] = {
+        "corpus_id": "mcl-001",
+        "title": "Recovery in Masters Cyclists",
+        "authors": ["Rider A"],
+        "year": 2020,
+        "citation": "J Test. 2020;1:1.",
+        "doi": "10.1234/test.1",
+        "pmcid": "PMC1",
+        "pmid": 1,
+        "landing_page_url": "https://example.org/paper",
+        "download_url": "https://example.org/paper.pdf",
+        "download_source": "test",
+        "license": "CC BY",
+        "license_source": "test",
+        "access": "open_access",
+        "redistribution": "allowed",
+        "full_text": True,
+        "retracted_at_acquisition": False,
+        "file": "pdfs/paper.pdf",
+        "sha256": hashlib.sha256(pdf).hexdigest(),
+        "bytes": len(pdf),
+        "acquired_on": "2026-11-12",
+        "bibliographic_source": "test",
+        "population_relevance": "masters_cyclists",
+        "population": "test riders",
+        "age_range": "50-70",
+        "sport": "cycling",
+        "study_design": "test",
+        "topics": ["recovery"],
+        "description_source": "test",
+        "description_review_status": "provisional",
+    }
+    values.update(overrides)
+    return values
+
+
+def write_manifest(folder: Path, *entries: dict[str, object]) -> Path:
+    path = folder / "manifest.jsonl"
+    path.write_text("".join(json.dumps(entry) + "\n" for entry in entries))
+    return path

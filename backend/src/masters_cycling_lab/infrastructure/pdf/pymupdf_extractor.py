@@ -55,3 +55,9 @@ def read_page(page: pymupdf.Page) -> ExtractedPage:
         else:
             warnings = ("No extractable text on this page.",)
     return ExtractedPage(page_number=page.number + 1, label=page.get_label() or None, text=text, warnings=warnings)
+
+
+def first_pages_text(path: Path, pages: int = 2) -> str:
+    """Raw text of the first few pages, for checking that a file is the paper it claims to be."""
+    with pymupdf.open(path, filetype="pdf") as document:
+        return " ".join(document.load_page(i).get_text() for i in range(min(pages, document.page_count)))

@@ -8,7 +8,7 @@ Later milestones start only when the earlier ones pass their acceptance checks.
 | 0 | Repository, design, dependency plan | Done |
 | 1 | Compose, migrations, schema, storage, readiness | Done |
 | 2 | Durable PDF ingestion | Done |
-| 3 | Retrieval and first research validation | Next |
+| 3 | Retrieval and first research validation | In progress (corpus done) |
 | 4 | Grounded answers with citations | Not started |
 | 5 | React workspace | Not started |
 | 6 | Evaluation and handoff | Not started |
@@ -95,7 +95,9 @@ left. Readiness does not check the embedding model yet: the API only needs it on
 2. The API loads the embedding model once for query embeddings; readiness reports it.
 3. `POST /retrieval/search` with ranks, distances, similarity (`1 - distance`), and model and chunking config.
 4. Lexical baseline (PostgreSQL full-text search) behind the same interface.
-5. `research/corpus/manifest.jsonl` and `make corpus-verify` (hashes, licences, access status).
+5. Done: 20 CC BY papers in `research/corpus/manifest.jsonl` with source, licence, SHA-256 and provisional population
+   notes; `make corpus-download`, `make corpus-verify`, `make corpus-ingest`. All 20 ingested (259 pages, 1,269
+   chunks). See [research/corpus/README.md](../research/corpus/README.md).
 6. `research/evaluation/questions.jsonl` format with gold evidence anchored to file hash, page and quotation.
 7. `make evaluate SPLIT=dev` for retrieval metrics: Recall@k, MRR@k, nDCG@k, evidence-span coverage@k.
 
