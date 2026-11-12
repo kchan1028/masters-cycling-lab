@@ -47,13 +47,16 @@ export default function DocumentsView() {
     return () => window.clearInterval(timer)
   }, [inProgress, load])
 
-  async function run(key: string, action: () => Promise<string>) {
+  /** Runs one action at a time and reports the outcome. Resolves to false when it failed. */
+  async function run(key: string, action: () => Promise<string>): Promise<boolean> {
     setBusy(key)
     try {
       setMessage(await action())
       await load()
+      return true
     } catch (caught) {
       setMessage(errorMessage(caught))
+      return false
     } finally {
       setBusy(null)
     }
@@ -146,7 +149,7 @@ type RowProps = {
   disabled: boolean
   onReindex: () => void
   onDelete: () => void
-  onSave: (patch: { title?: string; publication_year?: number | null }) => Promise<void>
+  onSave: (patch: { title?: string; publication_year?: number | null }) => Promise<boolean>
 }
 
 function DocumentRow({ document, disabled, onReindex, onDelete, onSave }: RowProps) {
@@ -157,8 +160,11 @@ function DocumentRow({ document, disabled, onReindex, onDelete, onSave }: RowPro
     event.preventDefault()
     const form = new FormData(event.currentTarget)
     const year = String(form.get('year') ?? '')
-    await onSave({ title: String(form.get('title') ?? '').trim(), publication_year: year ? Number(year) : null })
-    setEditing(false)
+    const saved = await onSave({
+      title: String(form.get('title') ?? '').trim(),
+      publication_year: year ? Number(year) : null,
+    })
+    if (saved) setEditing(false)
   }
 
   return (
@@ -240,7 +246,9 @@ function PageViewer({ document }: { document: Document }) {
         setError(null)
       })
       .catch((caught) => {
-        if (!cancelled) setError(errorMessage(caught))
+        if (cancelled) return
+        setPage(null)
+        setError(errorMessage(caught))
       })
     return () => {
       cancelled = true

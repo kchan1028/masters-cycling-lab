@@ -69,7 +69,7 @@ export const api = {
   page: (id: string, pageNumber: number) => request<Page>(`/documents/${id}/pages/${pageNumber}`),
   search: (body: SearchRequest) => sendJson<SearchResponse>('POST', '/retrieval/search', body),
   ask: (body: AnswerRequest) => sendJson<Answer>('POST', '/answers', body),
-  answerDebug: (id: string) => request<AnswerDebug>(`/answers/${id}/debug`),
+  answerDebug: (id: string) => request<AnswerDebug>(`/answers/${encodeURIComponent(id)}/debug`),
   evaluationRuns: () => request<EvaluationRunList>('/evaluation-runs'),
   evaluationRun: (id: string) => request<EvaluationRunDetail>(`/evaluation-runs/${id}`),
 }

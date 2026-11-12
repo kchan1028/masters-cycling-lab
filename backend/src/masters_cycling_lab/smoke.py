@@ -31,8 +31,11 @@ def run_smoke(base_url: str) -> int:
             return 1
         finally:
             for document_id in uploaded:  # only left here when a step failed before the delete step
-                client.delete(f"/api/v1/documents/{document_id}")
-                print(f"Removed smoke document {document_id}.")
+                try:
+                    client.delete(f"/api/v1/documents/{document_id}")
+                    print(f"Removed smoke document {document_id}.")
+                except httpx.HTTPError:
+                    print(f"Could not remove smoke document {document_id}; delete it from the Documents page.")
     print("Smoke check passed.")
     return 0
 
@@ -83,9 +86,9 @@ def check_stack(client: httpx.Client, uploaded: list[str]) -> None:
 
 def check_answer(client: httpx.Client, document_id: str) -> None:
     response = client.post("/api/v1/answers", json={"question": QUESTION, "filters": {"document_ids": [document_id]}})
-    if response.status_code == 503:
-        # Generation is optional; a missing or unreachable provider must be a 503, never an abstention.
-        print(f"skip  answer: provider not available ({response.json()['error']['code']})")
+    if response.status_code == 503 and "LLM_NOT_CONFIGURED" in response.text:
+        # Generation is optional. A configured provider that fails is a real failure, so only this case is skipped.
+        print("skip  answer: no LLM provider configured (LLM_NOT_CONFIGURED)")
         return
     answer = expect(response, 200)
     if answer["status"] == "insufficient_evidence":

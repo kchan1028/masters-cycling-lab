@@ -149,10 +149,6 @@ textarea {
   text-underline-offset: 0.3em;
 }
 
-main {
-  overflow-x: auto;
-}
-
 .stack {
   display: flex;
   flex-direction: column;
@@ -243,6 +239,12 @@ button.link[aria-pressed='true'] {
   font-weight: 600;
 }
 
+/* Wide tables scroll sideways on small screens. Only views with a table scroll, so the research view's sticky
+   evidence panel keeps working. */
+main section:has(table) {
+  overflow-x: auto;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -257,12 +259,8 @@ td {
   border-bottom: 1px solid color-mix(in srgb, var(--muted) 40%, transparent);
 }
 
-.actions {
-  white-space: nowrap;
-}
-
-.actions button + button {
-  margin-left: 0.25rem;
+.actions button {
+  margin: 0 0.25rem 0.25rem 0;
 }
 
 .warnings {

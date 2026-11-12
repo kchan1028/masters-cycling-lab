@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import type { Job } from '../../api/client'
-import { makeDocument, stubApi } from '../../test/fakeApi'
+import { errorBody, makeDocument, stubApi } from '../../test/fakeApi'
 import DocumentsView from './DocumentsView'
 
 function makeJob(overrides: Partial<Job>): Job {
@@ -101,4 +101,19 @@ test('deletes only after confirmation', async () => {
   await user.click(screen.getByRole('button', { name: 'Delete' }))
   expect(await screen.findByText('Document deleted.')).toBeInTheDocument()
   expect(fetchMock).toHaveBeenCalledWith('/api/v1/documents/doc-1', { method: 'DELETE' })
+})
+
+test('keeps the edit form open when saving fails', async () => {
+  stubApi([
+    list([makeDocument()]),
+    { method: 'PATCH', path: '/documents/doc-1', status: 422, body: errorBody('VALIDATION_ERROR', 'Year is out of range.') },
+  ])
+  const user = userEvent.setup()
+  render(<DocumentsView />)
+
+  await user.click(await screen.findByRole('button', { name: 'Edit' }))
+  await user.click(screen.getByRole('button', { name: 'Save' }))
+
+  expect(await screen.findByText('Year is out of range. (VALIDATION_ERROR)')).toBeInTheDocument()
+  expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('Recovery in masters cyclists')
 })
