@@ -163,9 +163,11 @@ on every measure. Every number is against labels no person has reviewed.
    cited passage supports its claim. Record that as the first answer-support review.
 2. Review the 30 labels with `make review`, starting with the 11 test questions. Record dataset v2 and re-run both
    splits.
-3. Improve recall of secondary papers on dev only: cap passages per paper in the top k, then try smaller or
-   sentence-aware chunks and hybrid vector plus lexical ranking. Confirm on new held-out questions, since the
-   current test split has now been seen.
+3. Evaluate hybrid ranking. On dev, rank fusion of vector and lexical search (lexical at half weight) raised
+   evidence coverage from 0.53 to 0.68 and recall from 0.82 to 0.87, at a cost to MRR. A cap per paper and smaller
+   chunks did not help (see [evaluation.md](evaluation.md#experiments-dev-only-nothing-adopted-yet)). Add fusion
+   as a third search mode reported in every evaluation run, and use it for answers only if it holds up on reviewed
+   labels and new held-out questions, since the current test split has now been seen.
 4. Grow the question set (aim for 60 or more) so a single question moves results less.
 5. Add an answer evaluation command (citation validity, abstention accuracy, human support ratings) once answers
    exist.
