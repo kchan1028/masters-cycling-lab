@@ -59,6 +59,11 @@ def test_api_key_is_not_shown_in_repr() -> None:
     assert settings.llm_api_key.get_secret_value() == "sk-not-a-real-key"
 
 
+def test_wildcard_origin_is_rejected() -> None:
+    with pytest.raises(ValidationError, match="exact origins"):
+        make_settings(allowed_origins=["*"])
+
+
 def test_allowed_origins_parse_from_json_env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("ALLOWED_ORIGINS", '["http://127.0.0.1:8080"]')
     assert make_settings().allowed_origins == ["http://127.0.0.1:8080"]

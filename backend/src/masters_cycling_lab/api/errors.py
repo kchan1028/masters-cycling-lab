@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Mapping
 from typing import Any
 
 from fastapi import FastAPI, Request
@@ -35,19 +36,27 @@ class ErrorResponse(BaseModel):
 
 
 def error_response(
-    request: Request, status_code: int, code: str, message: str, details: dict[str, Any] | None = None
+    request: Request,
+    status_code: int,
+    code: str,
+    message: str,
+    details: dict[str, Any] | None = None,
+    headers: Mapping[str, str] | None = None,
 ) -> JSONResponse:
     request_id = getattr(request.state, "request_id", None)
     body = ErrorResponse(error=ErrorBody(code=code, message=message, request_id=request_id, details=details or {}))
-    headers = {"X-Request-ID": request_id} if request_id else None
-    return JSONResponse(body.model_dump(), status_code=status_code, headers=headers)
+    response_headers = dict(headers or {})
+    if request_id:
+        response_headers["X-Request-ID"] = request_id
+    return JSONResponse(body.model_dump(), status_code=status_code, headers=response_headers)
 
 
 def install_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(HTTPException)
     async def handle_http_error(request: Request, exc: HTTPException) -> JSONResponse:
         code = HTTP_ERROR_CODES.get(exc.status_code, "HTTP_ERROR")
-        return error_response(request, exc.status_code, code, str(exc.detail))
+        # Keep headers such as Allow on 405 responses.
+        return error_response(request, exc.status_code, code, str(exc.detail), headers=exc.headers)
 
     @app.exception_handler(RequestValidationError)
     async def handle_validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:

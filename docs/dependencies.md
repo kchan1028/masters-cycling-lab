@@ -31,7 +31,7 @@ automatically the newest release.
 | pgvector | 0.5.1 | MIT | `Vector` column type and distance operators for SQLAlchemy |
 | pymupdf | 1.28.2 | AGPL-3.0 or Artifex commercial | PDF text, page labels, encryption checks |
 | sentence-transformers | 6.3.0 | Apache-2.0 | Local embeddings |
-| torch | 2.15.0 (CPU build on Linux) | BSD-style (several) | Required by sentence-transformers |
+| torch | 2.15.0 (CPU build on Linux) | BSD-3-Clause plus bundled Apache-2.0, MIT and other permissive code | Required by sentence-transformers |
 | httpx | 0.28.1 | BSD-3-Clause | LLM provider client, test client |
 | pytest / ruff / mypy | 9.2.0 / 0.17.4 / 2.4.1 | MIT | Dev only |
 

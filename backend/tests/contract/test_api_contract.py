@@ -32,6 +32,13 @@ def test_unknown_route_uses_error_envelope(client: TestClient) -> None:
     assert_error_envelope(response.json(), "NOT_FOUND", response.headers["X-Request-ID"])
 
 
+def test_wrong_method_keeps_allow_header(client: TestClient) -> None:
+    response = client.post("/api/v1/health/live")
+    assert response.status_code == 405
+    assert "GET" in response.headers["Allow"]
+    assert_error_envelope(response.json(), "METHOD_NOT_ALLOWED", response.headers["X-Request-ID"])
+
+
 def test_validation_error_hides_submitted_values(settings: Settings) -> None:
     app = create_app(settings)
 

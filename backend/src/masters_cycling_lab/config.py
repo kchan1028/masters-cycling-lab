@@ -40,6 +40,14 @@ class Settings(BaseSettings):
 
     worker_poll_seconds: float = Field(default=2.0, gt=0)
 
+    @field_validator("allowed_origins")
+    @classmethod
+    def no_wildcard_origin(cls, value: list[str]) -> list[str]:
+        # The API has no login, so "*" would let any website you visit read its responses.
+        if "*" in value:
+            raise ValueError('"*" is not allowed; list the exact origins')
+        return value
+
     @field_validator("embedding_model_revision")
     @classmethod
     def revision_is_commit_hash(cls, value: str) -> str:

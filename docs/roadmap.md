@@ -59,7 +59,10 @@ Small changes, in order:
 4. Local file storage: generated keys, atomic write, no user-controlled paths.
 5. `GET /api/v1/health/ready`: database reachable and migrated, `vector` extension present, storage writable.
    LLM shown as "configured" or "not configured", never "available".
-6. Origin check for browser mutations (`POST`, `PATCH`, `DELETE`).
+6. Origin check for browser mutations (`POST`, `PATCH`, `DELETE`), and a `Host` header allow-list so a
+   DNS-rebinding page cannot reach the API through `127.0.0.1`.
+7. CI (GitHub Actions) running `make lint typecheck test build`, plus a check that
+   `frontend/src/api/generated/schema.ts` matches `backend/openapi.json`.
 
 Acceptance: a fresh database migrates; constraints reject bad rows in integration tests; data survives
 `make down && make up`.
