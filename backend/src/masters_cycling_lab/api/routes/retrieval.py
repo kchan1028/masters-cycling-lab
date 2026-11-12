@@ -11,8 +11,9 @@ from masters_cycling_lab.domain.retrieval import SearchFilters, SearchHit, Searc
 router = APIRouter(prefix="/retrieval", tags=["retrieval"])
 
 SCORE_NOTE = (
-    "Cosine distance (lower is closer) and similarity (1 - distance) only order the results. "
-    "They are not probabilities that a passage is relevant or correct."
+    "Results are ordered by cosine distance (vector: lower is closer; similarity is 1 - distance), by keyword score "
+    "(lexical), or by fusing both rankings (hybrid). The scores only order the results. They are not probabilities "
+    "that a passage is relevant or correct."
 )
 
 
@@ -104,7 +105,7 @@ def search(request: Request, session: SessionDep, settings: SettingsDep, body: S
         publication_year_from=body.filters.publication_year_from,
         publication_year_to=body.filters.publication_year_to,
     )
-    embedder = query_embedder(request) if body.mode == "vector" else None
+    embedder = None if body.mode == "lexical" else query_embedder(request)
     result = retrieval.search(session, body.query, filters, k, body.mode, embedder)
     return SearchResponse(
         query=body.query,

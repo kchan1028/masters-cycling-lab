@@ -346,7 +346,9 @@ def main(argv: list[str] | None = None) -> int:
 
     evaluate_parser = commands.add_parser("evaluate", help="run the labelled retrieval evaluation")
     evaluate_parser.add_argument("--split", choices=["dev", "test"], default="dev")
-    evaluate_parser.add_argument("--modes", nargs="+", choices=["vector", "lexical"], default=["vector", "lexical"])
+    evaluate_parser.add_argument(
+        "--modes", nargs="+", choices=["vector", "lexical", "hybrid"], default=["vector", "lexical", "hybrid"]
+    )
     evaluate_parser.add_argument("--k", type=int, default=10, help="passages retrieved per question")
     evaluate_parser.add_argument("--check-labels", action="store_true", help="only check the gold quotations")
 

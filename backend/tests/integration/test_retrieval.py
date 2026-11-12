@@ -9,7 +9,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from masters_cycling_lab.application import documents, retrieval
-from masters_cycling_lab.domain.retrieval import SearchFilters, SearchHit, SearchMode
+from masters_cycling_lab.domain.retrieval import HYBRID_CANDIDATES, SearchFilters, SearchHit, SearchMode, fuse
 from masters_cycling_lab.infrastructure.db.models import Chunk, Document
 from masters_cycling_lab.main import create_app
 from tests.helpers import FakeEmbedder, make_pdf
@@ -117,6 +117,22 @@ def test_lexical_baseline_ranks_word_matches(lab: Lab) -> None:
     assert search(lab, "zzzz qqqq", mode="lexical").hits == []
 
 
+def test_hybrid_fuses_the_two_deeper_rankings(lab: Lab) -> None:
+    document_id = ingest(lab, sample_pdf())
+    ingest(lab, make_pdf(["Tapering and carbohydrate loading before long road races."] * 2))
+    query = a_chunk_text(lab, document_id)
+    embedder = FakeEmbedder(lab.settings)
+
+    with Session(lab.engine) as session:
+        hybrid = retrieval.search(session, query, SearchFilters(), 5, "hybrid", embedder)
+        vector = retrieval.search(session, query, SearchFilters(), HYBRID_CANDIDATES, "vector", embedder).hits
+        lexical = retrieval.search(session, query, SearchFilters(), HYBRID_CANDIDATES, "lexical").hits
+
+    assert hybrid.hits == fuse(vector, lexical, 5)
+    assert any(hit.cosine_distance is not None and hit.lexical_score is not None for hit in hybrid.hits)
+    assert "embed_query" in hybrid.timings_ms
+
+
 @pytest.mark.parametrize("mode", ["vector", "lexical"])
 def test_ties_are_ordered_by_paper_and_position_on_every_ingest(lab: Lab, mode: SearchMode) -> None:
     # Two files with the same text: every chunk has a twin with exactly the same score.
@@ -154,6 +170,9 @@ def test_search_endpoint(lab: Lab) -> None:
 
     lexical = client.post("/api/v1/retrieval/search", json={"query": "cadence", "mode": "lexical"}).json()
     assert lexical["embedding_model_id"] is None and lexical["results"][0]["cosine_distance"] is None
+
+    hybrid = client.post("/api/v1/retrieval/search", json={"query": target, "mode": "hybrid"}).json()
+    assert hybrid["mode"] == "hybrid" and hybrid["embedding_model_id"] is not None and hybrid["results"]
 
     bad = {"query": "x", "filters": {"publication_year_from": 2020, "publication_year_to": 2010}}
     assert client.post("/api/v1/retrieval/search", json=bad).status_code == 422

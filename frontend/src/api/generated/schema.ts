@@ -771,7 +771,7 @@ export interface components {
              * @default vector
              * @enum {string}
              */
-            mode: "vector" | "lexical";
+            mode: "vector" | "lexical" | "hybrid";
             filters?: components["schemas"]["FiltersIn"];
         };
         /** SearchResponse */
@@ -782,7 +782,7 @@ export interface components {
              * Mode
              * @enum {string}
              */
-            mode: "vector" | "lexical";
+            mode: "vector" | "lexical" | "hybrid";
             /** Candidate K */
             candidate_k: number;
             /** Results */
@@ -801,7 +801,7 @@ export interface components {
             };
             /**
              * Score Note
-             * @default Cosine distance (lower is closer) and similarity (1 - distance) only order the results. They are not probabilities that a passage is relevant or correct.
+             * @default Results are ordered by cosine distance (vector: lower is closer; similarity is 1 - distance), by keyword score (lexical), or by fusing both rankings (hybrid). The scores only order the results. They are not probabilities that a passage is relevant or correct.
              */
             score_note: string;
         };

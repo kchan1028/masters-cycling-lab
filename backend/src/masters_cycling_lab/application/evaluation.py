@@ -25,7 +25,14 @@ from masters_cycling_lab.config import REPO_ROOT
 from masters_cycling_lab.domain import evaluation as metrics
 from masters_cycling_lab.domain.evaluation import EvidenceSpan
 from masters_cycling_lab.domain.ports import Embedder
-from masters_cycling_lab.domain.retrieval import SearchFilters, SearchHit, SearchMode
+from masters_cycling_lab.domain.retrieval import (
+    HYBRID_CANDIDATES,
+    HYBRID_LEXICAL_WEIGHT,
+    RRF_K,
+    SearchFilters,
+    SearchHit,
+    SearchMode,
+)
 from masters_cycling_lab.infrastructure.db.models import (
     Document,
     DocumentPage,
@@ -320,6 +327,8 @@ def run_config(
         "embedding_model_revision": embedder.revision,
         "query_instruction": embedder.query_instruction,
         "lexical": "PostgreSQL to_tsquery('english', words joined with OR), ranked by ts_rank_cd",
+        "hybrid": f"reciprocal rank fusion (k={RRF_K}) of the top {HYBRID_CANDIDATES} vector and lexical passages, "
+        f"lexical weight {HYBRID_LEXICAL_WEIGHT}",
         "index_pipelines": [json.loads(pipeline) for pipeline in pipelines],
         "searchable_corpus_documents": len(index.active_versions),
     }
