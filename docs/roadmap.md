@@ -59,8 +59,8 @@ These are outside the code and can stall acceptance:
 - `GET /api/v1/health/ready`: database, migrations, `vector` extension and storage. LLM shown as configured or not;
   the provider is never called.
 - `Host` allow-list (blocks DNS rebinding) and an `Origin` check on browser writes.
-- CI: lint, typecheck, tests, build, API type drift check, Compose validation, and integration tests against a
-  pgvector service container.
+- `make check-api-types` fails when `backend/openapi.json` or the generated frontend types are stale. Checks run
+  locally; the project has no hosted CI.
 
 Verified: fresh database migrates; downgrade and re-upgrade work; 31 integration tests on constraints, migrations
 and readiness pass; data in both volumes survived `make down && make up`. See [operations.md](operations.md).
