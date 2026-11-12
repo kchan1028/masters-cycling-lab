@@ -53,7 +53,9 @@ def test_an_unreachable_database_gets_a_message_not_a_traceback(
     monkeypatch.setattr(cli, "make_engine", lambda url: StallingEngine(failures=99))
 
     assert cli.connected_engine("postgresql+psycopg://unused") is None
-    assert "make up" in capsys.readouterr().out
+    output = capsys.readouterr().out
+    assert "connection timeout expired" in output
+    assert "make up" in output
 
 
 def test_ctrl_c_stops_a_review_cleanly(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:

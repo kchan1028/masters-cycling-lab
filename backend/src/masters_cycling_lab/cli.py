@@ -231,14 +231,16 @@ def connected_engine(url: str) -> Engine | None:
     """An engine that has connected once. Docker Desktop sometimes stalls new connections for a while, so a timeout
     is retried before giving up with a readable message instead of a traceback."""
     engine = make_engine(url)
+    problem = ""
     for attempt in range(1, CONNECT_ATTEMPTS + 1):
         try:
             with engine.connect():
                 return engine
-        except OperationalError:
+        except OperationalError as error:
+            problem = str(error.orig or error).strip().splitlines()[0]  # wrong password and timeouts look alike here
             if attempt < CONNECT_ATTEMPTS:
                 print(f"The database did not answer (attempt {attempt} of {CONNECT_ATTEMPTS}); trying again.")
-    print("Could not reach the database. Is the stack running? Start it with 'make up'.")
+    print(f"Could not reach the database ({problem}). Is the stack running? Start it with 'make up'.")
     return None
 
 
