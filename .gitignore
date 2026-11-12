@@ -1,0 +1,26 @@
+# Secrets and local config
+.env
+*.local
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+frontend/dist/
+
+# Runtime data: uploaded PDFs, model weights, run outputs
+data/
+models/
+artifacts/*
+!artifacts/.gitkeep
+
+# Research PDFs are often copyrighted. Keep them out of git; the manifest records hashes and sources instead.
+*.pdf
+
+.DS_Store
