@@ -169,7 +169,7 @@ download and ingest, both evaluations (vector metrics identical to the main stac
 tests, and a backup → delete → restore cycle. Steps that failed because Docker ran out of memory or timed out passed
 on a rerun; two papers needed a reindex. Details in [handoff.md](handoff.md#checks-run). The run found that restore
 left nginx pointing at the API's old address (fixed: nginx now re-resolves it) and that lexical results depend on
-random chunk IDs for ties (documented, not fixed).
+random chunk IDs for ties (fixed afterwards: ties go by paper SHA-256, then chunk position).
 
 Not done: answer-support review (no answers without a provider) and human label review (needs a person).
 

@@ -1,0 +1,2848 @@
+{
+  "evaluation_run_id": "ed76f18f-6b7d-41d8-80e7-525559df4064",
+  "split": "test",
+  "started_at": "2026-11-12T19:07:46.848555+00:00",
+  "dataset_sha256": "9b4564552f8e5b5411e080031c2146cd8c5f18317086fb2f9b3ace673c4d8c63",
+  "corpus_sha256": "e68d33b48785581cbc9d88509f33b91710467df0deba0ea1e618b4eaf8df666f",
+  "code_revision": "d830fa89cdcc4cd68d4911c1c8e9adafba51b553",
+  "prompt_version": null,
+  "config": {
+    "modes": [
+      "vector",
+      "lexical"
+    ],
+    "candidate_k": 10,
+    "cutoffs": [
+      5,
+      10
+    ],
+    "embedding_model_id": "BAAI/bge-small-en-v1.5",
+    "embedding_model_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+    "query_instruction": "Represent this sentence for searching relevant passages: ",
+    "lexical": "PostgreSQL to_tsquery('english', words joined with OR), ranked by ts_rank_cd",
+    "index_pipelines": [
+      {
+        "chunking": {
+          "max_tokens": 300,
+          "overlap_tokens": 40,
+          "strategy": "page_token_window_v1"
+        },
+        "extractor": "pymupdf 1.28.2"
+      }
+    ],
+    "searchable_corpus_documents": 20,
+    "labels": {
+      "reviewed": 0,
+      "provisional": 11
+    }
+  },
+  "metrics": {
+    "vector": {
+      "recall@5": 0.4815,
+      "recall@5_questions": 9,
+      "mrr@5": 0.8889,
+      "mrr@5_questions": 9,
+      "ndcg@5": 0.7084,
+      "ndcg@5_questions": 9,
+      "evidence_coverage@5": 0.5,
+      "evidence_coverage@5_questions": 9,
+      "unjudged@5": 0.7778,
+      "unjudged@5_questions": 9,
+      "recall@10": 0.6204,
+      "recall@10_questions": 9,
+      "mrr@10": 0.9074,
+      "mrr@10_questions": 9,
+      "ndcg@10": 0.7669,
+      "ndcg@10_questions": 9,
+      "evidence_coverage@10": 0.6111,
+      "evidence_coverage@10_questions": 9,
+      "unjudged@10": 1.8889,
+      "unjudged@10_questions": 9,
+      "latency_ms_mean": 23.5,
+      "latency_ms_p95": 58.7
+    },
+    "lexical": {
+      "recall@5": 0.4259,
+      "recall@5_questions": 9,
+      "mrr@5": 0.6148,
+      "mrr@5_questions": 9,
+      "ndcg@5": 0.5053,
+      "ndcg@5_questions": 9,
+      "evidence_coverage@5": 0.2222,
+      "evidence_coverage@5_questions": 9,
+      "unjudged@5": 1.8889,
+      "unjudged@5_questions": 9,
+      "recall@10": 0.5185,
+      "recall@10_questions": 9,
+      "mrr@10": 0.6148,
+      "mrr@10_questions": 9,
+      "ndcg@10": 0.534,
+      "ndcg@10_questions": 9,
+      "evidence_coverage@10": 0.2222,
+      "evidence_coverage@10_questions": 9,
+      "unjudged@10": 2.6667,
+      "unjudged@10_questions": 9,
+      "latency_ms_mean": 201.4,
+      "latency_ms_p95": 223.9
+    }
+  },
+  "questions": {
+    "q002": {
+      "question": "What drives the decline in performance with age in master track cyclists?",
+      "vector": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-002",
+            "chunk_id": "db423706-99fd-46a8-84df-580f21306014",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.18508936077888827,
+            "lexical_score": null,
+            "excerpt": "Vol.:(0123456789)\n1 3\nEuropean Journal of Applied Physiology (2021) 121:3447\u20133457\nhttps://doi.org/10.1007/s00421-021-04803-4\nORIGINAL ARTICLE\nAge\u2011related declines in\u00a0muscle and\u00a0respiratory function are\nproportionate to\u00a0declines in\u00a0performance in\u00a0Master Track Cyclists\nPablo\u00a0Duro\u00a0Ocana1\u200a \u00a0\u00b7 Mohammad\u00a0Z"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-002",
+            "chunk_id": "ab63326a-5d6c-476e-85f1-d8eb4e55a391",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.202541363390764,
+            "lexical_score": null,
+            "excerpt": "age-related rate of decline in respiratory function, respiratory muscle strength, muscle architecture, muscle\nfunction, haemoglobin concentration, haematocrit and performance in master cyclists is uniform and (2) which parameters\ncontribute most to the reduction in performance with age.\nMethods\u2002 Mas"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-004",
+            "chunk_id": "3e6fbe2a-d536-4fd1-9697-494059bd7a22",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.21069688860755353,
+            "lexical_score": null,
+            "excerpt": "categories, but the older group in particular, reported bone health as a primary\nrationale for strength training. Conclusions: While strength training offers performance and health\nbenefits, issues of fatigue and time constraints remain substantial, suggesting the need for tailored\ntraining programs"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-007",
+            "chunk_id": "27b4ed56-ddeb-4b63-bfca-bbb22ffc9c6b",
+            "pages": [
+              4
+            ],
+            "cosine_distance": 0.22505013793406814,
+            "lexical_score": null,
+            "excerpt": "Master Athletes and Endurance Performances\nrunning, cycling, and swimming have offered the possibility\nof comparing age-related declines in three disciplines for the\nsame athlete. Interestingly, it has been observed that there was\na smaller age-related decline in cycling performance than in\nrunning "
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-007",
+            "chunk_id": "2b52b9e9-36cb-4aa3-a751-89c2234d853f",
+            "pages": [
+              5
+            ],
+            "cosine_distance": 0.22773660586694378,
+            "lexical_score": null,
+            "excerpt": "testing young (28 years) and\nmaster (60 years) triathletes showed that cycling efficiency was\nlower (\u221211%) and energy cost of running was greater (+11%)\nin the master compared with young triathletes (Peiffer et al.,\n2016); but when scaled to lean body mass, changes were more\npronounced during the ru"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-007",
+            "chunk_id": "e0406996-0a6b-48fe-97f3-b5cf07eef889",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.2283935086961678,
+            "lexical_score": null,
+            "excerpt": "maintain a high exercise-training\nstimulus with advancing age is emerging as the single most important means of limiting\nthe rate of decline in endurance performance. By constantly extending the limits of\n(ultra)-endurance, master athletes therefore represent an important insight into the\nability of"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-007",
+            "chunk_id": "6f1dc835-762e-4e22-a20d-2345d1ff8e3e",
+            "pages": [
+              4
+            ],
+            "cosine_distance": 0.22978460788726263,
+            "lexical_score": null,
+            "excerpt": "elderly master athletes who\nhad high aerobic capacities when younger.\nReductions in the lactate threshold and exercise economy\nor locomotor efficiency in master endurance athletes may also\ncontribute to the decrease in performance with advancing age\nFrontiers in Physiology | www.frontiersin.org\n4"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-002",
+            "chunk_id": "016458c3-b580-45fc-b9e4-74069c301412",
+            "pages": [
+              2
+            ],
+            "cosine_distance": 0.23168046663286945,
+            "lexical_score": null,
+            "excerpt": "performance of track cyclists. This can,\nhowever, not be entirely excluded, as an inverse relationship\nbetween spirometry parameters and sprint performance has\nbeen reported (Bhatt et\u00a0al. 2015).\nGiven the previously observed age-related decrements in\nrespiratory and musculoskeletal function, and per"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-007",
+            "chunk_id": "047524d5-ff28-44e3-a699-3106d0dcea98",
+            "pages": [
+              2
+            ],
+            "cosine_distance": 0.23340046405791692,
+            "lexical_score": null,
+            "excerpt": "PERFORMANCES OF MASTER ATHLETES\nIMPROVED AT A FASTER RATE THAN IN\nYOUNG ATHLETES\nAge-related\ndeclines\nin\nendurance\nand\nultra-endurance\nperformance have been well described in the literature for\nswimming (Tanaka and Seals, 2003; Zamparo et al., 2012;\nFerreira et al., 2016; Knechtle et al., 2016), cyc"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-008",
+            "chunk_id": "62c487c1-9b30-48e3-93e9-2c4d8611e841",
+            "pages": [
+              16
+            ],
+            "cosine_distance": 0.2344944933358014,
+            "lexical_score": null,
+            "excerpt": "56,\nM618\u2013M626. [CrossRef] [PubMed]\n43.\nGanse, B.; Drey, M.; Hildebrand, F.; Knobe, M.; Degens, H. Performance Declines Are Accelerated in the Oldest-Old Track and\nField Athletes 80 to 94 Years of Age. Rejuvenation Res. 2020, 24, 20\u201327. [CrossRef] [PubMed]\n44.\nSousa, C.V.; Da Silva Aguiar, S.; Rosema"
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.6666666666666666,
+          "mrr@5": 1.0,
+          "ndcg@5": 0.8472668887613066,
+          "evidence_coverage@5": 1.0,
+          "unjudged@5": 1,
+          "recall@10": 0.6666666666666666,
+          "mrr@10": 1.0,
+          "ndcg@10": 0.8472668887613066,
+          "evidence_coverage@10": 1.0,
+          "unjudged@10": 2
+        }
+      },
+      "lexical": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-007",
+            "chunk_id": "27b4ed56-ddeb-4b63-bfca-bbb22ffc9c6b",
+            "pages": [
+              4
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.4,
+            "excerpt": "Master Athletes and Endurance Performances\nrunning, cycling, and swimming have offered the possibility\nof comparing age-related declines in three disciplines for the\nsame athlete. Interestingly, it has been observed that there was\na smaller age-related decline in cycling performance than in\nrunning "
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-002",
+            "chunk_id": "ab63326a-5d6c-476e-85f1-d8eb4e55a391",
+            "pages": [
+              1
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.1000001,
+            "excerpt": "age-related rate of decline in respiratory function, respiratory muscle strength, muscle architecture, muscle\nfunction, haemoglobin concentration, haematocrit and performance in master cyclists is uniform and (2) which parameters\ncontribute most to the reduction in performance with age.\nMethods\u2002 Mas"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-007",
+            "chunk_id": "bfa69dbc-52e5-4af9-9ecc-5e8e266c5cde",
+            "pages": [
+              1
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.0,
+            "excerpt": "Bourgogne Franche-Comt\u00e9, Dijon, France, 2 Neural Control of Movement Laboratory, Faculty of\nScience, School of Medicine, Medicine and Health, University of Wollongong, Wollongong, NSW, Australia\nThe increased participation of master athletes (i.e., >40 years old) in endurance\nand ultra-endurance eve"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-002",
+            "chunk_id": "db423706-99fd-46a8-84df-580f21306014",
+            "pages": [
+              1
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.0,
+            "excerpt": "Vol.:(0123456789)\n1 3\nEuropean Journal of Applied Physiology (2021) 121:3447\u20133457\nhttps://doi.org/10.1007/s00421-021-04803-4\nORIGINAL ARTICLE\nAge\u2011related declines in\u00a0muscle and\u00a0respiratory function are\nproportionate to\u00a0declines in\u00a0performance in\u00a0Master Track Cyclists\nPablo\u00a0Duro\u00a0Ocana1\u200a \u00a0\u00b7 Mohammad\u00a0Z"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-002",
+            "chunk_id": "7ff2561e-9eca-4ec0-a13c-b37e50e3cd0a",
+            "pages": [
+              4
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.0,
+            "excerpt": "For all manoeuvres, attempts were repeated, with a 30-s\ninterval between each attempt to prevent the development\nof respiratory muscle fatigue, until the maximum value was\nachieved. Data are reported in centimetre of water (cm \u00adH2O).\nAge\u2011related rate of\u00a0decline in\u00a0muscle, respiratory\nfunction and\u00a0cy"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-004",
+            "chunk_id": "b6470469-95eb-4e38-b3ce-d21789659ca1",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.0,
+            "excerpt": "3 of 13\nwith 60% of cyclists affected and a sevenfold greater risk than runners. Strength training,\nhowever, has been shown to improve bone density in areas like the lumbar spine and hip\nin competitive male cyclists [36].\nAll these factors highlight the potential benefits of strength training for ma"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-007",
+            "chunk_id": "07f3d624-d137-4464-b6f1-b17d1f30899c",
+            "pages": [
+              4
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.8000001,
+            "excerpt": "the ages suggest that the age-related declines\nin physiological function did not differ between males and\nfemales. We suppose that in the near future, gender differences\nin endurance performance will be the same for all age group\ncategories at least for the best older athletes, but this assumption\nw"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-016",
+            "chunk_id": "75674e23-cf4a-4528-bcad-6afb94f0132f",
+            "pages": [
+              1
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.8000001,
+            "excerpt": "training.\nWe conclude that both male and female cyclists can improve their cycling performance by adding\nstrength training to their normal training.\nKeywords: concurrent training; endurance performance; sex differences; muscle strength; muscle\nhypertrophy; training adaptations\n1. Introduction\nAdding"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-016",
+            "chunk_id": "13010aae-4021-4f08-914d-4343f542ffad",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.8000001,
+            "excerpt": "anaerobic capacity,\nand neuromuscular characteristics [28]. Accordingly, Wmax has been shown to predict\nendurance performance in cyclists [29,30] and to distinguish elite cyclists from well-trained\ncyclists [30]. Concurrent endurance and heavy strength training is reported to increase\nWmax or time t"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-004",
+            "chunk_id": "3e6fbe2a-d536-4fd1-9697-494059bd7a22",
+            "pages": [
+              1
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.8000001,
+            "excerpt": "categories, but the older group in particular, reported bone health as a primary\nrationale for strength training. Conclusions: While strength training offers performance and health\nbenefits, issues of fatigue and time constraints remain substantial, suggesting the need for tailored\ntraining programs"
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.6666666666666666,
+          "mrr@5": 1.0,
+          "ndcg@5": 0.7002755876478819,
+          "evidence_coverage@5": 1.0,
+          "unjudged@5": 0,
+          "recall@10": 0.6666666666666666,
+          "mrr@10": 1.0,
+          "ndcg@10": 0.7002755876478819,
+          "evidence_coverage@10": 1.0,
+          "unjudged@10": 2
+        }
+      }
+    },
+    "q005": {
+      "question": "Is heart rate variability recovery after hard cycling different in masters cyclists than in young cyclists?",
+      "vector": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-005",
+            "chunk_id": "186a7da0-ffde-4e38-8dc8-f2b2ce86b07b",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.12369345881381721,
+            "lexical_score": null,
+            "excerpt": "Vol.:(0123456789)\nEuropean Journal of Applied Physiology (2025) 125:81\u201390\nhttps://doi.org/10.1007/s00421-024-05588-y\nORIGINAL ARTICLE\nThe effect of\u00a0age on\u00a0heart rate variability indices\nduring\u00a0and\u00a0following\u00a0high\u2011intensity continuous exercise in\u00a0masters\nand\u00a0young cyclists\nNattai\u00a0R.\u00a0Borges1,2\u200a \u00a0\u00b7 Pete"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-005",
+            "chunk_id": "d4ffe2f3-6c32-469c-b6ca-75817b6d3631",
+            "pages": [
+              8
+            ],
+            "cosine_distance": 0.15422514303472912,
+            "lexical_score": null,
+            "excerpt": "it is unsurprising the parasympathetic activity is\nlower in the extended recovery period as the athletes return\nto their baseline level. Indeed, within-group comparisons\nof the recovery response of LnRMSSD and LnHF relative\nto resting values demonstrate similar recovery trajectories\nfor masters and "
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-011",
+            "chunk_id": "5a9131ce-9b61-45cd-91c4-8e3596d723ef",
+            "pages": [
+              10
+            ],
+            "cosine_distance": 0.16350737270580873,
+            "lexical_score": null,
+            "excerpt": "10 of 14\net al. [42,43]. Here, too, no differences were found in physiological recovery for a group\nof nine master cyclists (mean age: 45 years) compared to nine adult cyclists (mean age:\n24 years) with similar VO2max. Results from three 30 min time trials with similar absolute\npower output on three"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-005",
+            "chunk_id": "a9933066-a3e2-4954-bbde-f13fa7969584",
+            "pages": [
+              9
+            ],
+            "cosine_distance": 0.18171970953227679,
+            "lexical_score": null,
+            "excerpt": "review. J Aging Phys Act 24(1):149\u2013157\nBorges NR, Reaburn PR, Doering TM, Argus CK, Driller MW (2017)\nAutonomic cardiovascular modulation in masters and young\ncyclists following high-intensity interval training. Clin Auton\nRes 27(2):83\u201390\nBorges NR, Reaburn PR, Doering TM, Argus CK, Driller MW (2018"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-005",
+            "chunk_id": "c2ed8159-b69c-4942-9d3b-7e1fdff9a476",
+            "pages": [
+              8
+            ],
+            "cosine_distance": 0.1829947611099766,
+            "lexical_score": null,
+            "excerpt": "(Shantsila et\u00a0al. 2015).\nAnother potential limitation of the current investigation\nis that respiration rate was not controlled during recovery.\nHowever, the authors believe this is an unrealistic expecta-\ntion during recovery in exercise trials. Although there were\nno significant differences between"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-005",
+            "chunk_id": "b0fe9d58-5116-4036-84f4-7fc53a62a09c",
+            "pages": [
+              4
+            ],
+            "cosine_distance": 0.1833779811859073,
+            "lexical_score": null,
+            "excerpt": "nificant group*time interaction effects (P\u2009>\u20090.05) but sig-\nnificant time effects (P\u2009<\u20090.001).\nDiscussion\nThe aim of this study was to compare HRV-derived param-\neters of cardiac autonomic regulation in well-trained masters\nand young cyclists during and following a high-intensity\ncontinuous cycle pr"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-005",
+            "chunk_id": "b9690914-d771-45ff-b245-97d1222ccb76",
+            "pages": [
+              6
+            ],
+            "cosine_distance": 0.1929497959330706,
+            "lexical_score": null,
+            "excerpt": "European Journal of Applied Physiology (2025) 125:81\u201390\ncompare the HRV response of masters and younger cyclists\nbefore (rest), during and following high-intensity continuous\nexercise. A novel finding of the present study was the lower\nresting values of parasympathetic activity in the masters\nathlet"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-005",
+            "chunk_id": "ed35f5f0-af6c-46e4-85fe-3022d9568556",
+            "pages": [
+              2
+            ],
+            "cosine_distance": 0.19417443292812886,
+            "lexical_score": null,
+            "excerpt": "under-\nstand any age-related influence on HRV following exercise\nof different intensities that represent common training proto-\ncols utilised by masters athletes. Given the current popular-\nity of monitoring HRV for recovery, a greater understanding\nof these responses may provide further context for"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-005",
+            "chunk_id": "c9a1bdf2-77c8-494d-9293-ff26e5d3c71c",
+            "pages": [
+              8
+            ],
+            "cosine_distance": 0.1984586001361237,
+            "lexical_score": null,
+            "excerpt": "European Journal of Applied Physiology (2025) 125:81\u201390\nparasympathetic reactivation in masters cyclists compared\nto younger cyclists in the 10\u00a0min following a high-inten-\nsity interval protocol (Borges et\u00a0al. 2017). These contrary\nfindings are likely due to differences in the exercise pro-\ntocol as"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-005",
+            "chunk_id": "fb54a043-123f-4911-92c4-f89296f6ce2f",
+            "pages": [
+              9
+            ],
+            "cosine_distance": 0.1991796137369356,
+            "lexical_score": null,
+            "excerpt": "https://\u200bdoi.\u200borg/\u200b10.\u200b1016/j.\u200bautneu.\u200b2012.\u200b10.\u200b007\nLipinski MJ, Vetrovec GW, Froelicher VF (2004) Importance of the\nfirst two minutes of heart rate recovery after exercise treadmill\ntesting in predicting mortality and the presence of coronary artery\ndisease in men. Am J Cardiol 93(4):445\u2013449\nLuc\u00eda"
+          }
+        ],
+        "metrics": {
+          "recall@5": 1.0,
+          "mrr@5": 1.0,
+          "ndcg@5": 1.0,
+          "evidence_coverage@5": 0.0,
+          "unjudged@5": 0,
+          "recall@10": 1.0,
+          "mrr@10": 1.0,
+          "ndcg@10": 1.0,
+          "evidence_coverage@10": 0.0,
+          "unjudged@10": 0
+        }
+      },
+      "lexical": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-005",
+            "chunk_id": "4575d290-4016-4a91-a3bd-f4ed769afecf",
+            "pages": [
+              5
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.8,
+            "excerpt": "European Journal of Applied Physiology (2025) 125:81\u201390\nTable\u202f2\u2002 \u2009Mean\u2009\u00b1\u2009standard deviation of the resting, exercise and recovery heart rate variability and respiratory rate for masters and young cyclists\nAll values are presented in means\u2009\u00b1\u2009SD. RR\u2009=\u2009R-R interval, LnRMSSD\u2009=\u2009natural logarithm of the r"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-014",
+            "chunk_id": "8bef238d-6582-4ecc-aa25-da6239ef13ac",
+            "pages": [
+              6
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.5,
+            "excerpt": "quartile of the Young dis-\ntribution of size were 10% and 9% for Old and Master\nAthletes, respectively, while nearly half the iMUPs of Old\nand Master Athletes were of a size (47% and 43% for,\nrespectively) that corresponded to the upper quartile of\nthe Young distribution.\nThe mean firing rate was lo"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-005",
+            "chunk_id": "c2ed8159-b69c-4942-9d3b-7e1fdff9a476",
+            "pages": [
+              8
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.5,
+            "excerpt": "(Shantsila et\u00a0al. 2015).\nAnother potential limitation of the current investigation\nis that respiration rate was not controlled during recovery.\nHowever, the authors believe this is an unrealistic expecta-\ntion during recovery in exercise trials. Although there were\nno significant differences between"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-014",
+            "chunk_id": "0e072c9e-63fe-4c85-a2c8-a8507c9209e8",
+            "pages": [
+              6
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.3,
+            "excerpt": "lower BMI than the Old. Both older groups had a lower\ntotal lean mass than the young.\nMuscle CSA of the TA did not differ significantly\nbetween Young, Old, and Master Athlete groups, although\nthe Old and Master Athletes had lower MVC force than the\nYoung.\nSurface EMG signals\nThe CMAP of the TA was l"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-005",
+            "chunk_id": "186a7da0-ffde-4e38-8dc8-f2b2ce86b07b",
+            "pages": [
+              1
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.2,
+            "excerpt": "Vol.:(0123456789)\nEuropean Journal of Applied Physiology (2025) 125:81\u201390\nhttps://doi.org/10.1007/s00421-024-05588-y\nORIGINAL ARTICLE\nThe effect of\u00a0age on\u00a0heart rate variability indices\nduring\u00a0and\u00a0following\u00a0high\u2011intensity continuous exercise in\u00a0masters\nand\u00a0young cyclists\nNattai\u00a0R.\u00a0Borges1,2\u200a \u00a0\u00b7 Pete"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-011",
+            "chunk_id": "95429aca-df72-4934-85f3-4b4cbe0607ca",
+            "pages": [
+              1
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.0,
+            "excerpt": "and triathletes took part in this study. Between\nthe age groups there were no significant differences in relative peak power to fat-free mass, maximal\nheart rate (HR), training volume, and VO2max-percentiles (%). Participants performed different HIIT\nprotocols consisting of 4 \u00d7 30 s Wingate tests wi"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-011",
+            "chunk_id": "0a01e9b4-b47f-4c31-83a2-a4934968ab45",
+            "pages": [
+              2
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.0,
+            "excerpt": "investigated.\nHIIT sessions are used to improve maximum oxygen uptake (VO2max) and endurance\nperformance in high-performance and recreational sports [15\u201317]. High-intensity inter-\nval training (HIIT) protocols are variable in their design and can be different regarding\nthe number of repetitions, dur"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-005",
+            "chunk_id": "b0fe9d58-5116-4036-84f4-7fc53a62a09c",
+            "pages": [
+              4
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.8000001,
+            "excerpt": "nificant group*time interaction effects (P\u2009>\u20090.05) but sig-\nnificant time effects (P\u2009<\u20090.001).\nDiscussion\nThe aim of this study was to compare HRV-derived param-\neters of cardiac autonomic regulation in well-trained masters\nand young cyclists during and following a high-intensity\ncontinuous cycle pr"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-005",
+            "chunk_id": "d4ffe2f3-6c32-469c-b6ca-75817b6d3631",
+            "pages": [
+              8
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.8000001,
+            "excerpt": "it is unsurprising the parasympathetic activity is\nlower in the extended recovery period as the athletes return\nto their baseline level. Indeed, within-group comparisons\nof the recovery response of LnRMSSD and LnHF relative\nto resting values demonstrate similar recovery trajectories\nfor masters and "
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-016",
+            "chunk_id": "48c77642-5e67-4f01-8cf6-dfcac0bcaa62",
+            "pages": [
+              4
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.7,
+            "excerpt": "4 of 11\nFigure 1. Percent change in physiological measurements and cycling performance after 11\u201312 weeks of heavy strength\ntraining in male and female cyclists. The results from the male cyclists are from [1,16], and the results from the female\ncyclists are from [2,15]. Values are mean \u00b1 SD. RM = re"
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.5,
+          "mrr@5": 1.0,
+          "ndcg@5": 0.8262346571285599,
+          "evidence_coverage@5": 0.0,
+          "unjudged@5": 1,
+          "recall@10": 1.0,
+          "mrr@10": 1.0,
+          "ndcg@10": 0.9639404333166532,
+          "evidence_coverage@10": 0.0,
+          "unjudged@10": 2
+        }
+      }
+    },
+    "q008": {
+      "question": "How much of the VO2max decline in aging masters endurance athletes is explained by training volume?",
+      "vector": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-008",
+            "chunk_id": "0bb294dd-80d0-49e3-b794-d8e589049b25",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.10812357390295146,
+            "lexical_score": null,
+            "excerpt": "Gregoire P. Millet 1,2\n1\nDepartment of Biomedical Sciences, University of Lausanne, CH-1015 Lausanne, Switzerland\n2\nInstitute of Sport Sciences, University of Lausanne, CH-1015 Lausanne, Switzerland\n3\nMedical Faculty, Sigmund Freud Private University, A-1020 Vienna, Austria\n4\nDepartment of Sport Sci"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-008",
+            "chunk_id": "bca51f9a-6aff-4d15-81a7-3228aaf9394d",
+            "pages": [
+              2
+            ],
+            "cosine_distance": 0.11567448190754237,
+            "lexical_score": null,
+            "excerpt": "changes in training\nvolumes with aging. Fifty-four percent of the variance in the observed VO2max decline\nwas explained by training-volume changes (Figure 1), and this percentage increased to 70%\nwhen the age of the athletes was considered. No other variables improved the explanation"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-008",
+            "chunk_id": "aef73641-35c2-4721-bf3d-82abc1782021",
+            "pages": [
+              10
+            ],
+            "cosine_distance": 0.11805218458175659,
+            "lexical_score": null,
+            "excerpt": "10 of 19\n4.4. Aging-Related VO2max Loss despite Maintenance of High Training Volume and Intensity:\nThe Slow Component\nThe age-related decline in endurance performance and its physiological determinants\nare largely mediated by a reduction in the volume and intensity of training commonly\nobserved in m"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-008",
+            "chunk_id": "c30b46ad-bf69-427e-bfa9-04539a04798b",
+            "pages": [
+              3
+            ],
+            "cosine_distance": 0.12892162799835205,
+            "lexical_score": null,
+            "excerpt": "3 of 19\nof the VO2max decline. Within the groups of females [16,21], 39% of the variance in VO2max\nchange was explained by changes in the training volume (Figure 1).\nTable 1. Longitudinal changes in VO2max with aging and related changes of training characteristics\nin masters endurance athletes. Posi"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-008",
+            "chunk_id": "3c80185f-5804-49ba-99dc-ab03b5123522",
+            "pages": [
+              4
+            ],
+            "cosine_distance": 0.13416898250579834,
+            "lexical_score": null,
+            "excerpt": "4 of 19\nFigure 1. Relationship between VO2max decline and the reduction in training volume with aging\nof masters athletes (from data presented in Table 1) [16\u201321]. Circles indicate males, and triangles\nindicate females. Changes in the training volume explain 54% and 39% of the variance in VO2max\ncha"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-008",
+            "chunk_id": "57dfb8f3-2e17-4188-a5d7-031189cee549",
+            "pages": [
+              8
+            ],
+            "cosine_distance": 0.13670134544372559,
+            "lexical_score": null,
+            "excerpt": "the observed VO2max decline are not possible [41]. Similarly,\nanother cross-sectional study suggests that active older men (n = 146) lose maximal aerobic\npower at a rate of about 12%, and active older women (n = 82) lose maximal aerobic power\nat a rate of about 8% per decade between the ages of 40 a"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-008",
+            "chunk_id": "1bb1491a-2ff9-4616-b714-4f317449d75c",
+            "pages": [
+              2
+            ],
+            "cosine_distance": 0.14012748003005981,
+            "lexical_score": null,
+            "excerpt": "2 of 19\ntraining stimuli are of utmost importance to improve or maintain muscular performance\nand CRF [11,12]. Thus, here, we aim to evaluate and summarize longitudinal observations\non VO2max changes related to training variations of masters endurance athletes in the long\nand short term.\n2. Material"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-008",
+            "chunk_id": "5a318712-ccae-4a50-b0e3-cfcc5b304b82",
+            "pages": [
+              2
+            ],
+            "cosine_distance": 0.14050341489931284,
+            "lexical_score": null,
+            "excerpt": "to the changes in training volume (running, km/week) (Table 1, Figure 1).\nStudies reporting training intensities (running, min/km) indicate that training volume\nreductions parallel intensity reductions, except one of the female groups of a study by\nEskurza et al., who increased training volume but r"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-008",
+            "chunk_id": "a4298c0a-118d-476d-97f4-7464cd05ac61",
+            "pages": [
+              8
+            ],
+            "cosine_distance": 0.14198671078839753,
+            "lexical_score": null,
+            "excerpt": "al. [16]. Nevertheless, a somewhat lower trainability of aerobic capacity in\nwomen may contribute to those differences [45].\nLongitudinal changes in VO2max in cross-country skiers (age 58.7 \u00b1 2.3 years) who\ncontinuously competed and reported unchanged training patterns amounted to only\n\u22124.1 \u00b1 3.7 % "
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-008",
+            "chunk_id": "8fcae754-3ee7-48b2-98bf-7dca77bcee7b",
+            "pages": [
+              7
+            ],
+            "cosine_distance": 0.1473513157754337,
+            "lexical_score": null,
+            "excerpt": "(e.g., within 12 weeks) after training cessation. However, this effect can be largely restored\nby appropriate training (re)uptake. Changes in cardiac output (more importantly) and arte-\nriovenous oxygen difference accompanied by reduced levels and activity of mitochondrial\nenzymes (e.g., citrate syn"
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.3333333333333333,
+          "mrr@5": 1.0,
+          "ndcg@5": 0.7262287617954056,
+          "evidence_coverage@5": 1.0,
+          "unjudged@5": 0,
+          "recall@10": 0.3333333333333333,
+          "mrr@10": 1.0,
+          "ndcg@10": 0.7262287617954056,
+          "evidence_coverage@10": 1.0,
+          "unjudged@10": 0
+        }
+      },
+      "lexical": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-008",
+            "chunk_id": "9323c962-dbb9-48ec-a8dd-094f9ef9c693",
+            "pages": [
+              12
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.9,
+            "excerpt": "12 of 19\nFigure 3. Schematic representation of the slow (aging) and the fast (changes in training habits)\ncomponents of aging in masters endurance athletes. (A) The red line represents the aging-related\ndecline in VO2max of continuously active endurance athletes, and the lower (blue) line represents"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-008",
+            "chunk_id": "5a318712-ccae-4a50-b0e3-cfcc5b304b82",
+            "pages": [
+              2
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.7,
+            "excerpt": "to the changes in training volume (running, km/week) (Table 1, Figure 1).\nStudies reporting training intensities (running, min/km) indicate that training volume\nreductions parallel intensity reductions, except one of the female groups of a study by\nEskurza et al., who increased training volume but r"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-007",
+            "chunk_id": "1c0cacc4-0781-48a1-8a97-28ee42495c29",
+            "pages": [
+              6
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.4,
+            "excerpt": "Eskurza et al., 2002). However, the changes in the\nphysical (e.g., prevalence of injuries, distribution of relative times\nspent at the different training intensities) and behavioral (e.g.,\nreductions in time and motivation to train) characteristics of\ntraining of the endurance master athletes with a"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-008",
+            "chunk_id": "a4298c0a-118d-476d-97f4-7464cd05ac61",
+            "pages": [
+              8
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.2,
+            "excerpt": "al. [16]. Nevertheless, a somewhat lower trainability of aerobic capacity in\nwomen may contribute to those differences [45].\nLongitudinal changes in VO2max in cross-country skiers (age 58.7 \u00b1 2.3 years) who\ncontinuously competed and reported unchanged training patterns amounted to only\n\u22124.1 \u00b1 3.7 % "
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-008",
+            "chunk_id": "0bb294dd-80d0-49e3-b794-d8e589049b25",
+            "pages": [
+              1
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.1000001,
+            "excerpt": "Gregoire P. Millet 1,2\n1\nDepartment of Biomedical Sciences, University of Lausanne, CH-1015 Lausanne, Switzerland\n2\nInstitute of Sport Sciences, University of Lausanne, CH-1015 Lausanne, Switzerland\n3\nMedical Faculty, Sigmund Freud Private University, A-1020 Vienna, Austria\n4\nDepartment of Sport Sci"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-008",
+            "chunk_id": "bfabc0a9-8399-4d56-ac73-7742fbcb1f61",
+            "pages": [
+              13
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.0,
+            "excerpt": "muscle mass and strength in older persons, aerobic\nlow-intensity exercise training attenuates sarcopenia (and cachexia) [113]. Finally, the risk\nof increased injuries due to high-intensity running during HIIT is not negligible [114],\nparticularly in older runners with higher rates of knee cartilage "
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-007",
+            "chunk_id": "07f3d624-d137-4464-b6f1-b17d1f30899c",
+            "pages": [
+              4
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.9,
+            "excerpt": "the ages suggest that the age-related declines\nin physiological function did not differ between males and\nfemales. We suppose that in the near future, gender differences\nin endurance performance will be the same for all age group\ncategories at least for the best older athletes, but this assumption\nw"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-008",
+            "chunk_id": "1bb1491a-2ff9-4616-b714-4f317449d75c",
+            "pages": [
+              2
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.9,
+            "excerpt": "2 of 19\ntraining stimuli are of utmost importance to improve or maintain muscular performance\nand CRF [11,12]. Thus, here, we aim to evaluate and summarize longitudinal observations\non VO2max changes related to training variations of masters endurance athletes in the long\nand short term.\n2. Material"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-012",
+            "chunk_id": "c3ab71a1-680c-4e1c-aff4-5fe0b0cf5809",
+            "pages": [
+              10
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.9,
+            "excerpt": "sufficient nutrient\nintake without adverse changes in body composition [39]. Although not directly examined,\nthese healthier metabolic profiles likely facilitate aerobic fitness both by enabling sustained\ntraining volumes and enhancing the physiological systems integral to aerobic capacity.\n4.1.6. T"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-014",
+            "chunk_id": "39797405-bb28-4147-bb47-6dec54281e9d",
+            "pages": [
+              2
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.8,
+            "excerpt": "men, 14 older men,\nand 13 male master athletes participated in the study and\nprovided informed and written consent.\nParticipant physical activity history\nThe Young and Old participants were recruited from the\nuniversity population and the local community. All par-\nticipants in the Young and Old grou"
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.6666666666666666,
+          "mrr@5": 1.0,
+          "ndcg@5": 0.878961873034099,
+          "evidence_coverage@5": 1.0,
+          "unjudged@5": 0,
+          "recall@10": 1.0,
+          "mrr@10": 1.0,
+          "ndcg@10": 1.0,
+          "evidence_coverage@10": 1.0,
+          "unjudged@10": 1
+        }
+      }
+    },
+    "q011": {
+      "question": "Do older well-trained cyclists recover more slowly than younger ones after high-intensity interval training?",
+      "vector": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-011",
+            "chunk_id": "8e1b7363-129e-4e2c-b66e-366cebd27424",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.1734037542280087,
+            "lexical_score": null,
+            "excerpt": "Institute of Performance Diagnostics and Health Promotion (ILUG), Martin-Luther-University\nHalle-Wittenberg, 06108 Halle, Germany; sarah.feichtinger@ilug.de (S.F.);\noliver.stoll@sport.uni-halle.de (O.S.); kuno.hottenrott@sport.uni-halle.de (K.H.)\n2\nInstitute of Sport Science, Martin-Luther-Universit"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-011",
+            "chunk_id": "cb44da74-c2b1-43f3-a2f1-be30eef54f35",
+            "pages": [
+              3
+            ],
+            "cosine_distance": 0.19327566603647628,
+            "lexical_score": null,
+            "excerpt": "3 of 14\nin previous studies, in which older athletes typically had a lower performance level and,\nas a result, their recovery was reduced. However, this study compared the recovery of\nyounger and older athletes with matched physical performance levels.\nThe aim of this study was to examine possible a"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-011",
+            "chunk_id": "5a9131ce-9b61-45cd-91c4-8e3596d723ef",
+            "pages": [
+              10
+            ],
+            "cosine_distance": 0.2056284661029072,
+            "lexical_score": null,
+            "excerpt": "10 of 14\net al. [42,43]. Here, too, no differences were found in physiological recovery for a group\nof nine master cyclists (mean age: 45 years) compared to nine adult cyclists (mean age:\n24 years) with similar VO2max. Results from three 30 min time trials with similar absolute\npower output on three"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-011",
+            "chunk_id": "a20825af-d562-403f-b62e-b6daad662cd5",
+            "pages": [
+              11
+            ],
+            "cosine_distance": 0.20823029304237006,
+            "lexical_score": null,
+            "excerpt": "age groups with a comparable performance level but an older master\nathletes group. Furthermore, it is a general limitation that a clear definition for the age of\nmaster athletes across different sports is missing. This study investigated HIIT with active\nrecovery phases between exercise bouts. It wo"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-011",
+            "chunk_id": "95429aca-df72-4934-85f3-4b4cbe0607ca",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.21624252844579572,
+            "lexical_score": null,
+            "excerpt": "and triathletes took part in this study. Between\nthe age groups there were no significant differences in relative peak power to fat-free mass, maximal\nheart rate (HR), training volume, and VO2max-percentiles (%). Participants performed different HIIT\nprotocols consisting of 4 \u00d7 30 s Wingate tests wi"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-011",
+            "chunk_id": "0a01e9b4-b47f-4c31-83a2-a4934968ab45",
+            "pages": [
+              2
+            ],
+            "cosine_distance": 0.21806835097685584,
+            "lexical_score": null,
+            "excerpt": "investigated.\nHIIT sessions are used to improve maximum oxygen uptake (VO2max) and endurance\nperformance in high-performance and recreational sports [15\u201317]. High-intensity inter-\nval training (HIIT) protocols are variable in their design and can be different regarding\nthe number of repetitions, dur"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-003",
+            "chunk_id": "6f769d9b-aa17-4047-a512-36d20ff15748",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.21881248894892358,
+            "lexical_score": null,
+            "excerpt": "ORIGINAL RESEARCH ARTICLE\npublished: 31 January 2014\ndoi: 10.3389/fphys.2014.00034\nLow cadence interval training at moderate intensity does\nnot improve cycling performance in highly trained veteran\ncyclists\nMorten Kristoffersen 1*, Hilde Gundersen 1, Stig Leirdal 2 and Vegard V. Iversen 1\n1 Departme"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-011",
+            "chunk_id": "78639c34-42b6-49a2-9461-638f22e94c2f",
+            "pages": [
+              14
+            ],
+            "cosine_distance": 0.2189501654476026,
+            "lexical_score": null,
+            "excerpt": "14 of 14\n42.\nFell, J.; Haseler, L.; Gaffney, P.; Reaburn, P.; Harrison, G. Performance during consecutive days of laboratory time-trials in young\nand veteran cyclists. J. Sports Med. Phys. Fitness 2006, 46, 395\u2013402.\n43.\nFell, J.; Reaburn, P.; Harrison, G.J. Altered perception and report of fatigue a"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-018",
+            "chunk_id": "f3a1a9e9-440e-4c63-9bec-3e97e1feea00",
+            "pages": [
+              9
+            ],
+            "cosine_distance": 0.2266378498103071,
+            "lexical_score": null,
+            "excerpt": "10.1097/00005768-200111000-00019\nHelgerud, J., Hoydal, K., Wang, E., Karlsen, T., Berg, P., Bjerkaas, M., et al.\n(2007). Aerobic high-intensity intervals improve VO2max more than moder-\nate training. Med. Sci. Sports Exerc. 39, 665\u2013671. doi: 10.1249/mss.0b013e31803\n04570\nLaursen, P. B., and Jenkins,"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-011",
+            "chunk_id": "9304a5f7-5b0c-492c-8539-ddcd5b0e1c66",
+            "pages": [
+              2
+            ],
+            "cosine_distance": 0.227256426758481,
+            "lexical_score": null,
+            "excerpt": "sports, fitness sports, and recreational sports in a number of\nways, and the training design of HIIT sessions, especially the duration of recovery phases,\nhas a direct impact on performance development. However, to date, no comprehensive\nevaluation has been conducted on whether younger and older ath"
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.5,
+          "mrr@5": 1.0,
+          "ndcg@5": 0.8262346571285599,
+          "evidence_coverage@5": 1.0,
+          "unjudged@5": 0,
+          "recall@10": 0.5,
+          "mrr@10": 1.0,
+          "ndcg@10": 0.8262346571285599,
+          "evidence_coverage@10": 1.0,
+          "unjudged@10": 2
+        }
+      },
+      "lexical": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-016",
+            "chunk_id": "75674e23-cf4a-4528-bcad-6afb94f0132f",
+            "pages": [
+              1
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.8,
+            "excerpt": "training.\nWe conclude that both male and female cyclists can improve their cycling performance by adding\nstrength training to their normal training.\nKeywords: concurrent training; endurance performance; sex differences; muscle strength; muscle\nhypertrophy; training adaptations\n1. Introduction\nAdding"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-008",
+            "chunk_id": "bfabc0a9-8399-4d56-ac73-7742fbcb1f61",
+            "pages": [
+              13
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.7,
+            "excerpt": "muscle mass and strength in older persons, aerobic\nlow-intensity exercise training attenuates sarcopenia (and cachexia) [113]. Finally, the risk\nof increased injuries due to high-intensity running during HIIT is not negligible [114],\nparticularly in older runners with higher rates of knee cartilage "
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-004",
+            "chunk_id": "0e97032d-68dd-4fc4-ae0c-08af230eb571",
+            "pages": [
+              5
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.5,
+            "excerpt": "5 of 13\nselection and execution. This data provide insights into participants\u2019 strength training\npractices and shed light on their strength training-related challenges and the rationale\nbehind their training choices.\nTable 1. Overview of content analysis.\nResearch Question\nCodes\nEssence of Codes\nNum"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-018",
+            "chunk_id": "02bb09e4-eef8-4d7e-b324-0bd52727ba03",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.4,
+            "excerpt": "Endurance training concepts\nFIGURE 1 | Training program for 3-weeks of (A) high volume (HVT), (B)\nthreshold (THR), (C) polarized (POL) training, and (D) the training\nprogram for the first block of high intensity interval training (HIIT),\nexcluding the recovery week. LOW, low training intensity (<2 m"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-005",
+            "chunk_id": "b0fe9d58-5116-4036-84f4-7fc53a62a09c",
+            "pages": [
+              4
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.4,
+            "excerpt": "nificant group*time interaction effects (P\u2009>\u20090.05) but sig-\nnificant time effects (P\u2009<\u20090.001).\nDiscussion\nThe aim of this study was to compare HRV-derived param-\neters of cardiac autonomic regulation in well-trained masters\nand young cyclists during and following a high-intensity\ncontinuous cycle pr"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-016",
+            "chunk_id": "13010aae-4021-4f08-914d-4343f542ffad",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.3,
+            "excerpt": "anaerobic capacity,\nand neuromuscular characteristics [28]. Accordingly, Wmax has been shown to predict\nendurance performance in cyclists [29,30] and to distinguish elite cyclists from well-trained\ncyclists [30]. Concurrent endurance and heavy strength training is reported to increase\nWmax or time t"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-020",
+            "chunk_id": "efccfe2d-717d-4887-9f89-b204a1b92751",
+            "pages": [
+              11
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.2,
+            "excerpt": "strength training among professional road cyclists. During the\noff-season and pre-season, a strength training regime of two sessions per week was common among the cyclists in our\nstudy. The sessions usually centred on lower body exercises, especially the muscles used in the cycling movements,\nperfor"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-020",
+            "chunk_id": "fc52ae52-9b85-4373-819a-d82cd55d9c90",
+            "pages": [
+              12
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.2,
+            "excerpt": "engagement in strength training during the race\nseason.\nCyclists often face challenges with restarting strength training after long periods of stage racing or frequent racing.\nSuch challenges stem from fatigue due to racing as well as from the reality that the impact of fatigue and muscle soreness\nf"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-016",
+            "chunk_id": "c4ca6091-ac14-47cd-bef2-01a1f1da4ba6",
+            "pages": [
+              5
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.2,
+            "excerpt": "the female cyclists. The Wmax\nalso increased similarly in the male (4.3 \u00b1 1.1%) and female (3.9 \u00b1 6.7%) cyclists, although\nthis change was only statistically significant in men.\nThe results from our studies show similar strength-training-induced improvements in\ncycling performance and physiological "
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-019",
+            "chunk_id": "fb8cc148-62f7-4450-a785-50f8379f934c",
+            "pages": [
+              2
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.1000001,
+            "excerpt": "2 of 11\na threshold of blood lactate concentration related to an exercise intensity above which the\ngreater recruitment of energy-producing anaerobic pathways is responsible for the onset\nof fatigue. This threshold has been used as a reference to structure training zones and, in\nconjunction with ses"
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.5,
+          "mrr@5": 0.2,
+          "ndcg@5": 0.10654373218155079,
+          "evidence_coverage@5": 0.0,
+          "unjudged@5": 4,
+          "recall@10": 0.5,
+          "mrr@10": 0.2,
+          "ndcg@10": 0.10654373218155079,
+          "evidence_coverage@10": 0.0,
+          "unjudged@10": 6
+        }
+      }
+    },
+    "q014": {
+      "question": "Does lifelong training protect masters cyclists from losing motor units?",
+      "vector": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-004",
+            "chunk_id": "b6470469-95eb-4e38-b3ce-d21789659ca1",
+            "pages": [
+              3
+            ],
+            "cosine_distance": 0.21773156908374203,
+            "lexical_score": null,
+            "excerpt": "3 of 13\nwith 60% of cyclists affected and a sevenfold greater risk than runners. Strength training,\nhowever, has been shown to improve bone density in areas like the lumbar spine and hip\nin competitive male cyclists [36].\nAll these factors highlight the potential benefits of strength training for ma"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-004",
+            "chunk_id": "becaaeea-25a9-49fb-915c-13d4a47b2d4e",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.2208342288930143,
+            "lexical_score": null,
+            "excerpt": "Citation: Vikestad, V.; Dalen, T.\nStrength Training Among Male\nMaster Cyclists\u2014Practices,\nChallenges, and Rationales. J. Funct.\nMorphol. Kinesiol. 2024, 9, 232.\nhttps://doi.org/10.3390/\njfmk9040232\nAcademic Editor: Giuseppe\nMusumeci\nReceived: 23 September 2024\nRevised: 4 November 2024\nAccepted: 11 N"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-004",
+            "chunk_id": "3e6fbe2a-d536-4fd1-9697-494059bd7a22",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.22493873685963395,
+            "lexical_score": null,
+            "excerpt": "categories, but the older group in particular, reported bone health as a primary\nrationale for strength training. Conclusions: While strength training offers performance and health\nbenefits, issues of fatigue and time constraints remain substantial, suggesting the need for tailored\ntraining programs"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-008",
+            "chunk_id": "62206aec-d2ae-42a4-a45d-e98aefe5111e",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.2318096022719368,
+            "lexical_score": null,
+            "excerpt": "Citation: Burtscher, J.; Strasser, B.;\nBurtscher, M.; Millet, G.P. The Impact\nof Training on the Loss of\nCardiorespiratory Fitness in Aging\nMasters Endurance Athletes. Int. J.\nEnviron. Res. Public Health 2022, 19,\n11050. https://doi.org/10.3390/\nijerph191711050\nAcademic Editor: Dong-il Kim\nReceived:"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-020",
+            "chunk_id": "c49b8bbd-40ef-4828-bc69-69ab2c2f37b4",
+            "pages": [
+              12
+            ],
+            "cosine_distance": 0.24137584916497046,
+            "lexical_score": null,
+            "excerpt": "in strength training. Throughout the interviews, the cyclists demonstrated a considerable depth of knowledge\nand reflection both on their personal strength training regimes and the research on the topic, including both the potential\nimpact on performance and recommended methods. Most cyclists in our"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-016",
+            "chunk_id": "25168adc-04be-4515-b047-905193784439",
+            "pages": [
+              9
+            ],
+            "cosine_distance": 0.24406914448325834,
+            "lexical_score": null,
+            "excerpt": "Physiologic and Perfor-\nmance Parameters of Well-Trained Endurance Cyclists. J. Strength Cond. Res. 2009, 23, 2280\u20132286. [CrossRef]\n23.\nPsilander, N.; Frank, P.; Flockhart, M.; Sahlin, K. Adding strength to endurance training does not enhance aerobic capacity in\ncyclists. Scand. J. Med. Sci. Sports "
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-016",
+            "chunk_id": "996b0ecf-0b45-46a5-a487-9460d6b27e4b",
+            "pages": [
+              3
+            ],
+            "cosine_distance": 0.2471787038828488,
+            "lexical_score": null,
+            "excerpt": "this study performed a strength training program identical to what we previ-\nously used to induce beneficial effects on cycling performance in male cyclists [1,16,17].\nThis strength training program lasted for 11\u201312 weeks with two sessions per week with\na training load of 10-4 RM, including four exe"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-020",
+            "chunk_id": "0350644f-030c-40cc-a311-ece0d99826e9",
+            "pages": [
+              12
+            ],
+            "cosine_distance": 0.24731878183241196,
+            "lexical_score": null,
+            "excerpt": "12 / 16\nDuring the race season, the frequency of strength training among cyclists in our study typically dropped from two ses\u00ad\nsions per week in the pre-season to one. The reduction is likely adequate to maintain strength adaptations [11]. The ses\u00ad\nsions were often lower in volume and sometimes also"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-007",
+            "chunk_id": "1c0cacc4-0781-48a1-8a97-28ee42495c29",
+            "pages": [
+              6
+            ],
+            "cosine_distance": 0.2473349128958725,
+            "lexical_score": null,
+            "excerpt": "Eskurza et al., 2002). However, the changes in the\nphysical (e.g., prevalence of injuries, distribution of relative times\nspent at the different training intensities) and behavioral (e.g.,\nreductions in time and motivation to train) characteristics of\ntraining of the endurance master athletes with a"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-014",
+            "chunk_id": "50b3958f-0ad6-41c9-b725-a87970336e3d",
+            "pages": [
+              9
+            ],
+            "cosine_distance": 0.24771770862129827,
+            "lexical_score": null,
+            "excerpt": "it would be interesting to\nknow if the enlargement of motor units reported here\nis also seen with units recruited at high force. While\nactive during running, the TA is not the principle mus-\ncle generating the power and it would be useful to\nextend these observations to larger proximal muscles to\nde"
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.0,
+          "mrr@5": 0.0,
+          "ndcg@5": 0.0,
+          "evidence_coverage@5": 0.0,
+          "unjudged@5": 3,
+          "recall@10": 0.5,
+          "mrr@10": 0.16666666666666666,
+          "ndcg@10": 0.2943107231069255,
+          "evidence_coverage@10": 0.0,
+          "unjudged@10": 5
+        }
+      },
+      "lexical": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-016",
+            "chunk_id": "75674e23-cf4a-4528-bcad-6afb94f0132f",
+            "pages": [
+              1
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.6000001,
+            "excerpt": "training.\nWe conclude that both male and female cyclists can improve their cycling performance by adding\nstrength training to their normal training.\nKeywords: concurrent training; endurance performance; sex differences; muscle strength; muscle\nhypertrophy; training adaptations\n1. Introduction\nAdding"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-004",
+            "chunk_id": "0e97032d-68dd-4fc4-ae0c-08af230eb571",
+            "pages": [
+              5
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.5,
+            "excerpt": "5 of 13\nselection and execution. This data provide insights into participants\u2019 strength training\npractices and shed light on their strength training-related challenges and the rationale\nbehind their training choices.\nTable 1. Overview of content analysis.\nResearch Question\nCodes\nEssence of Codes\nNum"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-004",
+            "chunk_id": "b6470469-95eb-4e38-b3ce-d21789659ca1",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.3,
+            "excerpt": "3 of 13\nwith 60% of cyclists affected and a sevenfold greater risk than runners. Strength training,\nhowever, has been shown to improve bone density in areas like the lumbar spine and hip\nin competitive male cyclists [36].\nAll these factors highlight the potential benefits of strength training for ma"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-004",
+            "chunk_id": "518f6f45-4933-48da-a89f-cea3e960a934",
+            "pages": [
+              10
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.3,
+            "excerpt": "10 of 13\nbecause it underscores the difficulty of balancing strength training with the endurance\ntraining required to perform well on the bike. In this study, fatigue and soreness from\nstrength training were identified as major challenges for the participating cyclists, impacting\ntheir ability to pe"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-020",
+            "chunk_id": "fc52ae52-9b85-4373-819a-d82cd55d9c90",
+            "pages": [
+              12
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.1000001,
+            "excerpt": "engagement in strength training during the race\nseason.\nCyclists often face challenges with restarting strength training after long periods of stage racing or frequent racing.\nSuch challenges stem from fatigue due to racing as well as from the reality that the impact of fatigue and muscle soreness\nf"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-004",
+            "chunk_id": "b8764d76-2d18-49eb-8afc-755a387c00b8",
+            "pages": [
+              11
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.1000001,
+            "excerpt": "muscle\nmass as they age. However, the most common challenges identified in this study were\nmanaging fatigue from strength training and dealing with time constraints. To address\nthese challenges, cyclists and coaches should focus on strength training programs that\nminimize fatigue and fit within the "
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-020",
+            "chunk_id": "f1f2cfba-9e91-474d-8c56-c95dbb3a7680",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.0,
+            "excerpt": "November and December but not during the last 6 months preceding the event in July [36]. Nevertheless, no information\nis provided on why the cyclists discontinued their strength training when approaching the race season.\nAlthough several other studies have investigated the training habits of elite a"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-020",
+            "chunk_id": "d7658024-61d1-4f61-868b-9907fa56f219",
+            "pages": [
+              13
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.0,
+            "excerpt": "13 / 16\nMany cyclists in our study, especially females, focused on strength training\u2019s benefits for health, particularly bone\nhealth. The cyclists seemed to be aware both of professional cycling\u2019s potential drawbacks for bone health [17], especially\nwhen trying to keep a low body weight [19,20], and"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-004",
+            "chunk_id": "1db09382-c5e8-4443-b4d4-c51a4adb06d3",
+            "pages": [
+              10
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.0,
+            "excerpt": "challenge for many master cyclists\nregarding strength training routines, highlighting the motivational barriers to integrating\nstrength training into their routine. This might reflect the finding that the cyclists reported\nsignificantly higher enjoyment of the endurance training than strength traini"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-020",
+            "chunk_id": "efccfe2d-717d-4887-9f89-b204a1b92751",
+            "pages": [
+              11
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.9,
+            "excerpt": "strength training among professional road cyclists. During the\noff-season and pre-season, a strength training regime of two sessions per week was common among the cyclists in our\nstudy. The sessions usually centred on lower body exercises, especially the muscles used in the cycling movements,\nperfor"
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.0,
+          "mrr@5": 0.0,
+          "ndcg@5": 0.0,
+          "evidence_coverage@5": 0.0,
+          "unjudged@5": 3,
+          "recall@10": 0.0,
+          "mrr@10": 0.0,
+          "ndcg@10": 0.0,
+          "evidence_coverage@10": 0.0,
+          "unjudged@10": 3
+        }
+      }
+    },
+    "q016": {
+      "question": "Do female cyclists benefit from adding strength training as much as male cyclists?",
+      "vector": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-016",
+            "chunk_id": "75674e23-cf4a-4528-bcad-6afb94f0132f",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.12202695375761208,
+            "lexical_score": null,
+            "excerpt": "training.\nWe conclude that both male and female cyclists can improve their cycling performance by adding\nstrength training to their normal training.\nKeywords: concurrent training; endurance performance; sex differences; muscle strength; muscle\nhypertrophy; training adaptations\n1. Introduction\nAdding"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-016",
+            "chunk_id": "c4ca6091-ac14-47cd-bef2-01a1f1da4ba6",
+            "pages": [
+              5
+            ],
+            "cosine_distance": 0.13002315551111532,
+            "lexical_score": null,
+            "excerpt": "the female cyclists. The Wmax\nalso increased similarly in the male (4.3 \u00b1 1.1%) and female (3.9 \u00b1 6.7%) cyclists, although\nthis change was only statistically significant in men.\nThe results from our studies show similar strength-training-induced improvements in\ncycling performance and physiological "
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-020",
+            "chunk_id": "f3e7688a-0199-445a-b2fe-4e9e8de0ee55",
+            "pages": [
+              9
+            ],
+            "cosine_distance": 0.1314822513748557,
+            "lexical_score": null,
+            "excerpt": "(57.6% vs. 40.9%, p\u2009<\u20090.05, V\u2009=\u2009.164). These findings may reflect\na slightly greater emphasis on health-related outcomes among female cyclists, but the differences between groups was\nsmall. In terms of perceived benefits, female cyclists were also more likely to report improved cycling performance a"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-016",
+            "chunk_id": "996b0ecf-0b45-46a5-a487-9460d6b27e4b",
+            "pages": [
+              3
+            ],
+            "cosine_distance": 0.14648726145960755,
+            "lexical_score": null,
+            "excerpt": "this study performed a strength training program identical to what we previ-\nously used to induce beneficial effects on cycling performance in male cyclists [1,16,17].\nThis strength training program lasted for 11\u201312 weeks with two sessions per week with\na training load of 10-4 RM, including four exe"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-016",
+            "chunk_id": "53f3cf1f-f855-458d-be20-b4419fd891f2",
+            "pages": [
+              2
+            ],
+            "cosine_distance": 0.14983733148836165,
+            "lexical_score": null,
+            "excerpt": "2 of 11\non cycling performance. For example, when performing muscle contractions at the same\nrelative intensities, women have been reported to be more resistant to muscle fatigue [10],\nand during endurance exercise at submaximal intensities, women oxidize proportionally\nmore fat and less carbohydrat"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-016",
+            "chunk_id": "a1e88153-8920-432c-9282-6f70d159fc2a",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.1539671673188424,
+            "lexical_score": null,
+            "excerpt": "Sciences, 2418 Elverum, Norway; bent.ronnestad@inn.no\n*\nCorrespondence: olavv@nih.no\nAbstract: During the last decade numerous review articles have been published on how concurrent\nstrength and endurance training affect cycling performance. However, none of these have reviewed\nif there are any sex d"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-020",
+            "chunk_id": "54d1947d-695c-457d-b363-e6a2bafebd63",
+            "pages": [
+              10
+            ],
+            "cosine_distance": 0.1620251689530665,
+            "lexical_score": null,
+            "excerpt": "contentment with their guidance on strength training (r\u2009=\u2009.268, p\u2009=\u2009.001). Although female cyclists reported more enjoyment\nwith strength training than males did (r\u2009=\u2009.249, p\u2009=\u2009.002), no significant sex differences were found in the enjoyment of\nendurance training (r\u2009=\u2009.064, p\u2009=\u2009.438).\nThe cyclists "
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-020",
+            "chunk_id": "0350644f-030c-40cc-a311-ece0d99826e9",
+            "pages": [
+              12
+            ],
+            "cosine_distance": 0.1649227934983708,
+            "lexical_score": null,
+            "excerpt": "12 / 16\nDuring the race season, the frequency of strength training among cyclists in our study typically dropped from two ses\u00ad\nsions per week in the pre-season to one. The reduction is likely adequate to maintain strength adaptations [11]. The ses\u00ad\nsions were often lower in volume and sometimes also"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-017",
+            "chunk_id": "8cc8d715-730b-4146-981c-73a9c58d0478",
+            "pages": [
+              23
+            ],
+            "cosine_distance": 0.1649455578673784,
+            "lexical_score": null,
+            "excerpt": "analysis) an improve-\nment in the similar cycling test (i.e., 5 min all-out effort after\n180 min at 44% of \u00adpVO2max) was also found. These results\ncould be due to improved cycling efficiency in the fatigued\nstate, as discussed above.\nCharacteristics of\u00a0participants and\u00a0strength training\nintervention"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-020",
+            "chunk_id": "c49b8bbd-40ef-4828-bc69-69ab2c2f37b4",
+            "pages": [
+              12
+            ],
+            "cosine_distance": 0.16926458982421688,
+            "lexical_score": null,
+            "excerpt": "in strength training. Throughout the interviews, the cyclists demonstrated a considerable depth of knowledge\nand reflection both on their personal strength training regimes and the research on the topic, including both the potential\nimpact on performance and recommended methods. Most cyclists in our"
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.5,
+          "mrr@5": 1.0,
+          "ndcg@5": 0.8262346571285599,
+          "evidence_coverage@5": 0.0,
+          "unjudged@5": 1,
+          "recall@10": 1.0,
+          "mrr@10": 1.0,
+          "ndcg@10": 0.9639404333166532,
+          "evidence_coverage@10": 1.0,
+          "unjudged@10": 1
+        }
+      },
+      "lexical": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-016",
+            "chunk_id": "75674e23-cf4a-4528-bcad-6afb94f0132f",
+            "pages": [
+              1
+            ],
+            "cosine_distance": null,
+            "lexical_score": 4.5,
+            "excerpt": "training.\nWe conclude that both male and female cyclists can improve their cycling performance by adding\nstrength training to their normal training.\nKeywords: concurrent training; endurance performance; sex differences; muscle strength; muscle\nhypertrophy; training adaptations\n1. Introduction\nAdding"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-004",
+            "chunk_id": "0e97032d-68dd-4fc4-ae0c-08af230eb571",
+            "pages": [
+              5
+            ],
+            "cosine_distance": null,
+            "lexical_score": 4.4,
+            "excerpt": "5 of 13\nselection and execution. This data provide insights into participants\u2019 strength training\npractices and shed light on their strength training-related challenges and the rationale\nbehind their training choices.\nTable 1. Overview of content analysis.\nResearch Question\nCodes\nEssence of Codes\nNum"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-020",
+            "chunk_id": "0350644f-030c-40cc-a311-ece0d99826e9",
+            "pages": [
+              12
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.7,
+            "excerpt": "12 / 16\nDuring the race season, the frequency of strength training among cyclists in our study typically dropped from two ses\u00ad\nsions per week in the pre-season to one. The reduction is likely adequate to maintain strength adaptations [11]. The ses\u00ad\nsions were often lower in volume and sometimes also"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-020",
+            "chunk_id": "d7658024-61d1-4f61-868b-9907fa56f219",
+            "pages": [
+              13
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.6000001,
+            "excerpt": "13 / 16\nMany cyclists in our study, especially females, focused on strength training\u2019s benefits for health, particularly bone\nhealth. The cyclists seemed to be aware both of professional cycling\u2019s potential drawbacks for bone health [17], especially\nwhen trying to keep a low body weight [19,20], and"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-016",
+            "chunk_id": "c4ca6091-ac14-47cd-bef2-01a1f1da4ba6",
+            "pages": [
+              5
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.6000001,
+            "excerpt": "the female cyclists. The Wmax\nalso increased similarly in the male (4.3 \u00b1 1.1%) and female (3.9 \u00b1 6.7%) cyclists, although\nthis change was only statistically significant in men.\nThe results from our studies show similar strength-training-induced improvements in\ncycling performance and physiological "
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-016",
+            "chunk_id": "996b0ecf-0b45-46a5-a487-9460d6b27e4b",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.5,
+            "excerpt": "this study performed a strength training program identical to what we previ-\nously used to induce beneficial effects on cycling performance in male cyclists [1,16,17].\nThis strength training program lasted for 11\u201312 weeks with two sessions per week with\na training load of 10-4 RM, including four exe"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-020",
+            "chunk_id": "efccfe2d-717d-4887-9f89-b204a1b92751",
+            "pages": [
+              11
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.4,
+            "excerpt": "strength training among professional road cyclists. During the\noff-season and pre-season, a strength training regime of two sessions per week was common among the cyclists in our\nstudy. The sessions usually centred on lower body exercises, especially the muscles used in the cycling movements,\nperfor"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-020",
+            "chunk_id": "54d1947d-695c-457d-b363-e6a2bafebd63",
+            "pages": [
+              10
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.3,
+            "excerpt": "contentment with their guidance on strength training (r\u2009=\u2009.268, p\u2009=\u2009.001). Although female cyclists reported more enjoyment\nwith strength training than males did (r\u2009=\u2009.249, p\u2009=\u2009.002), no significant sex differences were found in the enjoyment of\nendurance training (r\u2009=\u2009.064, p\u2009=\u2009.438).\nThe cyclists "
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-020",
+            "chunk_id": "fc52ae52-9b85-4373-819a-d82cd55d9c90",
+            "pages": [
+              12
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.3,
+            "excerpt": "engagement in strength training during the race\nseason.\nCyclists often face challenges with restarting strength training after long periods of stage racing or frequent racing.\nSuch challenges stem from fatigue due to racing as well as from the reality that the impact of fatigue and muscle soreness\nf"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-020",
+            "chunk_id": "1f6f6194-309c-4668-9475-fae2694150a6",
+            "pages": [
+              6
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.2,
+            "excerpt": "multiple comparisons. These findings indicate a balanced representation of rider characteristics in\nboth groups.\nTable 2.\u2002 Overview of the content analysis of data from the interviews.\nResearch topic\nCodes\nEssence of codes\nParticipants with the\ncodes\nStrength training\npractice\nExercises and executio"
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.5,
+          "mrr@5": 1.0,
+          "ndcg@5": 0.8262346571285599,
+          "evidence_coverage@5": 0.0,
+          "unjudged@5": 2,
+          "recall@10": 0.5,
+          "mrr@10": 1.0,
+          "ndcg@10": 0.8262346571285599,
+          "evidence_coverage@10": 0.0,
+          "unjudged@10": 2
+        }
+      }
+    },
+    "q019": {
+      "question": "What changed in recreational cyclists after 16 weeks of pyramidal intensity distribution training?",
+      "vector": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-019",
+            "chunk_id": "daf61874-2d57-472a-96ee-ed6525299723",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.14380382634378364,
+            "lexical_score": null,
+            "excerpt": "Citation: Magalh\u00e3es, P.M.; Cipriano,\nF.; Morais, J.E.; Bragada, J.A. Effects of\na 16-Week Training Program with a\nPyramidal Intensity Distribution on\nRecreational Male Cyclists. Sports\n2024, 12, 17. https://doi.org/\n10.3390/sports12010017\nAcademic Editors: Andrew M. Lane\nand Richard B. Kreider\nRecei"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-019",
+            "chunk_id": "76a95acf-9b39-4b50-bd81-6d505a46a2d5",
+            "pages": [
+              9
+            ],
+            "cosine_distance": 0.18243283033370972,
+            "lexical_score": null,
+            "excerpt": "in a laboratory environment with a\nstationary bicycle, the lack of controlled resistance training, and the lack of performance\nassessment variables. Further research should investigate the intensity levels and training\nloads performed by recreational cyclists without structured training to understan"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-019",
+            "chunk_id": "b2cbc271-70ad-44a1-b493-ae7186054358",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.19998548031025787,
+            "lexical_score": null,
+            "excerpt": "Bragan\u00e7a, 5301-856 Bragan\u00e7a, Portugal;\npmaga@ipb.pt (P.M.M.); fcipriano92@gmail.com (F.C.); jbragada@ipb.pt (J.A.B.)\n2\nResearch Center in Sports, Health and Human Development (CIDESD), 6201-001 Covilh\u00e3, Portugal\n*\nCorrespondence: morais.jorgestrela@ipb.pt\nAbstract: Different training intensity distr"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-019",
+            "chunk_id": "fb8cc148-62f7-4450-a785-50f8379f934c",
+            "pages": [
+              2
+            ],
+            "cosine_distance": 0.21505229607691712,
+            "lexical_score": null,
+            "excerpt": "2 of 11\na threshold of blood lactate concentration related to an exercise intensity above which the\ngreater recruitment of energy-producing anaerobic pathways is responsible for the onset\nof fatigue. This threshold has been used as a reference to structure training zones and, in\nconjunction with ses"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-019",
+            "chunk_id": "a32f7be1-3b63-4e8c-aee9-b03b098c589c",
+            "pages": [
+              7
+            ],
+            "cosine_distance": 0.2229675054550171,
+            "lexical_score": null,
+            "excerpt": "P4) and training zone Z3.\n4. Discussion\n4.1. Main Findings\nThe objectives of this study were to analyze the effect of a 16-week pyramidal TID on\nP4 and P/W P4 in recreational cyclists and to determine the training zone with the greatest\neffect on P4 improvement. The main results showed that all soma"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-019",
+            "chunk_id": "d00814bb-47e1-4d32-bfa2-5a548a5e84e8",
+            "pages": [
+              3
+            ],
+            "cosine_distance": 0.22834765911102295,
+            "lexical_score": null,
+            "excerpt": "weekend, and the remaining training sessions at Z1. The weekend session was\nusually longer and conducted informally as a group ride. This session was carried out\nwithout specific intensity guidelines. Most cyclists had power meters on their bicycles\nand/or regularly used stationary trainers to contr"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-017",
+            "chunk_id": "e7ed9c26-c8b9-4a9c-8c65-7c925db017dd",
+            "pages": [
+              3
+            ],
+            "cosine_distance": 0.2285359825448956,
+            "lexical_score": null,
+            "excerpt": "2015). These differences may be related to the characteristics\nof the participants and the intervention. For example, it has\nbeen suggested that the absence of improvement in cycling\nefficiency after heavy strength training might be since this\ntype of stimulus is not sufficient to produce improvemen"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-019",
+            "chunk_id": "bf5e678e-4260-426b-a62b-eb85df5fc26a",
+            "pages": [
+              10
+            ],
+            "cosine_distance": 0.23327055374032357,
+            "lexical_score": null,
+            "excerpt": "Filipas, L.; Bonato, M.; Gallo, G.; Codella, R. Effects of 16 Weeks of Pyramidal and Polarized Training Intensity Distributions in\nWell-trained Endurance Runners. Scand. J. Med. Sci. Sports 2022, 32, 498\u2013511. [CrossRef]\n18.\nSeiler, S.; T\u00f8nnessen, E. Intervals, Thresholds, and Long Slow Distance: The"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-019",
+            "chunk_id": "ee4d2f76-87fc-4f7c-817d-ee08a6325929",
+            "pages": [
+              9
+            ],
+            "cosine_distance": 0.23439711332321167,
+            "lexical_score": null,
+            "excerpt": "9 of 11\ntraining phase, while polarized training could also be a relevant strategy for the form-\nbuilding phase and the specialty phase as the day of the competition or event approaches.\nIn this sense, a percentage of the training volume in Z1 and Z2 could have a significant\nimpact on changing somat"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-015",
+            "chunk_id": "225cbfeb-d67d-4ddd-ae66-a2b4363710cb",
+            "pages": [
+              7
+            ],
+            "cosine_distance": 0.23446099552744515,
+            "lexical_score": null,
+            "excerpt": "SST has a better effect on 5-min all-out cycling\nthan endurance training alone.\nPrevious studies have reported GE both as unaffected\n(Aagaard et al., 2011; Ronnestad et al., 2016), reduced (Aagaard\net al., 2011) and improved (Sunde et al., 2010; Ronnestad et al.,\n2011) after HST in cyclists. To the "
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.5,
+          "mrr@5": 1.0,
+          "ndcg@5": 0.8262346571285599,
+          "evidence_coverage@5": 0.5,
+          "unjudged@5": 0,
+          "recall@10": 0.5,
+          "mrr@10": 1.0,
+          "ndcg@10": 0.8262346571285599,
+          "evidence_coverage@10": 0.5,
+          "unjudged@10": 2
+        }
+      },
+      "lexical": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-016",
+            "chunk_id": "75674e23-cf4a-4528-bcad-6afb94f0132f",
+            "pages": [
+              1
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.7,
+            "excerpt": "training.\nWe conclude that both male and female cyclists can improve their cycling performance by adding\nstrength training to their normal training.\nKeywords: concurrent training; endurance performance; sex differences; muscle strength; muscle\nhypertrophy; training adaptations\n1. Introduction\nAdding"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-004",
+            "chunk_id": "0e97032d-68dd-4fc4-ae0c-08af230eb571",
+            "pages": [
+              5
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.7,
+            "excerpt": "5 of 13\nselection and execution. This data provide insights into participants\u2019 strength training\npractices and shed light on their strength training-related challenges and the rationale\nbehind their training choices.\nTable 1. Overview of content analysis.\nResearch Question\nCodes\nEssence of Codes\nNum"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-019",
+            "chunk_id": "76a95acf-9b39-4b50-bd81-6d505a46a2d5",
+            "pages": [
+              9
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.5,
+            "excerpt": "in a laboratory environment with a\nstationary bicycle, the lack of controlled resistance training, and the lack of performance\nassessment variables. Further research should investigate the intensity levels and training\nloads performed by recreational cyclists without structured training to understan"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-019",
+            "chunk_id": "fb8cc148-62f7-4450-a785-50f8379f934c",
+            "pages": [
+              2
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.4,
+            "excerpt": "2 of 11\na threshold of blood lactate concentration related to an exercise intensity above which the\ngreater recruitment of energy-producing anaerobic pathways is responsible for the onset\nof fatigue. This threshold has been used as a reference to structure training zones and, in\nconjunction with ses"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-020",
+            "chunk_id": "efccfe2d-717d-4887-9f89-b204a1b92751",
+            "pages": [
+              11
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.4,
+            "excerpt": "strength training among professional road cyclists. During the\noff-season and pre-season, a strength training regime of two sessions per week was common among the cyclists in our\nstudy. The sessions usually centred on lower body exercises, especially the muscles used in the cycling movements,\nperfor"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-020",
+            "chunk_id": "0350644f-030c-40cc-a311-ece0d99826e9",
+            "pages": [
+              12
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.3,
+            "excerpt": "12 / 16\nDuring the race season, the frequency of strength training among cyclists in our study typically dropped from two ses\u00ad\nsions per week in the pre-season to one. The reduction is likely adequate to maintain strength adaptations [11]. The ses\u00ad\nsions were often lower in volume and sometimes also"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-016",
+            "chunk_id": "996b0ecf-0b45-46a5-a487-9460d6b27e4b",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.3,
+            "excerpt": "this study performed a strength training program identical to what we previ-\nously used to induce beneficial effects on cycling performance in male cyclists [1,16,17].\nThis strength training program lasted for 11\u201312 weeks with two sessions per week with\na training load of 10-4 RM, including four exe"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-016",
+            "chunk_id": "c4ca6091-ac14-47cd-bef2-01a1f1da4ba6",
+            "pages": [
+              5
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.2,
+            "excerpt": "the female cyclists. The Wmax\nalso increased similarly in the male (4.3 \u00b1 1.1%) and female (3.9 \u00b1 6.7%) cyclists, although\nthis change was only statistically significant in men.\nThe results from our studies show similar strength-training-induced improvements in\ncycling performance and physiological "
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-008",
+            "chunk_id": "5a318712-ccae-4a50-b0e3-cfcc5b304b82",
+            "pages": [
+              2
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.1000001,
+            "excerpt": "to the changes in training volume (running, km/week) (Table 1, Figure 1).\nStudies reporting training intensities (running, min/km) indicate that training volume\nreductions parallel intensity reductions, except one of the female groups of a study by\nEskurza et al., who increased training volume but r"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-008",
+            "chunk_id": "bfabc0a9-8399-4d56-ac73-7742fbcb1f61",
+            "pages": [
+              13
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.1000001,
+            "excerpt": "muscle mass and strength in older persons, aerobic\nlow-intensity exercise training attenuates sarcopenia (and cachexia) [113]. Finally, the risk\nof increased injuries due to high-intensity running during HIIT is not negligible [114],\nparticularly in older runners with higher rates of knee cartilage "
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.5,
+          "mrr@5": 0.3333333333333333,
+          "ndcg@5": 0.41311732856427996,
+          "evidence_coverage@5": 0.0,
+          "unjudged@5": 3,
+          "recall@10": 0.5,
+          "mrr@10": 0.3333333333333333,
+          "ndcg@10": 0.41311732856427996,
+          "evidence_coverage@10": 0.0,
+          "unjudged@10": 4
+        }
+      }
+    },
+    "q022": {
+      "question": "Do masters cyclists recover from hard training differently from younger cyclists?",
+      "vector": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-011",
+            "chunk_id": "5a9131ce-9b61-45cd-91c4-8e3596d723ef",
+            "pages": [
+              10
+            ],
+            "cosine_distance": 0.1878145113212395,
+            "lexical_score": null,
+            "excerpt": "10 of 14\net al. [42,43]. Here, too, no differences were found in physiological recovery for a group\nof nine master cyclists (mean age: 45 years) compared to nine adult cyclists (mean age:\n24 years) with similar VO2max. Results from three 30 min time trials with similar absolute\npower output on three"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-004",
+            "chunk_id": "b6470469-95eb-4e38-b3ce-d21789659ca1",
+            "pages": [
+              3
+            ],
+            "cosine_distance": 0.21015124260477624,
+            "lexical_score": null,
+            "excerpt": "3 of 13\nwith 60% of cyclists affected and a sevenfold greater risk than runners. Strength training,\nhowever, has been shown to improve bone density in areas like the lumbar spine and hip\nin competitive male cyclists [36].\nAll these factors highlight the potential benefits of strength training for ma"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-004",
+            "chunk_id": "3e6fbe2a-d536-4fd1-9697-494059bd7a22",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.215631365776062,
+            "lexical_score": null,
+            "excerpt": "categories, but the older group in particular, reported bone health as a primary\nrationale for strength training. Conclusions: While strength training offers performance and health\nbenefits, issues of fatigue and time constraints remain substantial, suggesting the need for tailored\ntraining programs"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-004",
+            "chunk_id": "becaaeea-25a9-49fb-915c-13d4a47b2d4e",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.21615855597504496,
+            "lexical_score": null,
+            "excerpt": "Citation: Vikestad, V.; Dalen, T.\nStrength Training Among Male\nMaster Cyclists\u2014Practices,\nChallenges, and Rationales. J. Funct.\nMorphol. Kinesiol. 2024, 9, 232.\nhttps://doi.org/10.3390/\njfmk9040232\nAcademic Editor: Giuseppe\nMusumeci\nReceived: 23 September 2024\nRevised: 4 November 2024\nAccepted: 11 N"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-004",
+            "chunk_id": "1db09382-c5e8-4443-b4d4-c51a4adb06d3",
+            "pages": [
+              10
+            ],
+            "cosine_distance": 0.21838496813863562,
+            "lexical_score": null,
+            "excerpt": "challenge for many master cyclists\nregarding strength training routines, highlighting the motivational barriers to integrating\nstrength training into their routine. This might reflect the finding that the cyclists reported\nsignificantly higher enjoyment of the endurance training than strength traini"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-007",
+            "chunk_id": "1c0cacc4-0781-48a1-8a97-28ee42495c29",
+            "pages": [
+              6
+            ],
+            "cosine_distance": 0.2187987305165795,
+            "lexical_score": null,
+            "excerpt": "Eskurza et al., 2002). However, the changes in the\nphysical (e.g., prevalence of injuries, distribution of relative times\nspent at the different training intensities) and behavioral (e.g.,\nreductions in time and motivation to train) characteristics of\ntraining of the endurance master athletes with a"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-004",
+            "chunk_id": "518f6f45-4933-48da-a89f-cea3e960a934",
+            "pages": [
+              10
+            ],
+            "cosine_distance": 0.22161854634395384,
+            "lexical_score": null,
+            "excerpt": "10 of 13\nbecause it underscores the difficulty of balancing strength training with the endurance\ntraining required to perform well on the bike. In this study, fatigue and soreness from\nstrength training were identified as major challenges for the participating cyclists, impacting\ntheir ability to pe"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-020",
+            "chunk_id": "c49b8bbd-40ef-4828-bc69-69ab2c2f37b4",
+            "pages": [
+              12
+            ],
+            "cosine_distance": 0.23190617561340332,
+            "lexical_score": null,
+            "excerpt": "in strength training. Throughout the interviews, the cyclists demonstrated a considerable depth of knowledge\nand reflection both on their personal strength training regimes and the research on the topic, including both the potential\nimpact on performance and recommended methods. Most cyclists in our"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-011",
+            "chunk_id": "8e1b7363-129e-4e2c-b66e-366cebd27424",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.2348237353773378,
+            "lexical_score": null,
+            "excerpt": "Institute of Performance Diagnostics and Health Promotion (ILUG), Martin-Luther-University\nHalle-Wittenberg, 06108 Halle, Germany; sarah.feichtinger@ilug.de (S.F.);\noliver.stoll@sport.uni-halle.de (O.S.); kuno.hottenrott@sport.uni-halle.de (K.H.)\n2\nInstitute of Sport Science, Martin-Luther-Universit"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-016",
+            "chunk_id": "23f0f0f2-e5bd-4262-8702-67ad262af1af",
+            "pages": [
+              3
+            ],
+            "cosine_distance": 0.23568287662471266,
+            "lexical_score": null,
+            "excerpt": "potential for improving cycling economy than male cyclists by adding heavy strength\ntraining to their normal endurance training. On the other hand, the male cyclists were on\na somewhat higher performance level and completed more endurance training than the\nfemale cyclists (9.9 h vs. 5.1 h per week)."
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.3333333333333333,
+          "mrr@5": 1.0,
+          "ndcg@5": 0.5562983930884396,
+          "evidence_coverage@5": 0.0,
+          "unjudged@5": 1,
+          "recall@10": 0.3333333333333333,
+          "mrr@10": 1.0,
+          "ndcg@10": 0.5562983930884396,
+          "evidence_coverage@10": 0.0,
+          "unjudged@10": 4
+        }
+      },
+      "lexical": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-016",
+            "chunk_id": "75674e23-cf4a-4528-bcad-6afb94f0132f",
+            "pages": [
+              1
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.8,
+            "excerpt": "training.\nWe conclude that both male and female cyclists can improve their cycling performance by adding\nstrength training to their normal training.\nKeywords: concurrent training; endurance performance; sex differences; muscle strength; muscle\nhypertrophy; training adaptations\n1. Introduction\nAdding"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-004",
+            "chunk_id": "0e97032d-68dd-4fc4-ae0c-08af230eb571",
+            "pages": [
+              5
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.6000001,
+            "excerpt": "5 of 13\nselection and execution. This data provide insights into participants\u2019 strength training\npractices and shed light on their strength training-related challenges and the rationale\nbehind their training choices.\nTable 1. Overview of content analysis.\nResearch Question\nCodes\nEssence of Codes\nNum"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-004",
+            "chunk_id": "b6470469-95eb-4e38-b3ce-d21789659ca1",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.4,
+            "excerpt": "3 of 13\nwith 60% of cyclists affected and a sevenfold greater risk than runners. Strength training,\nhowever, has been shown to improve bone density in areas like the lumbar spine and hip\nin competitive male cyclists [36].\nAll these factors highlight the potential benefits of strength training for ma"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-004",
+            "chunk_id": "518f6f45-4933-48da-a89f-cea3e960a934",
+            "pages": [
+              10
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.4,
+            "excerpt": "10 of 13\nbecause it underscores the difficulty of balancing strength training with the endurance\ntraining required to perform well on the bike. In this study, fatigue and soreness from\nstrength training were identified as major challenges for the participating cyclists, impacting\ntheir ability to pe"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-020",
+            "chunk_id": "f1f2cfba-9e91-474d-8c56-c95dbb3a7680",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.1000001,
+            "excerpt": "November and December but not during the last 6 months preceding the event in July [36]. Nevertheless, no information\nis provided on why the cyclists discontinued their strength training when approaching the race season.\nAlthough several other studies have investigated the training habits of elite a"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-020",
+            "chunk_id": "fc52ae52-9b85-4373-819a-d82cd55d9c90",
+            "pages": [
+              12
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.1000001,
+            "excerpt": "engagement in strength training during the race\nseason.\nCyclists often face challenges with restarting strength training after long periods of stage racing or frequent racing.\nSuch challenges stem from fatigue due to racing as well as from the reality that the impact of fatigue and muscle soreness\nf"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-004",
+            "chunk_id": "b8764d76-2d18-49eb-8afc-755a387c00b8",
+            "pages": [
+              11
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.1000001,
+            "excerpt": "muscle\nmass as they age. However, the most common challenges identified in this study were\nmanaging fatigue from strength training and dealing with time constraints. To address\nthese challenges, cyclists and coaches should focus on strength training programs that\nminimize fatigue and fit within the "
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-020",
+            "chunk_id": "54d1947d-695c-457d-b363-e6a2bafebd63",
+            "pages": [
+              10
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.0,
+            "excerpt": "contentment with their guidance on strength training (r\u2009=\u2009.268, p\u2009=\u2009.001). Although female cyclists reported more enjoyment\nwith strength training than males did (r\u2009=\u2009.249, p\u2009=\u2009.002), no significant sex differences were found in the enjoyment of\nendurance training (r\u2009=\u2009.064, p\u2009=\u2009.438).\nThe cyclists "
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-020",
+            "chunk_id": "d7658024-61d1-4f61-868b-9907fa56f219",
+            "pages": [
+              13
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.0,
+            "excerpt": "13 / 16\nMany cyclists in our study, especially females, focused on strength training\u2019s benefits for health, particularly bone\nhealth. The cyclists seemed to be aware both of professional cycling\u2019s potential drawbacks for bone health [17], especially\nwhen trying to keep a low body weight [19,20], and"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-016",
+            "chunk_id": "13010aae-4021-4f08-914d-4343f542ffad",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 2.0,
+            "excerpt": "anaerobic capacity,\nand neuromuscular characteristics [28]. Accordingly, Wmax has been shown to predict\nendurance performance in cyclists [29,30] and to distinguish elite cyclists from well-trained\ncyclists [30]. Concurrent endurance and heavy strength training is reported to increase\nWmax or time t"
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.0,
+          "mrr@5": 0.0,
+          "ndcg@5": 0.0,
+          "evidence_coverage@5": 0.0,
+          "unjudged@5": 3,
+          "recall@10": 0.0,
+          "mrr@10": 0.0,
+          "ndcg@10": 0.0,
+          "evidence_coverage@10": 0.0,
+          "unjudged@10": 3
+        }
+      }
+    },
+    "q026": {
+      "question": "What taper length before a time trial works best for cyclists over 60?",
+      "vector": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-004",
+            "chunk_id": "518f6f45-4933-48da-a89f-cea3e960a934",
+            "pages": [
+              10
+            ],
+            "cosine_distance": 0.26154952599550985,
+            "lexical_score": null,
+            "excerpt": "10 of 13\nbecause it underscores the difficulty of balancing strength training with the endurance\ntraining required to perform well on the bike. In this study, fatigue and soreness from\nstrength training were identified as major challenges for the participating cyclists, impacting\ntheir ability to pe"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-017",
+            "chunk_id": "d042147f-4a55-4978-8674-3a7490b7e112",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.2651237468384551,
+            "lexical_score": null,
+            "excerpt": "performance.\nMethods\u2002 A systematic search was carried out in PubMed, Web of Science and Scopus including articles indexed up to\nFebruary 2025. Following the PICOS criteria: Population, endurance cyclists aged\u2009\u2265\u200918 years or older, without restriction\nof sex or performance level; Intervention, heavy s"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-015",
+            "chunk_id": "662ab4ca-20a3-4ba3-93bb-4b2421826677",
+            "pages": [
+              2
+            ],
+            "cosine_distance": 0.26592817110037004,
+            "lexical_score": null,
+            "excerpt": "as 5-s\nsprint intervals, improved PPO and total work during 30-s all-\nout cycling (Linossier et al., 1993). Consequently, both HST and\nSST are common methods in competitive cyclists. However, to\ndate, no studies have compared the effects of HST and SST during\nthe pre-season on sprint and endurance c"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-002",
+            "chunk_id": "7ff2561e-9eca-4ec0-a13c-b37e50e3cd0a",
+            "pages": [
+              4
+            ],
+            "cosine_distance": 0.27095693907525875,
+            "lexical_score": null,
+            "excerpt": "For all manoeuvres, attempts were repeated, with a 30-s\ninterval between each attempt to prevent the development\nof respiratory muscle fatigue, until the maximum value was\nachieved. Data are reported in centimetre of water (cm \u00adH2O).\nAge\u2011related rate of\u00a0decline in\u00a0muscle, respiratory\nfunction and\u00a0cy"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-003",
+            "chunk_id": "baeb0a16-9e77-4f31-94cb-fbb73f6517b3",
+            "pages": [
+              2
+            ],
+            "cosine_distance": 0.2735329053858785,
+            "lexical_score": null,
+            "excerpt": "and posttests were performed\non 3 different days separated by 1 day of rest. Lactate threshold\nand VO2max were tested on the first testing day, the 30 min per-\nformance test on the second testing day, whereas leg strength tests\nwere performed on the third testing day. The testing order was\nthe same "
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-015",
+            "chunk_id": "2240c075-f9fd-4eee-b208-c2c8197ffa43",
+            "pages": [
+              2
+            ],
+            "cosine_distance": 0.2769170187985005,
+            "lexical_score": null,
+            "excerpt": "Jeukendrup\u2019s criteria for trained road\ncyclists completed the study (Jeukendrup et al., 2000).\nThe Regional Committee for Medical and Health Research\nEthics in Western Norway evaluated the study to ensure that it\ndid not include any medical or health-related ethical concerns.\nThe study was then appr"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-015",
+            "chunk_id": "225cbfeb-d67d-4ddd-ae66-a2b4363710cb",
+            "pages": [
+              7
+            ],
+            "cosine_distance": 0.2840748046614259,
+            "lexical_score": null,
+            "excerpt": "SST has a better effect on 5-min all-out cycling\nthan endurance training alone.\nPrevious studies have reported GE both as unaffected\n(Aagaard et al., 2011; Ronnestad et al., 2016), reduced (Aagaard\net al., 2011) and improved (Sunde et al., 2010; Ronnestad et al.,\n2011) after HST in cyclists. To the "
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-011",
+            "chunk_id": "5a9131ce-9b61-45cd-91c4-8e3596d723ef",
+            "pages": [
+              10
+            ],
+            "cosine_distance": 0.28512144519792193,
+            "lexical_score": null,
+            "excerpt": "10 of 14\net al. [42,43]. Here, too, no differences were found in physiological recovery for a group\nof nine master cyclists (mean age: 45 years) compared to nine adult cyclists (mean age:\n24 years) with similar VO2max. Results from three 30 min time trials with similar absolute\npower output on three"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-016",
+            "chunk_id": "723ae784-986a-4c5f-97b1-4acfa7baa43a",
+            "pages": [
+              4
+            ],
+            "cosine_distance": 0.28566140362666614,
+            "lexical_score": null,
+            "excerpt": "1).\nTo simulate a typical mass start race in cycling, we performed a test consisting of a\n3 h submaximal cycling trial (at the same absolute power output pre and post) directly\nfollowed by a 5-min performance test with the aim of highest possible power output\nduring the 5-min test. The results were "
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-017",
+            "chunk_id": "04a54200-f41e-410d-ba86-a30ca1225e82",
+            "pages": [
+              23
+            ],
+            "cosine_distance": 0.2861594941067541,
+            "lexical_score": null,
+            "excerpt": "strength training sessions as unsustainable over time.\nMoreover, one study (Sunde et\u00a0al. 2010) reported a 12.2%\ndecrease in cycling training time. Indeed, all but two stud-\nies (R\u00f8nnestad et\u00a0al. 2015; Del Vecchio et\u00a0al. 2019) added\nstrength training sessions to endurance training. Therefore,\nto incr"
+          }
+        ]
+      },
+      "lexical": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-003",
+            "chunk_id": "95abcc6e-2cfa-4a2c-8f7f-5e6369a6e38a",
+            "pages": [
+              2
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.3000001,
+            "excerpt": "No effects of low cadence training\nbelow the freely chosen cadence for most cyclist. Foss and Hallen\n(2005) found that a cadence of 80 revolutions per min (rpm) was\noptimal for cycling performance compared to a cadence of 60-,\n100-, and 120 rpm in elite cyclists (24 \u00b1 3 years). Best cycling per-\nfor"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-016",
+            "chunk_id": "48c77642-5e67-4f01-8cf6-dfcac0bcaa62",
+            "pages": [
+              4
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.2,
+            "excerpt": "4 of 11\nFigure 1. Percent change in physiological measurements and cycling performance after 11\u201312 weeks of heavy strength\ntraining in male and female cyclists. The results from the male cyclists are from [1,16], and the results from the female\ncyclists are from [2,15]. Values are mean \u00b1 SD. RM = re"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-020",
+            "chunk_id": "3ca5ff9e-ff51-421e-b029-6e08e132d16f",
+            "pages": [
+              13
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.1,
+            "excerpt": "such as\nUCI points, which prevents any direct comparison between the cyclists in our study and the broader population of pro\u00ad\nfessional cyclists and may thus limit the generalisability of our findings. Fifth and finally, although the researcher that\nperformed the interviews had a background as a for"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-004",
+            "chunk_id": "b8764d76-2d18-49eb-8afc-755a387c00b8",
+            "pages": [
+              11
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.1,
+            "excerpt": "muscle\nmass as they age. However, the most common challenges identified in this study were\nmanaging fatigue from strength training and dealing with time constraints. To address\nthese challenges, cyclists and coaches should focus on strength training programs that\nminimize fatigue and fit within the "
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-020",
+            "chunk_id": "2f3c6223-17d3-4df8-adf2-0cc14db5e1ec",
+            "pages": [
+              12
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.0,
+            "excerpt": "training\u2019s effects and more enjoyment\nwith it. A lack of interest or motivation to perform strength training was almost exclusively reported by male cyclists, which\nmight explain some of the disparity in engagement between the sexes during the race season.\nFor the professional road cyclists in our s"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-020",
+            "chunk_id": "d7658024-61d1-4f61-868b-9907fa56f219",
+            "pages": [
+              13
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.0,
+            "excerpt": "13 / 16\nMany cyclists in our study, especially females, focused on strength training\u2019s benefits for health, particularly bone\nhealth. The cyclists seemed to be aware both of professional cycling\u2019s potential drawbacks for bone health [17], especially\nwhen trying to keep a low body weight [19,20], and"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-011",
+            "chunk_id": "5a9131ce-9b61-45cd-91c4-8e3596d723ef",
+            "pages": [
+              10
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.0,
+            "excerpt": "10 of 14\net al. [42,43]. Here, too, no differences were found in physiological recovery for a group\nof nine master cyclists (mean age: 45 years) compared to nine adult cyclists (mean age:\n24 years) with similar VO2max. Results from three 30 min time trials with similar absolute\npower output on three"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-016",
+            "chunk_id": "13010aae-4021-4f08-914d-4343f542ffad",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.0,
+            "excerpt": "anaerobic capacity,\nand neuromuscular characteristics [28]. Accordingly, Wmax has been shown to predict\nendurance performance in cyclists [29,30] and to distinguish elite cyclists from well-trained\ncyclists [30]. Concurrent endurance and heavy strength training is reported to increase\nWmax or time t"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-016",
+            "chunk_id": "fa1078e5-8b42-4c86-b042-2b959f41bec2",
+            "pages": [
+              5
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.0,
+            "excerpt": "5 of 11\ntested in a semi-fatigued state. However, again there was an indication of larger potential\nfor improvements in cycling economy after strength training in women than men, as they\nimproved cycling economy during the last two hours of the test, compared to only the\nlast hour in the male cyclis"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-004",
+            "chunk_id": "518f6f45-4933-48da-a89f-cea3e960a934",
+            "pages": [
+              10
+            ],
+            "cosine_distance": null,
+            "lexical_score": 1.0,
+            "excerpt": "10 of 13\nbecause it underscores the difficulty of balancing strength training with the endurance\ntraining required to perform well on the bike. In this study, fatigue and soreness from\nstrength training were identified as major challenges for the participating cyclists, impacting\ntheir ability to pe"
+          }
+        ]
+      }
+    },
+    "q029": {
+      "question": "Which chain lubricant lasts longest in wet weather?",
+      "vector": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-003",
+            "chunk_id": "30ef5189-40b1-4c99-a1e1-403c0a535bd9",
+            "pages": [
+              3
+            ],
+            "cosine_distance": 0.4301065885893557,
+            "lexical_score": null,
+            "excerpt": "measured between 8\u201310, 18\u201320, and 28\u201330 min. Blood lac-\ntate concentrations was measured at 10, 20, and 30 min of cycling.\nHR, power output and rpm was measured throughout the entire\ntest. Performance was measured as mean power output (total watt\ndivided by time in seconds).\nSTRENGTH TESTS\nOn the th"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-017",
+            "chunk_id": "f46c0669-44fe-4cf3-b2bf-097f10a3ab6c",
+            "pages": [
+              22
+            ],
+            "cosine_distance": 0.4570331897119757,
+            "lexical_score": null,
+            "excerpt": "cor-\nrelation with \u00adpVO2max (p\u2009=\u20090.06) (R\u00f8nnestad et\u00a0al. 2015).\nThe included studies measured cycling performance at\nheavy (i.e., below MMSS) (Bishop et\u00a0al. 1999; R\u00f8nnestad\net\u00a0al. 2010a, 2015; Aagaard et\u00a0al. 2011; Vikmoen et\u00a0al. 2016)\nand severe domain (Sunde et\u00a0al. 2010; Ji et\u00a0al. 2022; Sitko\net\u00a0al"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-003",
+            "chunk_id": "6a60d2b4-13b0-4c49-8baa-f72686a43fed",
+            "pages": [
+              2
+            ],
+            "cosine_distance": 0.45816290378570557,
+            "lexical_score": null,
+            "excerpt": "were performed at the same time of the day to exclude possible\ndiurnal effects. All tests on the ergometer were performed under\nsimilar environmental conditions (18\u201320\u25e6C).\nThe cycling tests were performed on the same ergometer\n(Velotron, Racermate Inc., Washington, USA), with a computer\ncontrolled e"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-007",
+            "chunk_id": "2657957d-8c5a-4667-b559-b34e4bbe259a",
+            "pages": [
+              7
+            ],
+            "cosine_distance": 0.4622117120686682,
+            "lexical_score": null,
+            "excerpt": "(2012). Best performances by men and women open-water swimmers during\nthe \u2018English Channel Swim\u2019 from 1900 to 2010. J. Sports Sci. 30, 1295\u20131301.\ndoi: 10.1080/02640414.2012.709264\nEskurza, I., Donato, A. J., Moreau, K. L., Seals, D. R., and Tanaka, H. (2002).\nChanges in maximal aerobic capacity with"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-015",
+            "chunk_id": "c1e16fc8-dc0f-4175-a6a4-723b086e7ef1",
+            "pages": [
+              6
+            ],
+            "cosine_distance": 0.46505341142097545,
+            "lexical_score": null,
+            "excerpt": "\u00b1 5.9\n64.8 \u00b1 6.2\n2.5 \u00b1 4.3\n61.1 \u00b1 6.0\n63.4 \u00b1 6.7\u2217\n3.8 \u00b1 5.5\nWmax (W\u00b7kg\u22121)\n5.2 \u00b1 0.5\n5.4 \u00b1 0.5\u2217\n3.2 \u00b1 2.8\n5.2 \u00b1 0.6\n5.2 \u00b1 0.6\n0.6 \u00b1 2.9#\n4 mmol\u00b7L\u22121 [La\u2212]\nPower (W\u00b7kg\u22121)\n3.7 \u00b1 0.5\n3.8 \u00b1 0.5\n2.3 \u00b1 4.9\n3.6 \u00b1 0.5\n3.7 \u00b1 0.5\u2217\n4.3 \u00b1 5.6\nGross Efficiency (%)\nFresh state (%)\n20.3 \u00b1 1.3\n20.0 \u00b1 1.1\n\u22120.3 \u00b1 0.9p\n"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-018",
+            "chunk_id": "ea23ea6e-6a6b-4463-a3e0-dff39c73151b",
+            "pages": [
+              3
+            ],
+            "cosine_distance": 0.4652381262041245,
+            "lexical_score": null,
+            "excerpt": "was collected immediately after each increment, as well as\n3 and 5 min after the completion of the test into a capillary\ntube (Eppendorf AG, Hamburg, Germany). All samples were ana-\nlyzed amperometric-enzymatically (Biosen 5140, EKF-diagnostic\nGmbH, Magdeburg, Germany) in duplicate, and the mean of "
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-003",
+            "chunk_id": "83eb850d-a262-44f0-bdfd-b0eb5f0eea37",
+            "pages": [
+              3
+            ],
+            "cosine_distance": 0.4664897918701172,
+            "lexical_score": null,
+            "excerpt": "& co, Lichtenfels, Germany). HR was measured with a HR moni-\ntor (Polar S610, Polar Electro OY, Kempele, Finland), using a 5-s\ninterval for data storage. VO2max was defined as the highest 1-\nmin average VO2 during the test. Maximal HR was defined as\nthe highest value that was attained, in average ov"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-007",
+            "chunk_id": "8175b6d7-0aab-4791-9eec-bbff6a6a19b7",
+            "pages": [
+              8
+            ],
+            "cosine_distance": 0.4677213271773255,
+            "lexical_score": null,
+            "excerpt": "Seals, D. R. (2008). Endurance exercise performance in Masters\nathletes: age-associated changes and underlying physiological mechanisms. J.\nPhysiol. 586, 55\u201363. doi: 10.1113/jphysiol.2007.141879\nTrappe, S., Hayes, E., Galpin, A., Kaminsky, L., Jemiolo, B., Fink, W., et al. (2003).\nNew records in aer"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-017",
+            "chunk_id": "55e9d71a-1aad-41f8-b696-e06314a00080",
+            "pages": [
+              30
+            ],
+            "cosine_distance": 0.46800831150958966,
+            "lexical_score": null,
+            "excerpt": "10.\u200b1152/\u200bjappl.\u200b1989.\u200b66.1.8\nStevenson JD, Kilding AE, Plews DJ, Maunder E (2022) Prolonged\ncycling reduces power output at the moderate-to-heavy intensity\ntransition. Eur J Appl Physiol 122:2673\u20132682. https://\u200bdoi.\u200borg/\u200b10.\u200b\n1007/\u200bs00421-\u200b022-\u200b05036-9\nStone MH, Sands WA, Carlock J et\u00a0al (2004) The"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-015",
+            "chunk_id": "1ae9dbf2-b9cd-46a9-9c51-ef2a82d54516",
+            "pages": [
+              8
+            ],
+            "cosine_distance": 0.4687977470400597,
+            "lexical_score": null,
+            "excerpt": "200535040-00002\nFleck, S. J. (2011). Non-linear periodization for general fitness & athletes. J. Hum.\nKinet. 29A, 41\u201345. doi: 10.2478/v10078-011-0057-2\nHansen, E. A., Jensen, K., and Pedersen, P. K. (2006). Performance following\nprolonged sub-maximal cycling at optimal versus freely chosen pedal rat"
+          }
+        ]
+      },
+      "lexical": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-016",
+            "chunk_id": "fa1078e5-8b42-4c86-b042-2b959f41bec2",
+            "pages": [
+              5
+            ],
+            "cosine_distance": null,
+            "lexical_score": 0.3,
+            "excerpt": "5 of 11\ntested in a semi-fatigued state. However, again there was an indication of larger potential\nfor improvements in cycling economy after strength training in women than men, as they\nimproved cycling economy during the last two hours of the test, compared to only the\nlast hour in the male cyclis"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-019",
+            "chunk_id": "2baf1d77-0667-46bc-a732-74e88c170a13",
+            "pages": [
+              5
+            ],
+            "cosine_distance": null,
+            "lexical_score": 0.2,
+            "excerpt": "determined based on somatic characteristics, years\nof practice, and some performance data, and started at either 130 W or 150 W. Each stage\nlasted for 6 min, with increments of 30 W from one stage to the next. Capillary blood lactate\nconcentration was measured immediately after each 6 min stage, wit"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-020",
+            "chunk_id": "eb64141c-899e-472b-b2ad-5110e364995f",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 0.2,
+            "excerpt": "3 / 16\nminimise such interference, researchers recommend scheduling strength training and endurance sessions at least 6 hours\napart [28,31,32].\nFor endurance athletes, integrating strength training into training routines can present numerous challenges. A study\ninvestigating challenges related to st"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-018",
+            "chunk_id": "70e5c98c-a57a-497f-b537-6ef181f50cfc",
+            "pages": [
+              2
+            ],
+            "cosine_distance": null,
+            "lexical_score": 0.2,
+            "excerpt": "cycling, or roller ski-\ning) and one 60 min LT session using different types of interval\ntraining (e.g., 5 \u00d7 7 min with 2 min recovery, 3 \u00d7 15 min with\n3 min recovery). The recovery week included three training ses-\nsions with two 90 min LOW sessions and one 150\u2013180 min LOW\nsession.\nTHR INTERVENTION"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-018",
+            "chunk_id": "a1fb7e0e-d385-4eb2-ba90-b3b55283aaea",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 0.2,
+            "excerpt": "a 20 min warm-up at 75%\nof HRpeak, 4 \u00d7 4 min at 90\u201395% of HRpeak with 3 min active\nrecovery and a 15 min cool-down at 75% HRpeak based on the\nprotocol proposed earlier (Helgerud et al., 2007). The LOW\nsessions lasted 90\u2013150 min depending on the training mode\n(running vs. cycling) at an intensity res"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-004",
+            "chunk_id": "f8e8f74d-d0ce-446b-9006-b2990d94a4a2",
+            "pages": [
+              9
+            ],
+            "cosine_distance": null,
+            "lexical_score": 0.2,
+            "excerpt": "strength training frequency during the race season may be due to factors\nsuch as prioritizing race-specific cycling training and competitions. Strength training can\nacutely impair endurance performance, making it less desirable to incorporate strength\nsessions before high-priority races or key cycli"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-004",
+            "chunk_id": "97bdbf0b-5196-4835-b4d3-86b3e64b2dc6",
+            "pages": [
+              13
+            ],
+            "cosine_distance": null,
+            "lexical_score": 0.2,
+            "excerpt": "P\u00f6lkki, T.; Utriainen, K.; Kyng\u00e4s, H. Qualitative Content Analysis. SAGE Open 2014, 4, 1\u201310.\n[CrossRef]\n38.\nProCyclingStats. PCS Season Racedays. 2023. Available online: https://www.procyclingstats.com/rankings.php?date=\n2023-12-31&nation=&age=&zage=&page=smallerorequal&team=&offset=0&filter=Filter&"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-009",
+            "chunk_id": "ad302b6c-793f-43f9-8da7-d7b60f6eaab1",
+            "pages": [
+              12
+            ],
+            "cosine_distance": null,
+            "lexical_score": 0.2,
+            "excerpt": "1.8\u00a0g/kg/day with adequate \u00adenergy5\nInclude\u2009~\u200910% buffer with lower quality proteins (e.g. plant-based)\nRequirements may be increased\u2009~\u200910 to 15% with low carbohydrate\navailability training\nIf tolerable, target last meal\u2009~\u20091 to 2\u00a0h before sleep\nResistance \u00adtraining4\n0.3\u20130.4\u00a0g/kg per meal\nRapidly dig"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-013",
+            "chunk_id": "b581decc-853b-40d5-93ba-4f805f496ffd",
+            "pages": [
+              4
+            ],
+            "cosine_distance": null,
+            "lexical_score": 0.1,
+            "excerpt": "(5.6)\n\u2009<0.001\n0.551\n\u2009<0.001\n\u2009<0.001\n\u2009<0.001\n\u2009<0.001\n0.004\nTraining volume (h/week)\n8.0 (3.6)\n8.1 (4.4)\n7.2 (4.2)\n9.3 (8.4)\n0.67\nAGP (%)\n88.7 (4.9)\n80.8 (8.7)\n86.4 (7.0)\n84.5 (9.1)\n0.004\n0.827\n0.460\n0.220\n0.067\n0.629\n0.002\nFollow-up\nTime between first and last test (y)\n4.3 (2.5)\n4.5 (2.1)\n5.2 (2.7)\n4"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-015",
+            "chunk_id": "51e8cfaf-3410-4935-aeed-a0d433326d07",
+            "pages": [
+              2
+            ],
+            "cosine_distance": null,
+            "lexical_score": 0.1,
+            "excerpt": "Training Methods in Cycling\nINTRODUCTION\nRoad cycling is a demanding endurance sport, with performance\nmainly determined by maximal aerobic power, the ability\nto utilize a large fraction of maximal aerobic power over\nlong-lasting competitions and cycling efficiency (Jeukendrup\net al., 2000; Faria et"
+          }
+        ]
+      }
+    },
+    "q030": {
+      "question": "Is there evidence that strength training improves performance in cyclists over 50?",
+      "vector": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-004",
+            "chunk_id": "4bcc41d4-6f8b-437c-a23b-6cbd088ac600",
+            "pages": [
+              8
+            ],
+            "cosine_distance": 0.14755301788133124,
+            "lexical_score": null,
+            "excerpt": "p < 0.05). Among cyclists who engaged in strength\ntraining, 69.1% of the 35\u201349 age group reported noticing improvements in cycling perfor-\nmance from strength training, 2.6% said \u201cno\u201d, and 28.3% were \u201cnot sure\u201d. Similarly, in the\n\u226550 group, 65.3% reported \u201cyes\u201d, 2.9% said \u201cno\u201d, and 31.8% were \u201cnot s"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-020",
+            "chunk_id": "c49b8bbd-40ef-4828-bc69-69ab2c2f37b4",
+            "pages": [
+              12
+            ],
+            "cosine_distance": 0.15243643522262573,
+            "lexical_score": null,
+            "excerpt": "in strength training. Throughout the interviews, the cyclists demonstrated a considerable depth of knowledge\nand reflection both on their personal strength training regimes and the research on the topic, including both the potential\nimpact on performance and recommended methods. Most cyclists in our"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-004",
+            "chunk_id": "b6470469-95eb-4e38-b3ce-d21789659ca1",
+            "pages": [
+              3
+            ],
+            "cosine_distance": 0.15593045020517848,
+            "lexical_score": null,
+            "excerpt": "3 of 13\nwith 60% of cyclists affected and a sevenfold greater risk than runners. Strength training,\nhowever, has been shown to improve bone density in areas like the lumbar spine and hip\nin competitive male cyclists [36].\nAll these factors highlight the potential benefits of strength training for ma"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-004",
+            "chunk_id": "c7058e1d-46fb-4ecc-ae38-abc8f08482a6",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.1706138747564614,
+            "lexical_score": null,
+            "excerpt": "bone density. Strength training can help counter these\neffects. This study aims to explore the strength training practices, challenges, and decision-making\nrationale of male master cyclists to optimize performance and health as they age. Methods: A\ntotal of 555 male master cyclists aged 35 and above"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-016",
+            "chunk_id": "75674e23-cf4a-4528-bcad-6afb94f0132f",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.1763332486152649,
+            "lexical_score": null,
+            "excerpt": "training.\nWe conclude that both male and female cyclists can improve their cycling performance by adding\nstrength training to their normal training.\nKeywords: concurrent training; endurance performance; sex differences; muscle strength; muscle\nhypertrophy; training adaptations\n1. Introduction\nAdding"
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-016",
+            "chunk_id": "996b0ecf-0b45-46a5-a487-9460d6b27e4b",
+            "pages": [
+              3
+            ],
+            "cosine_distance": 0.17755072250659787,
+            "lexical_score": null,
+            "excerpt": "this study performed a strength training program identical to what we previ-\nously used to induce beneficial effects on cycling performance in male cyclists [1,16,17].\nThis strength training program lasted for 11\u201312 weeks with two sessions per week with\na training load of 10-4 RM, including four exe"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-016",
+            "chunk_id": "c4ca6091-ac14-47cd-bef2-01a1f1da4ba6",
+            "pages": [
+              5
+            ],
+            "cosine_distance": 0.18076300621032715,
+            "lexical_score": null,
+            "excerpt": "the female cyclists. The Wmax\nalso increased similarly in the male (4.3 \u00b1 1.1%) and female (3.9 \u00b1 6.7%) cyclists, although\nthis change was only statistically significant in men.\nThe results from our studies show similar strength-training-induced improvements in\ncycling performance and physiological "
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-004",
+            "chunk_id": "becaaeea-25a9-49fb-915c-13d4a47b2d4e",
+            "pages": [
+              1
+            ],
+            "cosine_distance": 0.18098180407394004,
+            "lexical_score": null,
+            "excerpt": "Citation: Vikestad, V.; Dalen, T.\nStrength Training Among Male\nMaster Cyclists\u2014Practices,\nChallenges, and Rationales. J. Funct.\nMorphol. Kinesiol. 2024, 9, 232.\nhttps://doi.org/10.3390/\njfmk9040232\nAcademic Editor: Giuseppe\nMusumeci\nReceived: 23 September 2024\nRevised: 4 November 2024\nAccepted: 11 N"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-004",
+            "chunk_id": "73e96e00-8ab2-438d-a1b2-04e606351db6",
+            "pages": [
+              11
+            ],
+            "cosine_distance": 0.18313400845920846,
+            "lexical_score": null,
+            "excerpt": "risk. Significantly more cyclists aged 50 and above reported improving bone health\nas a rationale for their engagement in strength training compared to the 35\u201349 age group.\nSupplementary Materials: The following supporting information can be downloaded at: https:\n//www.mdpi.com/article/10.3390/jfmk9"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-015",
+            "chunk_id": "25f3a14c-d7f7-49ad-8299-cf782a228831",
+            "pages": [
+              9
+            ],
+            "cosine_distance": 0.18443813602241121,
+            "lexical_score": null,
+            "excerpt": "J., and Helgerud, J.\n(2010). Maximal strength training improves cycling economy in competitive\ncyclists. J. Strength Cond. Res. 24, 2157\u20132165. doi: 10.1519/JSC.0b013e3181ae\nb16a\nVikmoen, O., Ellefsen, S., Troen, O., Hollan, I., Hanestadhaugen, M., Raastad,\nT., et al. (2016). Strength training improv"
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.5,
+          "mrr@5": 1.0,
+          "ndcg@5": 0.7672735788411231,
+          "evidence_coverage@5": 1.0,
+          "unjudged@5": 1,
+          "recall@10": 0.75,
+          "mrr@10": 1.0,
+          "ndcg@10": 0.8616869342799657,
+          "evidence_coverage@10": 1.0,
+          "unjudged@10": 1
+        }
+      },
+      "lexical": {
+        "hits": [
+          {
+            "rank": 1,
+            "corpus_id": "mcl-004",
+            "chunk_id": "0e97032d-68dd-4fc4-ae0c-08af230eb571",
+            "pages": [
+              5
+            ],
+            "cosine_distance": null,
+            "lexical_score": 5.3,
+            "excerpt": "5 of 13\nselection and execution. This data provide insights into participants\u2019 strength training\npractices and shed light on their strength training-related challenges and the rationale\nbehind their training choices.\nTable 1. Overview of content analysis.\nResearch Question\nCodes\nEssence of Codes\nNum"
+          },
+          {
+            "rank": 2,
+            "corpus_id": "mcl-016",
+            "chunk_id": "75674e23-cf4a-4528-bcad-6afb94f0132f",
+            "pages": [
+              1
+            ],
+            "cosine_distance": null,
+            "lexical_score": 5.1,
+            "excerpt": "training.\nWe conclude that both male and female cyclists can improve their cycling performance by adding\nstrength training to their normal training.\nKeywords: concurrent training; endurance performance; sex differences; muscle strength; muscle\nhypertrophy; training adaptations\n1. Introduction\nAdding"
+          },
+          {
+            "rank": 3,
+            "corpus_id": "mcl-004",
+            "chunk_id": "20511c28-949d-4573-b08b-44b0154b5c01",
+            "pages": [
+              9
+            ],
+            "cosine_distance": null,
+            "lexical_score": 4.3,
+            "excerpt": "9 of 13\n4. Discussion\nThe main findings of this study were that the master cyclists typically engaged in two\nstrength training sessions per week during the off-season and pre-season, with a lower\nfrequency of just over one session per week during the race season. A larger proportion of\ncyclists enga"
+          },
+          {
+            "rank": 4,
+            "corpus_id": "mcl-020",
+            "chunk_id": "1f6f6194-309c-4668-9475-fae2694150a6",
+            "pages": [
+              6
+            ],
+            "cosine_distance": null,
+            "lexical_score": 4.2000003,
+            "excerpt": "multiple comparisons. These findings indicate a balanced representation of rider characteristics in\nboth groups.\nTable 2.\u2002 Overview of the content analysis of data from the interviews.\nResearch topic\nCodes\nEssence of codes\nParticipants with the\ncodes\nStrength training\npractice\nExercises and executio"
+          },
+          {
+            "rank": 5,
+            "corpus_id": "mcl-004",
+            "chunk_id": "b8764d76-2d18-49eb-8afc-755a387c00b8",
+            "pages": [
+              11
+            ],
+            "cosine_distance": null,
+            "lexical_score": 4.0,
+            "excerpt": "muscle\nmass as they age. However, the most common challenges identified in this study were\nmanaging fatigue from strength training and dealing with time constraints. To address\nthese challenges, cyclists and coaches should focus on strength training programs that\nminimize fatigue and fit within the "
+          },
+          {
+            "rank": 6,
+            "corpus_id": "mcl-016",
+            "chunk_id": "13010aae-4021-4f08-914d-4343f542ffad",
+            "pages": [
+              3
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.8,
+            "excerpt": "anaerobic capacity,\nand neuromuscular characteristics [28]. Accordingly, Wmax has been shown to predict\nendurance performance in cyclists [29,30] and to distinguish elite cyclists from well-trained\ncyclists [30]. Concurrent endurance and heavy strength training is reported to increase\nWmax or time t"
+          },
+          {
+            "rank": 7,
+            "corpus_id": "mcl-016",
+            "chunk_id": "7ae18f7a-dc2c-4259-a01e-9be40447f22b",
+            "pages": [
+              8
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.6000001,
+            "excerpt": "8 of 11\nCSA in fear of negative consequences of increased body mass. However, it is important to\nremember that a small increase in muscle CSA in the main locomotor musculature does\nnot have large impact on total body mass. In fact, in our studies we do not report increased\nbody mass despite signific"
+          },
+          {
+            "rank": 8,
+            "corpus_id": "mcl-020",
+            "chunk_id": "efccfe2d-717d-4887-9f89-b204a1b92751",
+            "pages": [
+              11
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.5,
+            "excerpt": "strength training among professional road cyclists. During the\noff-season and pre-season, a strength training regime of two sessions per week was common among the cyclists in our\nstudy. The sessions usually centred on lower body exercises, especially the muscles used in the cycling movements,\nperfor"
+          },
+          {
+            "rank": 9,
+            "corpus_id": "mcl-020",
+            "chunk_id": "fc52ae52-9b85-4373-819a-d82cd55d9c90",
+            "pages": [
+              12
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.5,
+            "excerpt": "engagement in strength training during the race\nseason.\nCyclists often face challenges with restarting strength training after long periods of stage racing or frequent racing.\nSuch challenges stem from fatigue due to racing as well as from the reality that the impact of fatigue and muscle soreness\nf"
+          },
+          {
+            "rank": 10,
+            "corpus_id": "mcl-020",
+            "chunk_id": "d7658024-61d1-4f61-868b-9907fa56f219",
+            "pages": [
+              13
+            ],
+            "cosine_distance": null,
+            "lexical_score": 3.5,
+            "excerpt": "13 / 16\nMany cyclists in our study, especially females, focused on strength training\u2019s benefits for health, particularly bone\nhealth. The cyclists seemed to be aware both of professional cycling\u2019s potential drawbacks for bone health [17], especially\nwhen trying to keep a low body weight [19,20], and"
+          }
+        ],
+        "metrics": {
+          "recall@5": 0.5,
+          "mrr@5": 1.0,
+          "ndcg@5": 0.7959761332981399,
+          "evidence_coverage@5": 0.0,
+          "unjudged@5": 1,
+          "recall@10": 0.5,
+          "mrr@10": 1.0,
+          "ndcg@10": 0.7959761332981399,
+          "evidence_coverage@10": 0.0,
+          "unjudged@10": 1
+        }
+      }
+    }
+  }
+}

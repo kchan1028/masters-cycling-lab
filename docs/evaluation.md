@@ -74,16 +74,46 @@ the same index, and query latency p95 stays under 500 ms on CPU once the model i
   between runs are noise.
 - Relevance judgments are incomplete: only documents an annotator considered were graded. `unjudged@k` shows how
   often the system returns documents nobody judged.
-- The lexical baseline is not reproducible across ingestions: tied scores are ordered by chunk ID, a random UUID, so
-  a fresh ingest of the same corpus gave dev lexical recall@10 0.70 instead of 0.67 (test was unchanged). Vector
-  results reproduced exactly from a fresh clone.
 - All labels are provisional AI drafts until a person reviews them with `make review` (see
   [research/evaluation/README.md](../research/evaluation/README.md#reviewing-labels)). Every number below was
   measured against labels no person has checked yet.
 
 ## Results
 
+### 2026-11-12, dataset v1, tie order fixed, runs at commit d830fa8
+
+The same dataset, corpus, index and settings as the runs below. One thing changed: passages with equal scores are now
+ordered by paper (the file's SHA-256), then by position in the paper. Before, they were ordered by chunk ID, a random
+UUID created at ingestion, so a fresh ingest of the same corpus could reorder them; the fresh-clone check in
+milestone 6 got dev lexical recall@10 0.70 where the main stack got 0.67. This is a determinism fix, not tuning:
+the new order was chosen before these runs and nothing else was changed.
+
+| Metric | Dev, vector | Dev, lexical | Test, vector | Test, lexical | Target (vector) |
+|---|---|---|---|---|---|
+| Questions scored | 16 | 16 | 9 | 9 | |
+| recall@5 | 0.76 | 0.59 | 0.48 | 0.43 | |
+| recall@10 | 0.82 | 0.70 | 0.62 | 0.52 | ≥ 0.80: dev met, **test missed** |
+| mrr@10 | 0.97 | 0.64 | 0.91 | 0.61 | ≥ 0.60: met |
+| ndcg@10 | 0.88 | 0.53 | 0.77 | 0.53 | ≥ 0.60: met |
+| evidence_coverage@10 | 0.53 | 0.29 | 0.61 | 0.22 | ≥ 0.60: **dev missed**, test met |
+| unjudged@10 | 0.75 | 2.6 | 1.9 | 2.7 | |
+| latency mean / p95 (ms) | 26 / 140 | 292 / 867 | 24 / 59 | 201 / 224 | p95 < 500: met |
+
+Runs: dev `f74849d9`, test `ed76f18f`. A repeat dev run (`1c85eb84`) returned the same passages for every question.
+
+- Vector search returned exactly the same passages in the same order as before for every question on both splits,
+  so its numbers are unchanged. Exact distance ties practically never happen.
+- Lexical ties are common: the lexical top 10 changed for 18 of 19 dev questions and 10 of 11 test questions. Dev
+  recall@10 went from 0.67 to 0.70 and test from 0.57 to 0.52; mrr@10 and ndcg@10 moved by 0.02 at most. These
+  are the numbers any ingest of the same PDFs with the same settings now gives.
+- Vector search still beats the lexical baseline on every measure on both splits.
+- The dev latencies were measured while Docker Desktop was stalling (other projects' containers were busy). Timing
+  the lexical query alternately with the old and new order gave the same median, 212 and 216 ms; both had
+  multi-second outliers. The test run had no stall.
+
 ### 2026-11-12, dataset v1, final runs at commit 3294220
+
+Lexical columns superseded by the runs above: they depended on the random tie order. Vector metrics are unchanged.
 
 Dataset v1 (questions `9b456455`, manifest `e68d33b4`), 20 papers searchable (1,269 chunks of up to 300 tokens with 40
 overlap), bge-small-en-v1.5 at 5c38ec7, k = 10 passages. Labels: 0 of 30 reviewed by a person.
@@ -120,7 +150,9 @@ The test result is reported as measured; nothing was tuned after it. Levers to t
 held-out set: limit passages per paper in the top k (more distinct papers), smaller or sentence-aware chunks, and
 hybrid vector plus lexical ranking.
 
-### 2026-11-12, dev split, first run (run 3e6a4009, same numbers as the dev run above)
+### 2026-11-12, dev split, first run (run 3e6a4009, same numbers as the dev run at commit 3294220)
+
+Lexical column superseded by the runs at commit d830fa8 (random tie order).
 
 16 answerable dev questions scored, k = 10 passages, 20 papers searchable (1,269 chunks, 300-token chunks with 40
 overlap), bge-small-en-v1.5 at 5c38ec7, all labels provisional.

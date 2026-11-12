@@ -92,9 +92,11 @@ Two real problems found and handled:
   container came back on a new address. nginx now asks Docker's DNS again (cached 10 s). Verified by forcing a new
   API address on the main stack: requests recovered within about 10 seconds. The same bug would have hit `make up`
   after changing `.env`, for example to add LLM settings.
-- **The lexical baseline does not reproduce across ingestions.** Tied keyword scores are ordered by chunk ID, a
+- **The lexical baseline did not reproduce across ingestions.** Tied keyword scores were ordered by chunk ID, a
   random UUID per ingestion, so a fresh ingest gave dev lexical recall@10 0.70 instead of 0.67. Vector search
-  reproduced exactly, because exact distance ties practically never happen. Not fixed: see next steps.
+  reproduced exactly, because exact distance ties practically never happen. Fixed after milestone 6: ties in both
+  modes now go by paper SHA-256, then chunk position. Both splits were re-run: vector results unchanged, lexical
+  recall@10 0.70 on dev and 0.52 on test (was 0.57). See [evaluation.md](evaluation.md#results).
 
 On the main stack, separately: `make lint`, `typecheck`, `test`, `build`, `check-api-types`, `corpus-verify`,
 `labels-check`, both evaluations and `make backup` pass; `make smoke` passed in milestone 5 and again in the fresh
@@ -151,7 +153,6 @@ on every measure. Every number is against labels no person has reviewed.
 - Deleting a document removes its file, index and the answers that quoted it, but older evaluation runs keep up to
   300 characters of each passage they returned.
 - With 30 questions, one question moves an average by 4 to 6 points.
-- The lexical baseline's numbers move by a few points between ingestions of the same corpus (tie order).
 - Docker Desktop on this machine stalls for several seconds now and then and ran short of memory while other
   projects' containers were up; the app itself answers in milliseconds. Latency figures come from runs without a
   stall.
@@ -162,11 +163,9 @@ on every measure. Every number is against labels no person has reviewed.
    cited passage supports its claim. Record that as the first answer-support review.
 2. Review the 30 labels with `make review`, starting with the 11 test questions. Record dataset v2 and re-run both
    splits.
-3. Make the lexical baseline reproducible: break ties by document SHA-256 and chunk ordinal instead of chunk ID
-   (the same for vector search), then re-run both splits once.
-4. Improve recall of secondary papers on dev only: cap passages per paper in the top k, then try smaller or
+3. Improve recall of secondary papers on dev only: cap passages per paper in the top k, then try smaller or
    sentence-aware chunks and hybrid vector plus lexical ranking. Confirm on new held-out questions, since the
    current test split has now been seen.
-5. Grow the question set (aim for 60 or more) so a single question moves results less.
-6. Add an answer evaluation command (citation validity, abstention accuracy, human support ratings) once answers
+4. Grow the question set (aim for 60 or more) so a single question moves results less.
+5. Add an answer evaluation command (citation validity, abstention accuracy, human support ratings) once answers
    exist.
