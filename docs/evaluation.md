@@ -101,8 +101,9 @@ the comparisons are like for like. Metrics at 10 passages unless stated.
 What it shows:
 
 - **A cap per paper** finds the secondary papers (recall 0.94 to 0.97) but throws away the passage that answers
-  the question: evidence coverage falls from 0.53 to 0.18. The gold sentence is usually the 4th or later passage of
-  the right paper, so the real weakness is ranking passages within a paper, not variety of papers. Not adopted.
+  the question: evidence coverage falls from 0.53 to 0.18, so about two thirds of the gold passages vector search
+  finds are the 4th or later passage from their paper. The real weakness is ranking passages within a paper, not
+  variety of papers. Not adopted.
 - **Smaller chunks** at the same token budget find more papers but do not improve evidence coverage. At 10 passages
   they cover less text and do worse (0.29 to 0.38). Not adopted.
 - **Reciprocal rank fusion** with the lexical ranking (k = 60, 100 candidates from each) is the only change that

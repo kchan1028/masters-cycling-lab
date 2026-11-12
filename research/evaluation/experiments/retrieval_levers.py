@@ -48,7 +48,7 @@ def scores(question: evaluation.Question, ranked: list[Passage], gold: list[Evid
     return {
         "recall": metrics.recall(documents, relevant),
         "mrr": metrics.reciprocal_rank(documents, relevant),
-        "ndcg": metrics.ndcg(documents, dict(question.document_relevance), 10),
+        "ndcg": metrics.ndcg(documents, dict(question.document_relevance), k),
         "evidence": metrics.span_coverage([EvidenceSpan(*passage) for passage in top], gold),
     }
 
