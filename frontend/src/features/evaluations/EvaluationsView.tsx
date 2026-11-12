@@ -53,7 +53,7 @@ export default function EvaluationsView() {
         </p>
       )}
       {runs && runs.length > 0 && (
-        <p className="muted">Each cell shows the run's modes in order: vector / lexical / hybrid.</p>
+        <p className="muted">Each cell has one value per retrieval mode, in the order listed under the run.</p>
       )}
       {runs && runs.length > 0 && (
         <table>
@@ -81,7 +81,7 @@ export default function EvaluationsView() {
                     {new Date(run.started_at).toLocaleString()}
                   </button>
                   <div className="muted">
-                    {run.split} split · {run.code_revision?.slice(0, 7) ?? 'no revision'}
+                    {run.split} split · {run.code_revision?.slice(0, 7) ?? 'no revision'} · {runModes(run).join(' / ')}
                   </div>
                 </td>
                 {HEADLINE.map((name) => {

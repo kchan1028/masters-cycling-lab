@@ -77,4 +77,5 @@ test('shows every mode a run measured, in order', async () => {
 
   const row = (await screen.findByText(/3a354b1/)).closest('tr') as HTMLElement
   expect(within(row).getByText('/ 0.67 / 0.87', { exact: false })).toBeInTheDocument()
+  expect(within(row).getByText(/vector \/ lexical \/ hybrid/)).toBeInTheDocument()
 })
