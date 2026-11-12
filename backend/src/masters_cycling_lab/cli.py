@@ -224,6 +224,24 @@ def evaluate(split: str, modes: list[str], k: int, check_only: bool) -> int:
     return 0
 
 
+CONNECT_ATTEMPTS = 3
+
+
+def connected_engine(url: str) -> Engine | None:
+    """An engine that has connected once. Docker Desktop sometimes stalls new connections for a while, so a timeout
+    is retried before giving up with a readable message instead of a traceback."""
+    engine = make_engine(url)
+    for attempt in range(1, CONNECT_ATTEMPTS + 1):
+        try:
+            with engine.connect():
+                return engine
+        except OperationalError:
+            if attempt < CONNECT_ATTEMPTS:
+                print(f"The database did not answer (attempt {attempt} of {CONNECT_ATTEMPTS}); trying again.")
+    print("Could not reach the database. Is the stack running? Start it with 'make up'.")
+    return None
+
+
 APP_URL = "http://127.0.0.1:8080"
 CONTEXT_CHARS = 300
 
@@ -245,7 +263,9 @@ def review(reviewer: str, split: str | None, question_id: str | None) -> int:
         print("Nothing to review.")
         return 0
     titles = {entry.corpus_id: entry.title for entry in entries}
-    engine = make_engine(get_settings().database_url)
+    engine = connected_engine(get_settings().database_url)
+    if engine is None:
+        return 1
     with Session(engine) as session:
         index = evaluation.corpus_index(session, entries)
         document_ids = {corpus_id: document_id for document_id, corpus_id in index.corpus_ids.items()}
@@ -346,7 +366,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "corpus":
         return corpus_command(args.action, args.manifest, args.check_index, args.wait)
     if args.command == "review":
-        return review(args.reviewer, args.split, args.question)
+        try:
+            return review(args.reviewer, args.split, args.question)
+        except KeyboardInterrupt:  # Ctrl+C is a normal way to stop reviewing
+            print("\nStopped. Every verdict recorded so far is saved.")
+            return 0
     if args.command == "smoke":
         return run_smoke(args.base_url)
     return ingest(args.path, args.filename, args.wait)

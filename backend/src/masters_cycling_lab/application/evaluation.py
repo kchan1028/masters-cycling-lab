@@ -117,7 +117,10 @@ def record_review(path: Path, question_id: str, *, reviewer: str, reviewed: bool
             annotation["review_notes"] = [*annotation.get("review_notes", []), f"{on.isoformat()} {reviewer}: {note}"]
         Question.model_validate(data)  # never write a line that loading would reject
         lines[number] = json.dumps(data, ensure_ascii=False)
-        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        # Write a copy and swap it in, so stopping half way can never leave a truncated file.
+        partial = path.with_suffix(".part")
+        partial.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        partial.replace(path)
         return
     raise LabelError(f"no question {question_id} in {path}")
 
