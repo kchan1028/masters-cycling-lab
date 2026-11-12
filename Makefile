@@ -4,7 +4,7 @@ NPM := npm --prefix frontend
 COMPOSE := docker compose
 
 .PHONY: help bootstrap lint typecheck test test-integration test-model build api-types check-api-types \
-	up down migrate download-model ingest corpus-download corpus-verify corpus-ingest evaluate smoke
+	up down migrate download-model ingest corpus-download corpus-verify corpus-ingest model-host labels-check evaluate smoke
 
 help: ## List commands
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -73,6 +73,15 @@ corpus-ingest: ## Upload the corpus PDFs with their manifest metadata and wait f
 	$(COMPOSE) run --rm --no-deps -v "$(CURDIR)/research/corpus:/corpus:ro" worker \
 		mcl corpus ingest --manifest /corpus/manifest.jsonl --wait
 
+model-host: ## Download the pinned embedding model into data/models for commands run on the host
+	$(UV) run mcl download-model
+
+labels-check: ## Check every gold quotation in research/evaluation/questions.jsonl against the stored pages
+	$(UV) run mcl evaluate --check-labels
+
+evaluate: model-host ## Retrieval evaluation, vector and lexical: make evaluate SPLIT=dev (or SPLIT=test)
+	$(UV) run mcl evaluate --split $(or $(SPLIT),dev)
+
 # Commands from the roadmap that later milestones implement. They fail loudly until then.
-evaluate smoke:
+smoke:
 	@echo "'make $@' is not implemented yet. docs/roadmap.md lists the milestone that adds it." >&2; exit 1

@@ -1,5 +1,6 @@
 import argparse
 import json
+import subprocess
 import time
 import uuid
 from collections import Counter
@@ -9,9 +10,9 @@ from sqlalchemy import Engine, select
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
-from masters_cycling_lab.application import corpus, documents
+from masters_cycling_lab.application import corpus, documents, evaluation
 from masters_cycling_lab.application.errors import ServiceError
-from masters_cycling_lab.config import get_settings
+from masters_cycling_lab.config import REPO_ROOT, get_settings
 from masters_cycling_lab.infrastructure.db.models import Document, IndexVersion, IngestionJob
 from masters_cycling_lab.infrastructure.db.session import make_engine
 from masters_cycling_lab.infrastructure.storage.local_files import LocalFileStorage
@@ -164,6 +165,64 @@ def wait_for_corpus(engine: Engine, entries: list[corpus.ManifestEntry]) -> int:
         time.sleep(3)
 
 
+def evaluate(split: str, modes: list[str], k: int, check_only: bool) -> int:
+    settings = get_settings()
+    try:
+        questions = evaluation.load_questions(evaluation.DEFAULT_QUESTIONS)
+        entries = corpus.load_manifest(corpus.DEFAULT_MANIFEST)
+    except (evaluation.LabelError, corpus.ManifestError) as error:
+        print(f"Label or manifest problems:\n{error}")
+        return 1
+    engine = make_engine(settings.database_url)
+    with Session(engine) as session:
+        index = evaluation.corpus_index(session, entries)
+        _, problems = evaluation.locate_evidence(session, questions, index)
+        print(f"{len(questions)} questions; every gold quotation checked against the stored page text.")
+        if problems:
+            print("\n".join(problems))
+            return 1
+        print("All gold quotations were found on their stated pages.")
+        if check_only:
+            return 0
+        if split == "test":
+            print("Note: the test split is held out. Use it to report results, not to tune settings.")
+
+        from masters_cycling_lab.infrastructure.embeddings.sentence_transformers_adapter import (
+            SentenceTransformerEmbedder,
+        )
+
+        run_id, artifact, summary = evaluation.run_evaluation(
+            session,
+            SentenceTransformerEmbedder(settings),
+            questions,
+            entries,
+            split=split,
+            modes=tuple(modes),  # type: ignore[arg-type]
+            k=k,
+            dataset_sha256=evaluation.file_sha256(evaluation.DEFAULT_QUESTIONS),
+            corpus_sha256=evaluation.file_sha256(corpus.DEFAULT_MANIFEST),
+            code_revision=code_revision(),
+            artifacts_dir=REPO_ROOT / "artifacts" / "evaluations",
+        )
+    print(f"\nEvaluation run {run_id} ({split}); artifact: {artifact}")
+    for mode, scores in summary.items():
+        print(f"\n{mode}:")
+        for name, value in scores.items():
+            if not name.endswith("_questions"):
+                print(f"  {name}: {value}")
+    return 0
+
+
+def code_revision() -> str | None:
+    """The git commit, with "-dirty" when there are uncommitted changes. None outside a git checkout."""
+    try:
+        commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True, cwd=REPO_ROOT)
+        dirty = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, cwd=REPO_ROOT)
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return commit.stdout.strip() + ("-dirty" if dirty.stdout.strip() else "")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="mcl", description="Masters Cycling Lab command line tools")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -184,11 +243,19 @@ def main(argv: list[str] | None = None) -> int:
     corpus_command_parser.add_argument("--check-index", action="store_true", help="also report ingestion status")
     corpus_command_parser.add_argument("--wait", action="store_true", help="after ingest, wait for the worker")
 
+    evaluate_parser = commands.add_parser("evaluate", help="run the labelled retrieval evaluation")
+    evaluate_parser.add_argument("--split", choices=["dev", "test"], default="dev")
+    evaluate_parser.add_argument("--modes", nargs="+", choices=["vector", "lexical"], default=["vector", "lexical"])
+    evaluate_parser.add_argument("--k", type=int, default=10, help="passages retrieved per question")
+    evaluate_parser.add_argument("--check-labels", action="store_true", help="only check the gold quotations")
+
     args = parser.parse_args(argv)
     if args.command == "openapi":
         return write_openapi(args.output)
     if args.command == "download-model":
         return download_model()
+    if args.command == "evaluate":
+        return evaluate(args.split, args.modes, args.k, args.check_labels)
     if args.command == "corpus":
         return corpus_command(args.action, args.manifest, args.check_index, args.wait)
     return ingest(args.path, args.filename, args.wait)

@@ -33,7 +33,8 @@ export interface paths {
         };
         /**
          * Ready
-         * @description Checks the database, migrations, the vector extension and file storage. Never calls the LLM provider.
+         * @description Checks the database, migrations, the vector extension, file storage and the embedding model files.
+         *     Never calls the LLM provider.
          */
         get: operations["ready_api_v1_health_ready_get"];
         put?: never;
@@ -161,6 +162,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/retrieval/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Search
+         * @description Rank passages from active, fully indexed documents. Exact search: every chunk is compared.
+         */
+        post: operations["search_api_v1_retrieval_search_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/evaluation-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Runs */
+        get: operations["list_runs_api_v1_evaluation_runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/evaluation-runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run */
+        get: operations["get_run_api_v1_evaluation_runs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -271,6 +326,107 @@ export interface components {
         ErrorResponse: {
             error: components["schemas"]["ErrorBody"];
         };
+        /** EvaluationResultOut */
+        EvaluationResultOut: {
+            /** Question Id */
+            question_id: string;
+            /** Retrieval */
+            retrieval: {
+                [key: string]: unknown;
+            };
+            /** Metrics */
+            metrics: {
+                [key: string]: unknown;
+            };
+        };
+        /** EvaluationRunDetail */
+        EvaluationRunDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Split */
+            split: string;
+            /** Status */
+            status: string;
+            /** Dataset Sha256 */
+            dataset_sha256: string;
+            /** Corpus Sha256 */
+            corpus_sha256: string;
+            /** Code Revision */
+            code_revision: string | null;
+            /** Config */
+            config: {
+                [key: string]: unknown;
+            };
+            /** Metrics */
+            metrics: {
+                [key: string]: unknown;
+            };
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Finished At */
+            finished_at: string | null;
+            /** Results */
+            results: components["schemas"]["EvaluationResultOut"][];
+        };
+        /** EvaluationRunList */
+        EvaluationRunList: {
+            /** Items */
+            items: components["schemas"]["EvaluationRunOut"][];
+            /** Total */
+            total: number;
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+        };
+        /** EvaluationRunOut */
+        EvaluationRunOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Split */
+            split: string;
+            /** Status */
+            status: string;
+            /** Dataset Sha256 */
+            dataset_sha256: string;
+            /** Corpus Sha256 */
+            corpus_sha256: string;
+            /** Code Revision */
+            code_revision: string | null;
+            /** Config */
+            config: {
+                [key: string]: unknown;
+            };
+            /** Metrics */
+            metrics: {
+                [key: string]: unknown;
+            };
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Finished At */
+            finished_at: string | null;
+        };
+        /** FiltersIn */
+        FiltersIn: {
+            /** Document Ids */
+            document_ids?: string[];
+            /** Publication Year From */
+            publication_year_from?: number | null;
+            /** Publication Year To */
+            publication_year_to?: number | null;
+        };
         /** JobOut */
         JobOut: {
             /**
@@ -362,6 +518,17 @@ export interface components {
             /** Warnings */
             warnings: string[];
         };
+        /** PageRef */
+        PageRef: {
+            /** Page Number */
+            page_number: number;
+            /** Page Label */
+            page_label: string | null;
+            /** Start Offset */
+            start_offset: number;
+            /** End Offset */
+            end_offset: number;
+        };
         /** ReadyStatus */
         ReadyStatus: {
             /**
@@ -378,6 +545,88 @@ export interface components {
              * @enum {string}
              */
             llm: "configured" | "not_configured";
+        };
+        /** SearchRequest */
+        SearchRequest: {
+            /** Query */
+            query: string;
+            /**
+             * Candidate K
+             * @description Defaults to RETRIEVAL_CANDIDATE_K
+             */
+            candidate_k?: number | null;
+            /**
+             * Mode
+             * @default vector
+             * @enum {string}
+             */
+            mode: "vector" | "lexical";
+            filters?: components["schemas"]["FiltersIn"];
+        };
+        /** SearchResponse */
+        SearchResponse: {
+            /** Query */
+            query: string;
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "vector" | "lexical";
+            /** Candidate K */
+            candidate_k: number;
+            /** Results */
+            results: components["schemas"]["SearchResultOut"][];
+            /** Searched Documents */
+            searched_documents: number;
+            /** Embedding Model Id */
+            embedding_model_id: string | null;
+            /** Embedding Model Revision */
+            embedding_model_revision: string | null;
+            /** Query Instruction */
+            query_instruction: string | null;
+            /** Timings Ms */
+            timings_ms: {
+                [key: string]: number;
+            };
+            /**
+             * Score Note
+             * @default Cosine distance (lower is closer) and similarity (1 - distance) only order the results. They are not probabilities that a passage is relevant or correct.
+             */
+            score_note: string;
+        };
+        /** SearchResultOut */
+        SearchResultOut: {
+            /** Rank */
+            rank: number;
+            /**
+             * Chunk Id
+             * Format: uuid
+             */
+            chunk_id: string;
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /**
+             * Index Version Id
+             * Format: uuid
+             */
+            index_version_id: string;
+            /** Document Title */
+            document_title: string | null;
+            /** Publication Year */
+            publication_year: number | null;
+            /** Pages */
+            pages: components["schemas"]["PageRef"][];
+            /** Excerpt */
+            excerpt: string;
+            /** Cosine Distance */
+            cosine_distance: number | null;
+            /** Similarity */
+            similarity: number | null;
+            /** Lexical Score */
+            lexical_score: number | null;
         };
         /** UploadOut */
         UploadOut: {
@@ -814,6 +1063,129 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    search_api_v1_retrieval_search_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SearchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_runs_api_v1_evaluation_runs_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationRunList"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_run_api_v1_evaluation_runs__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationRunDetail"];
                 };
             };
             /** @description Unprocessable Entity */

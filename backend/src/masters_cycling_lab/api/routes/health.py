@@ -1,7 +1,7 @@
 import logging
 from typing import Literal
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from pydantic import BaseModel
 from sqlalchemy import Engine, text
 from sqlalchemy.exc import SQLAlchemyError
@@ -9,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from masters_cycling_lab.api.dependencies import EngineDep, SettingsDep, StorageDep
 from masters_cycling_lab.api.errors import ApiError, ErrorResponse
 from masters_cycling_lab.infrastructure.db.migrations import current_revision, head_revision
+from masters_cycling_lab.infrastructure.embeddings.model_cache import model_files_present
 from masters_cycling_lab.infrastructure.storage.local_files import LocalFileStorage
 
 log = logging.getLogger(__name__)
@@ -35,9 +36,12 @@ async def live() -> LiveStatus:
 
 
 @router.get("/ready", responses={503: {"model": ErrorResponse, "description": "A required dependency is not ready"}})
-def ready(settings: SettingsDep, engine: EngineDep, storage: StorageDep) -> ReadyStatus:
-    """Checks the database, migrations, the vector extension and file storage. Never calls the LLM provider."""
+def ready(request: Request, settings: SettingsDep, engine: EngineDep, storage: StorageDep) -> ReadyStatus:
+    """Checks the database, migrations, the vector extension, file storage and the embedding model files.
+    Never calls the LLM provider."""
     checks = check_dependencies(engine, storage)
+    model_ready = request.app.state.embedder is not None or model_files_present(settings)
+    checks["embedding_model"] = "ok" if model_ready else "not downloaded; run make download-model"
     llm: LlmStatus = "configured" if settings.llm_configured else "not_configured"
     if any(result != "ok" for result in checks.values()):
         raise ApiError(503, "NOT_READY", "Some required dependencies are not ready.", {"checks": checks, "llm": llm})

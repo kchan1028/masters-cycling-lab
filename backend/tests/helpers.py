@@ -49,6 +49,7 @@ class FakeEmbedder:
         self.revision = settings.embedding_model_revision
         self.dimension = settings.embedding_dimension
         self.max_tokens = 512
+        self.query_instruction: str | None = None
         self.on_embed = on_embed
         self.calls = 0
 
@@ -68,6 +69,10 @@ class FakeEmbedder:
             rows.append(np.random.default_rng(seed).standard_normal(self.dimension))
         vectors = np.array(rows, dtype=np.float32)
         return vectors / np.linalg.norm(vectors, axis=1, keepdims=True)
+
+    def embed_query(self, text: str) -> npt.NDArray[np.float32]:
+        # The same vector as a passage with identical text, so tests can aim a query at a known chunk.
+        return np.asarray(self.embed_documents([text])[0], dtype=np.float32)
 
 
 def manifest_entry(pdf: bytes, **overrides: object) -> dict[str, object]:

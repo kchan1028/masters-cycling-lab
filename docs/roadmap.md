@@ -8,8 +8,8 @@ Later milestones start only when the earlier ones pass their acceptance checks.
 | 0 | Repository, design, dependency plan | Done |
 | 1 | Compose, migrations, schema, storage, readiness | Done |
 | 2 | Durable PDF ingestion | Done |
-| 3 | Retrieval and first research validation | In progress (corpus done) |
-| 4 | Grounded answers with citations | Not started |
+| 3 | Retrieval and first research validation | Done |
+| 4 | Grounded answers with citations | Next |
 | 5 | React workspace | Not started |
 | 6 | Evaluation and handoff | Not started |
 
@@ -88,21 +88,22 @@ Verified: unit, integration (real PostgreSQL, real PDFs, test embedder) and real
 through `make ingest` in Docker to `ready`, reindexed (old version retired), and was deleted with no files or rows
 left. Readiness does not check the embedding model yet: the API only needs it once search exists (milestone 3).
 
-## Milestone 3: retrieval and first validation
+## Milestone 3: retrieval and first validation (done)
 
-1. Exact cosine search (`<=>`) over active, ready index versions only, with document and year filters and
-   deterministic tie-breaks.
-2. The API loads the embedding model once for query embeddings; readiness reports it.
-3. `POST /retrieval/search` with ranks, distances, similarity (`1 - distance`), and model and chunking config.
-4. Lexical baseline (PostgreSQL full-text search) behind the same interface.
-5. Done: 20 CC BY papers in `research/corpus/manifest.jsonl` with source, licence, SHA-256 and provisional population
-   notes; `make corpus-download`, `make corpus-verify`, `make corpus-ingest`. All 20 ingested (259 pages, 1,269
-   chunks). See [research/corpus/README.md](../research/corpus/README.md).
-6. `research/evaluation/questions.jsonl` format with gold evidence anchored to file hash, page and quotation.
-7. `make evaluate SPLIT=dev` for retrieval metrics: Recall@k, MRR@k, nDCG@k, evidence-span coverage@k.
+- Exact cosine search with pgvector over active, ready index versions only, ignoring vectors from any other model;
+  document and publication-year filters; ties broken by chunk ID; `POST /api/v1/retrieval/search` returns rank,
+  distance, similarity, pages with offsets, model and timings, and says scores are not probabilities.
+- The API loads the embedding model once, on first search; readiness reports whether the model files are present.
+- Lexical baseline (PostgreSQL full-text search, OR of query words) behind the same interface.
+- Corpus: 20 CC BY papers with manifest, provisional population notes, and download/verify/ingest commands. See
+  [research/corpus/README.md](../research/corpus/README.md).
+- 30 labelled questions (19 dev, 11 held-out test) of five types, gold quotations anchored to paper, physical page
+  and exact text, every one checked by `make labels-check`. All provisional AI drafts awaiting human review.
+- Metrics (recall, MRR, graded nDCG, evidence-span coverage, unjudged count, latency), `make evaluate SPLIT=dev`,
+  JSON artifacts with full provenance, `GET /api/v1/evaluation-runs`.
 
-Acceptance: real embeddings and PostgreSQL search work together; ranking, filters and score direction are
-tested; the 20-paper / 25-question target is met or recorded as externally blocked.
+First dev run: vector search met the recall, MRR and nDCG targets and missed evidence coverage (0.53 vs 0.60); it
+beat the lexical baseline on every measure. Details and analysis in [evaluation.md](evaluation.md).
 
 ## Milestone 4: grounded answers
 
