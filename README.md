@@ -6,8 +6,8 @@ a hands-on project for learning how retrieval-augmented generation works, with e
 
 It uses pretrained models only. It does not give personal training or medical advice.
 
-**Status: milestone 1 of 6 done.** The Docker stack, database schema, migrations, file storage and readiness checks
-are in place. Uploading, search and answers are not built yet. See [docs/roadmap.md](docs/roadmap.md).
+**Status: milestone 2 of 6 done.** PDFs can be uploaded, extracted, chunked and embedded by a durable worker, with
+every chunk traceable to its page. Search and answers are not built yet. See [docs/roadmap.md](docs/roadmap.md).
 
 ## Requirements
 
@@ -41,6 +41,14 @@ make up
 make migrate
 ```
 
+```bash
+make download-model
+```
+
+```bash
+make ingest FILE=/absolute/path/paper.pdf
+```
+
 Open http://127.0.0.1:8080. Check readiness at http://127.0.0.1:8080/api/v1/health/ready.
 [docs/operations.md](docs/operations.md) covers ports, volumes, resets and troubleshooting.
 
@@ -66,13 +74,14 @@ Open http://127.0.0.1:5173. API docs are at http://127.0.0.1:8000/api/docs.
 | `make typecheck` | mypy and tsc | now |
 | `make test` | Fast offline tests (no database, model download or LLM) | now |
 | `make test-integration` | Tests against PostgreSQL in throwaway databases (needs `make up`) | now |
+| `make test-model` | Tests with the real embedding model (downloads it on first use) | now |
 | `make build` | Production frontend bundle | now |
 | `make api-types` | Regenerate `backend/openapi.json` and the frontend's TypeScript types | now |
 | `make check-api-types` | Fail if those generated files are out of date | now |
 | `make up` / `make down` | Start / stop the Compose stack; data stays in Docker volumes | now |
 | `make migrate` | Apply database migrations (the only thing that changes the schema) | now |
-| `make download-model` | Download the pinned embedding model | milestone 2 |
-| `make ingest FILE=/abs/path.pdf` | Ingest one PDF from the command line | milestone 2 |
+| `make download-model` | Download the pinned embedding model into the Docker volume | now |
+| `make ingest FILE=/abs/path.pdf` | Upload one PDF and wait for the worker | now |
 | `make corpus-verify` | Check the corpus manifest against stored files | milestone 3 |
 | `make evaluate SPLIT=dev` | Run the labelled evaluation | milestone 3 |
 | `make smoke` | End-to-end check against a running stack | milestone 5 |

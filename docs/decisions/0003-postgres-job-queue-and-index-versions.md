@@ -15,8 +15,10 @@ take a working document out of search, and a worker that stalled must not overwr
 matches on `claim_token`. Jobs whose lease has expired are claimable again.
 
 **Fencing.** Every write the worker makes for a job (pages, chunks, embeddings, status changes, activation)
-happens in a statement that also checks the job's `claim_token` is still the one it was given. If the token
-changed, the write affects zero rows and the worker stops. A stale worker can therefore never publish.
+happens in a transaction that first locks the job row (`SELECT ... FOR UPDATE`) and checks that the job is still
+running with this worker's `claim_token` and an unexpired lease. If not, the transaction rolls back and the worker
+stops. The row lock is held until commit, so a takeover cannot slip in between the check and the write. A stale
+worker can therefore never publish. The same transaction renews the lease, so each write doubles as a heartbeat.
 
 **Retries.** Bounded by `attempt_count`, with `available_after` backoff. Permanent problems (encrypted, corrupt,
 image-only PDF) fail immediately with a stable error code. Transient problems (database, out of memory) retry.

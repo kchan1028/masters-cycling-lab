@@ -1,0 +1,32 @@
+"""Interfaces for the slow or external parts that tests replace with simple fakes."""
+
+from collections.abc import Callable
+from pathlib import Path
+from typing import Protocol
+
+import numpy as np
+import numpy.typing as npt
+
+from masters_cycling_lab.domain.extraction import ExtractedPdf
+
+# extract_pdf(path, max_pages) -> ExtractedPdf, raising IngestionProblem for PDFs that can't be indexed.
+PdfExtractor = Callable[[Path, int], ExtractedPdf]
+
+
+class Embedder(Protocol):
+    model_id: str
+    revision: str
+    dimension: int
+    max_tokens: int  # the model's input limit, including its special tokens
+
+    def token_offsets(self, text: str) -> list[tuple[int, int]]:
+        """Character range of each token, without special tokens."""
+        ...
+
+    def count_tokens(self, text: str) -> int:
+        """Tokens the model will see for this text, including special tokens."""
+        ...
+
+    def embed_documents(self, texts: list[str]) -> npt.NDArray[np.float32]:
+        """One unit-length vector per text."""
+        ...

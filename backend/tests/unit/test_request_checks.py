@@ -46,6 +46,21 @@ def test_write_from_allowed_origins_passes(client_with_write_route: TestClient, 
     assert response.status_code == 200
 
 
+def test_oversized_request_is_refused_before_the_body_is_read(client_with_write_route: TestClient) -> None:
+    too_big = b"x" * (50 * 1024 * 1024 + 1024 * 1024 + 1)  # MAX_UPLOAD_BYTES plus the multipart allowance, plus one
+    response = client_with_write_route.post("/api/v1/test-write", content=too_big)
+    assert response.status_code == 413
+    assert response.json()["error"]["code"] == "PAYLOAD_TOO_LARGE"
+
+
+def test_chunked_request_without_a_length_is_refused(client_with_write_route: TestClient) -> None:
+    def chunks():  # type: ignore[no-untyped-def]
+        yield b"part"
+
+    response = client_with_write_route.post("/api/v1/test-write", content=chunks())
+    assert response.status_code == 411
+
+
 def test_null_origin_cannot_write(client_with_write_route: TestClient) -> None:
     response = client_with_write_route.post("/api/v1/test-write", headers={"Origin": "null"})
     assert response.status_code == 403

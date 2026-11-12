@@ -11,8 +11,13 @@ x-backend: &backend
     # Containers reach the database by service name; .env's DATABASE_URL is for tools on the host.
     DATABASE_URL: postgresql+psycopg://mcl:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/mcl
     STORAGE_ROOT: /data/storage
+    MODEL_CACHE_DIR: /data/models
+    HF_HOME: /data/models
+    # Never reach out to Hugging Face at run time. `make download-model` is the only step that downloads.
+    HF_HUB_OFFLINE: "1"
   volumes:
     - storage:/data/storage
+    - models:/data/models
   depends_on:
     db:
       condition: service_healthy
@@ -52,6 +57,15 @@ services:
       retries: 6
       start_period: 20s
 
+  # Extracts, chunks and embeds uploaded PDFs. PDF parsing happens here, not in the API, with memory and CPU caps.
+  worker:
+    <<: *backend
+    command: ["python", "-m", "masters_cycling_lab.worker"]
+    restart: unless-stopped
+    stop_grace_period: 60s
+    mem_limit: 3g
+    cpus: 2
+
   frontend:
     build:
       context: .
@@ -72,3 +86,4 @@ services:
 volumes:
   pgdata:
   storage:
+  models:

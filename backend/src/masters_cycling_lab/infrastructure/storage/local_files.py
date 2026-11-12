@@ -2,6 +2,7 @@ import hashlib
 import os
 import re
 import tempfile
+import time
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
@@ -66,6 +67,19 @@ class LocalFileStorage:
 
     def delete(self, key: str) -> None:
         self.path(key).unlink(missing_ok=True)
+
+    def remove_stale_temp_files(self, older_than_seconds: float = 3600) -> int:
+        """Delete partial uploads left behind by a process that was killed mid-write."""
+        tmp_dir = self.root / "tmp"
+        if not tmp_dir.is_dir():
+            return 0
+        cutoff = time.time() - older_than_seconds
+        removed = 0
+        for path in tmp_dir.iterdir():
+            if path.is_file() and path.stat().st_mtime < cutoff:
+                path.unlink(missing_ok=True)
+                removed += 1
+        return removed
 
     def is_writable(self) -> bool:
         try:

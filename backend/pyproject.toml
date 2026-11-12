@@ -13,6 +13,7 @@ dependencies = [
     "pydantic==2.14.3",
     "pydantic-settings==2.16.2",
     "pymupdf==1.28.2",
+    "python-multipart==0.0.33",
     "sentence-transformers==6.3.0",
     "sqlalchemy==2.1.8",
     "torch==2.15.0",
@@ -58,9 +59,16 @@ mypy_path = "src"
 module = ["pgvector.*", "pymupdf.*", "sentence_transformers.*"]
 ignore_missing_imports = true
 
+# PyMuPDF ships only partial type hints.
+[[tool.mypy.overrides]]
+module = ["masters_cycling_lab.infrastructure.pdf.*", "tests.*"]
+disallow_untyped_calls = false
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra --strict-markers"
+# PyMuPDF's SWIG bindings trigger this on import; it is not ours to fix.
+filterwarnings = ["ignore:builtin type .* has no __module__ attribute:DeprecationWarning"]
 markers = [
     "integration: needs a running PostgreSQL (make up)",
     "model: loads the real embedding model (make download-model)",

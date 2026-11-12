@@ -40,9 +40,11 @@ page in one index version, and keep citations inside their own query run. A part
 ingestion job per document. Status columns have check constraints tying them to timestamps, leases and error
 codes.
 
-**Deletion and history.** `query_evidence.document_id` deliberately has no cascade. Deleting a document that
-appears in past answers fails until those query runs are purged on purpose (milestone 2 implements this), so
-deleted document text cannot linger in answer history by accident.
+**Deletion and history.** Deleting a document happens in two steps. The first commit hides it from every listing
+and from retrieval and cancels its jobs, which makes a running worker lose its claim. The second removes its file,
+index versions, pages, chunks and embeddings, and every answer (query run) that used it as evidence: those
+answers quote the document, so keeping them would keep the deleted text. `query_evidence.document_id` has no
+cascade on purpose, so nothing else can remove a document while answer history still points at it.
 
 ## Code layout and dependency direction
 
@@ -63,8 +65,7 @@ api/routes  →  application  →  domain
   replaces something slow or paid (the embedder, the LLM client, the PDF extractor). Database access uses
   SQLAlchemy sessions directly, with no generic repository layer.
 
-Directories are added when the first file that needs them is written. Milestone 0 has only `config.py`,
-`main.py`, `cli.py` and `api/`.
+Directories are added when the first file that needs them is written; there is no `llm/` until answering exists.
 
 ## Sessions and blocking work
 
@@ -80,9 +81,24 @@ version. A reindex builds a new version next to the old one; the old one stays s
 validated, and then one transaction switches the pointer. Retrieval reads only active, `ready` versions, so
 partial embeddings are never visible.
 
-Job claims are leases with a per-claim token. Every staged write and the final activation check the token in the
-same statement, so a worker that lost its lease (slow, paused, killed) cannot publish. Details in
-[decisions/0003](decisions/0003-postgres-job-queue-and-index-versions.md).
+Job claims are leases with a per-claim token. Every staged write and the final activation happen in a
+transaction that first locks the job row and checks the token and lease, so a worker that lost its lease (slow,
+paused, killed) cannot publish. Details in [decisions/0003](decisions/0003-postgres-job-queue-and-index-versions.md).
+
+The pipeline, in `application/ingestion.py`:
+
+1. Check the stored file still matches its upload hash.
+2. Extract each physical page with PyMuPDF (`infrastructure/pdf`), keeping printed page labels separately.
+3. Normalize text (NFC, whitespace) and remove first/last lines that repeat on at least half the pages.
+4. Chunk each page into windows of at most 300 model tokens with 40 tokens of overlap, cut on word boundaries.
+   Chunks never cross pages, so every citation lands on one page; a sentence that runs onto the next page is split.
+5. Embed in batches, writing each batch in its own short transaction.
+6. Count the embeddings, then activate the version and retire the previous one in one transaction.
+
+**Extraction limits, stated plainly:** text comes out in the order the PDF stores it, so two-column pages can
+interleave; tables lose their layout; figures and their text are skipped; hyphenated line breaks are kept as they
+are. Pages without a text layer are stored empty with a warning, and a PDF with no text at all fails with
+`OCR_REQUIRED`. Page warnings are returned by `GET /documents/{id}/pages/{n}` for manual review.
 
 ## Evidence and citations
 

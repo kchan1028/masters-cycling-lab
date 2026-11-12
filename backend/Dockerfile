@@ -21,8 +21,8 @@ COPY backend/src ./src
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --locked --no-dev
 
 RUN useradd --uid 10001 --no-create-home app \
-    && mkdir -p /data/storage \
-    && chown app /data/storage
+    && mkdir -p /data/storage /data/models \
+    && chown app /data/storage /data/models
 USER app
 
 EXPOSE 8000
