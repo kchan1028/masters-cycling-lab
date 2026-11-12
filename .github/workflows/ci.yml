@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.13.7"
+          enable-cache: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: cp .env.example .env
+      - run: make bootstrap
+      - run: make lint
+      - run: make typecheck
+      - run: make test
+      - run: make build
+      - name: OpenAPI file and frontend types are up to date
+        run: make check-api-types
+      - name: Compose file is valid
+        run: docker compose config --quiet
+
+  integration:
+    runs-on: ubuntu-24.04
+    services:
+      db:
+        image: pgvector/pgvector:0.8.7-pg17-trixie
+        env:
+          POSTGRES_USER: mcl
+          # Throwaway database that only exists for this job.
+          POSTGRES_PASSWORD: ci-only
+          POSTGRES_DB: mcl
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U mcl -d mcl"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql+psycopg://mcl:ci-only@127.0.0.1:5433/mcl
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.13.7"
+          enable-cache: true
+      - run: uv --directory backend sync --locked
+      - run: make test-integration

@@ -36,6 +36,48 @@
           }
         }
       }
+    },
+    "/api/v1/health/ready": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Ready",
+        "description": "Checks the database, migrations, the vector extension and file storage. Never calls the LLM provider.",
+        "operationId": "ready_api_v1_health_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadyStatus"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required dependency is not ready",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -102,6 +144,37 @@
           "status"
         ],
         "title": "LiveStatus"
+      },
+      "ReadyStatus": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ready",
+            "title": "Status"
+          },
+          "checks": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Checks"
+          },
+          "llm": {
+            "type": "string",
+            "enum": [
+              "configured",
+              "not_configured"
+            ],
+            "title": "Llm"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "checks",
+          "llm"
+        ],
+        "title": "ReadyStatus"
       }
     }
   }

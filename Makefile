@@ -1,8 +1,9 @@
 SHELL := /bin/bash
 UV := uv --directory backend
 NPM := npm --prefix frontend
+COMPOSE := docker compose
 
-.PHONY: help bootstrap lint typecheck test build api-types \
+.PHONY: help bootstrap lint typecheck test test-integration build api-types check-api-types \
 	up down migrate download-model ingest corpus-verify evaluate smoke
 
 help: ## List commands
@@ -28,6 +29,9 @@ test: ## Fast offline tests: no database, model download or LLM provider
 	$(UV) run pytest -m "not integration and not model and not live"
 	$(NPM) test
 
+test-integration: ## Tests against real PostgreSQL in throwaway databases (needs 'make up')
+	$(UV) run pytest -m integration
+
 build: ## Production frontend bundle
 	$(NPM) run build
 
@@ -35,6 +39,18 @@ api-types: ## Regenerate backend/openapi.json and the frontend's TypeScript type
 	$(UV) run mcl openapi openapi.json
 	$(NPM) run api-types
 
+check-api-types: api-types ## Fail if the committed OpenAPI file or frontend types are out of date
+	git diff --exit-code -- backend/openapi.json frontend/src/api/generated
+
+up: ## Build and start the stack: http://127.0.0.1:8080 (run 'make migrate' after the first start)
+	$(COMPOSE) up --detach --build --wait
+
+down: ## Stop the stack. Data stays in the Docker volumes
+	$(COMPOSE) down
+
+migrate: ## Apply database migrations (the only command that changes the schema)
+	$(COMPOSE) run --rm migrate
+
 # Commands from the roadmap that later milestones implement. They fail loudly until then.
-up down migrate download-model ingest corpus-verify evaluate smoke:
+download-model ingest corpus-verify evaluate smoke:
 	@echo "'make $@' is not implemented yet. docs/roadmap.md lists the milestone that adds it." >&2; exit 1
