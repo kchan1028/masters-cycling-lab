@@ -64,3 +64,17 @@ test('compares vector and lexical metrics and opens a run', async () => {
   expect(screen.getByText('not scored')).toBeInTheDocument()
   expect(screen.getByText(/mcl-003 p4/)).toBeInTheDocument()
 })
+
+test('shows every mode a run measured, in order', async () => {
+  const withHybrid = {
+    ...run,
+    config: { ...run.config, modes: ['vector', 'lexical', 'hybrid'] },
+    metrics: { ...run.metrics, hybrid: { 'recall@10': 0.87 } },
+  }
+  stubApi([{ path: '/evaluation-runs', body: { items: [withHybrid], total: 1, limit: 50, offset: 0 } }])
+
+  render(<EvaluationsView />)
+
+  const row = (await screen.findByText(/3a354b1/)).closest('tr') as HTMLElement
+  expect(within(row).getByText('/ 0.67 / 0.87', { exact: false })).toBeInTheDocument()
+})

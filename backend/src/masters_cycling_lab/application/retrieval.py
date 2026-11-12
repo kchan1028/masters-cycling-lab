@@ -17,7 +17,14 @@ from sqlalchemy import ColumnElement, Select, func, select
 from sqlalchemy.orm import Session
 
 from masters_cycling_lab.domain.ports import Embedder
-from masters_cycling_lab.domain.retrieval import PageSpan, SearchFilters, SearchHit, SearchMode
+from masters_cycling_lab.domain.retrieval import (
+    HYBRID_CANDIDATES,
+    PageSpan,
+    SearchFilters,
+    SearchHit,
+    SearchMode,
+    fuse,
+)
 from masters_cycling_lab.infrastructure.db.models import (
     Chunk,
     ChunkEmbedding,
@@ -50,16 +57,20 @@ def search(
 ) -> SearchResult:
     timings: dict[str, float] = {}
     started = time.perf_counter()
-    if mode == "vector":
+    if mode == "lexical":
+        hits = to_hits(session, lexical_rows(session, query, filters, k), "lexical")
+    else:
         if embedder is None:
-            raise ValueError("vector search needs an embedder")
+            raise ValueError(f"{mode} search needs an embedder")
         query_vector = embedder.embed_query(query)
         timings["embed_query"] = elapsed_ms(started)
         started = time.perf_counter()
-        rows = vector_rows(session, query_vector, filters, k, embedder.model_id, embedder.revision)
-    else:
-        rows = lexical_rows(session, query, filters, k)
-    hits = to_hits(session, rows, mode)
+        # Hybrid fuses two deeper rankings; a passage ranked low in both can still make the top k.
+        depth = k if mode == "vector" else max(k, HYBRID_CANDIDATES)
+        rows = vector_rows(session, query_vector, filters, depth, embedder.model_id, embedder.revision)
+        hits = to_hits(session, rows, "vector")
+        if mode == "hybrid":
+            hits = fuse(hits, to_hits(session, lexical_rows(session, query, filters, depth), "lexical"), k)
     timings["search"] = elapsed_ms(started)
     return SearchResult(hits, searchable_document_count(session, filters), timings)
 

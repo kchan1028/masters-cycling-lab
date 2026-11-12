@@ -27,8 +27,9 @@ def run(
 ) -> tuple[uuid.UUID, Path, dict[str, Any]]:
     with Session(lab.engine) as session:
         return evaluation.run_evaluation(
-            session, FakeEmbedder(lab.settings), questions, entries, split="dev", modes=("vector", "lexical"), k=10,
-            dataset_sha256="a" * 64, corpus_sha256="b" * 64, code_revision="test", artifacts_dir=tmp_path / "out",
+            session, FakeEmbedder(lab.settings), questions, entries, split="dev",
+            modes=("vector", "lexical", "hybrid"), k=10, dataset_sha256="a" * 64, corpus_sha256="b" * 64,
+            code_revision="test", artifacts_dir=tmp_path / "out",
         )  # fmt: skip
 
 
@@ -43,7 +44,9 @@ def test_a_run_is_scored_stored_and_written_as_an_artifact(lab: Lab, tmp_path: P
 
     assert summary["vector"]["recall@10"] == 1.0
     assert summary["vector"]["evidence_coverage@10"] == 1.0
+    assert set(summary) == {"vector", "lexical", "hybrid"} and summary["hybrid"]["recall@10"] == 1.0
     saved = json.loads(artifact.read_text())
+    assert "fusion" in saved["config"]["hybrid"]
     assert saved["evaluation_run_id"] == str(run_id) and saved["dataset_sha256"] == "a" * 64
     assert saved["questions"]["q900"]["vector"]["hits"][0]["corpus_id"] == "mcl-001"
 

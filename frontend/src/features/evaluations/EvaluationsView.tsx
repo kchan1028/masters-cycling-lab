@@ -10,6 +10,10 @@ type Scores = Record<string, number | null | undefined>
 type Hit = { corpus_id: string | null; pages: number[] }
 type ModeOutput = { hits?: Hit[] }
 
+function runModes(run: EvaluationRun): string[] {
+  return (run.config.modes as string[] | undefined) ?? ['vector', 'lexical']
+}
+
 function modeScores(metrics: Record<string, unknown>, mode: string): Scores {
   return (metrics[mode] ?? {}) as Scores
 }
@@ -48,10 +52,12 @@ export default function EvaluationsView() {
           No evaluation runs yet. Run <code>make evaluate</code> once the corpus is ingested.
         </p>
       )}
-      {runs && runs.length > 0 && <p className="muted">Each cell shows vector search / the lexical baseline.</p>}
+      {runs && runs.length > 0 && (
+        <p className="muted">Each cell shows the run's modes in order: vector / lexical / hybrid.</p>
+      )}
       {runs && runs.length > 0 && (
         <table>
-          <caption className="visually-hidden">Evaluation runs, vector then lexical</caption>
+          <caption className="visually-hidden">Evaluation runs, one value per retrieval mode</caption>
           <thead>
             <tr>
               <th scope="col">Run</th>
@@ -78,12 +84,15 @@ export default function EvaluationsView() {
                     {run.split} split · {run.code_revision?.slice(0, 7) ?? 'no revision'}
                   </div>
                 </td>
-                {HEADLINE.map((name) => (
-                  <td key={name}>
-                    {format(modeScores(run.metrics, 'vector')[name])}
-                    <span className="muted"> / {format(modeScores(run.metrics, 'lexical')[name])}</span>
-                  </td>
-                ))}
+                {HEADLINE.map((name) => {
+                  const [first, ...rest] = runModes(run).map((mode) => format(modeScores(run.metrics, mode)[name]))
+                  return (
+                    <td key={name}>
+                      {first}
+                      <span className="muted">{rest.map((value) => ` / ${value}`).join('')}</span>
+                    </td>
+                  )
+                })}
               </tr>
             ))}
           </tbody>
@@ -108,7 +117,7 @@ function RunDetail({ id }: { id: string }) {
   if (error) return <p className="notice problem">{error}</p>
   if (!run) return <p>Loading run…</p>
 
-  const modes = (run.config.modes as string[] | undefined) ?? ['vector']
+  const modes = runModes(run)
   const labels = run.config.labels as { reviewed: number; provisional: number } | undefined
   return (
     <article aria-labelledby="run-heading" className="stack">

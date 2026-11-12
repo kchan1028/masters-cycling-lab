@@ -60,6 +60,7 @@ function SearchPanel() {
           <select id="search-mode" value={mode} onChange={(event) => setMode(event.target.value as typeof mode)}>
             <option value="vector">Vector (embeddings)</option>
             <option value="lexical">Lexical (keywords)</option>
+            <option value="hybrid">Hybrid (both rankings fused)</option>
           </select>
           <label htmlFor="candidate-k">Results</label>
           <input
@@ -86,6 +87,10 @@ function SearchPanel() {
 }
 
 function SearchResults({ result }: { result: SearchResponse }) {
+  // Hybrid results carry a distance, a keyword score or both, depending on which ranking found them.
+  const showDistance = result.mode !== 'lexical'
+  const showSimilarity = result.mode === 'vector'
+  const showLexical = result.mode !== 'vector'
   return (
     <div className="stack">
       <p className="muted">
@@ -104,14 +109,9 @@ function SearchResults({ result }: { result: SearchResponse }) {
               <th scope="col">#</th>
               <th scope="col">Passage</th>
               <th scope="col">Pages</th>
-              {result.mode === 'vector' ? (
-                <>
-                  <th scope="col">Distance</th>
-                  <th scope="col">Similarity</th>
-                </>
-              ) : (
-                <th scope="col">Lexical score</th>
-              )}
+              {showDistance && <th scope="col">Distance</th>}
+              {showSimilarity && <th scope="col">Similarity</th>}
+              {showLexical && <th scope="col">Lexical score</th>}
             </tr>
           </thead>
           <tbody>
@@ -128,14 +128,9 @@ function SearchResults({ result }: { result: SearchResponse }) {
                   </details>
                 </td>
                 <td>{hit.pages.map((page) => page.page_number).join(', ')}</td>
-                {result.mode === 'vector' ? (
-                  <>
-                    <td>{score(hit.cosine_distance)}</td>
-                    <td>{score(hit.similarity)}</td>
-                  </>
-                ) : (
-                  <td>{score(hit.lexical_score)}</td>
-                )}
+                {showDistance && <td>{score(hit.cosine_distance)}</td>}
+                {showSimilarity && <td>{score(hit.similarity)}</td>}
+                {showLexical && <td>{score(hit.lexical_score)}</td>}
               </tr>
             ))}
           </tbody>
