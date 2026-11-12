@@ -11,6 +11,7 @@ import numpy.typing as npt
 import pymupdf
 
 from masters_cycling_lab.config import Settings
+from masters_cycling_lab.domain.ports import LanguageModelReply
 
 
 def make_pdf(
@@ -117,3 +118,19 @@ def write_manifest(folder: Path, *entries: dict[str, object]) -> Path:
     path = folder / "manifest.jsonl"
     path.write_text("".join(json.dumps(entry) + "\n" for entry in entries))
     return path
+
+
+class FakeLanguageModel:
+    """Replies with scripted texts in order and records every request, so tests can check what was sent."""
+
+    def __init__(self, *replies: str, error: Exception | None = None) -> None:
+        self.model = "test-model"
+        self.replies = list(replies)
+        self.error = error
+        self.requests: list[list[dict[str, str]]] = []
+
+    def complete(self, messages: list[dict[str, str]], max_tokens: int) -> LanguageModelReply:
+        self.requests.append([dict(message) for message in messages])
+        if self.error:
+            raise self.error
+        return LanguageModelReply(text=self.replies.pop(0), model=self.model, usage={"total_tokens": 100})

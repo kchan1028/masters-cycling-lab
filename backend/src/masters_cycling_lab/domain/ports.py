@@ -1,6 +1,7 @@
 """Interfaces for the slow or external parts that tests replace with simple fakes."""
 
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
@@ -35,3 +36,21 @@ class Embedder(Protocol):
     def embed_query(self, text: str) -> npt.NDArray[np.float32]:
         """A unit-length vector for a search query, with any query-side instruction the model expects."""
         ...
+
+
+@dataclass(frozen=True)
+class LanguageModelReply:
+    text: str
+    model: str
+    # Token counts exactly as the provider reported them. None when it reported nothing; never estimated here.
+    usage: dict[str, int] | None
+
+
+class ProviderError(Exception):
+    """The language model provider failed (unreachable, timed out, refused, or replied in an unusable shape)."""
+
+
+class LanguageModel(Protocol):
+    model: str
+
+    def complete(self, messages: list[dict[str, str]], max_tokens: int) -> LanguageModelReply: ...

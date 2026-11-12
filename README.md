@@ -6,8 +6,8 @@ a hands-on project for learning how retrieval-augmented generation works, with e
 
 It uses pretrained models only. It does not give personal training or medical advice.
 
-**Status: milestone 3 of 6 done.** 20 open-access papers are indexed, search works (vector and a lexical baseline),
-and a labelled evaluation measures it. Grounded answers come next. See [docs/roadmap.md](docs/roadmap.md).
+**Status: milestone 4 of 6 done.** Search and grounded answers with server-checked citations work through the
+API. A real LLM provider has not been tested yet (no credentials configured). The React workspace comes next. See [docs/roadmap.md](docs/roadmap.md).
 
 ## Requirements
 

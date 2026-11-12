@@ -216,10 +216,156 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/answers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ask
+         * @description Answer from the indexed research. Abstains without calling the model when nothing relevant is found.
+         */
+        post: operations["ask_api_v1_answers_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/answers/{query_run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Answer */
+        get: operations["get_answer_api_v1_answers__query_run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/answers/{query_run_id}/debug": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Answer Debug
+         * @description Every retrieved candidate, whether it was sent and why, budgets, models and timings. No raw prompt.
+         */
+        get: operations["get_answer_debug_api_v1_answers__query_run_id__debug_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AnswerDebugOut */
+        AnswerDebugOut: {
+            /**
+             * Query Run Id
+             * Format: uuid
+             */
+            query_run_id: string;
+            /** Retrieval Config */
+            retrieval_config: {
+                [key: string]: unknown;
+            };
+            /** Generation Config */
+            generation_config: {
+                [key: string]: unknown;
+            } | null;
+            /** Embedding Model Id */
+            embedding_model_id: string;
+            /** Embedding Model Revision */
+            embedding_model_revision: string;
+            /** Llm Model */
+            llm_model: string | null;
+            /** Prompt Version */
+            prompt_version: string | null;
+            /** Timings Ms */
+            timings_ms: {
+                [key: string]: unknown;
+            };
+            /** Usage */
+            usage: {
+                [key: string]: unknown;
+            } | null;
+            /** Candidates */
+            candidates: components["schemas"]["CandidateOut"][];
+        };
+        /** AnswerOut */
+        AnswerOut: {
+            /**
+             * Query Run Id
+             * Format: uuid
+             */
+            query_run_id: string;
+            /** Question */
+            question: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "running" | "answered" | "insufficient_evidence" | "failed";
+            /** Answer Text */
+            answer_text: string | null;
+            /** Claims */
+            claims: components["schemas"]["ClaimOut"][];
+            /** Limitations */
+            limitations: string[];
+            /** Error Code */
+            error_code: string | null;
+            /** Embedding Model Id */
+            embedding_model_id: string;
+            /** Llm Model */
+            llm_model: string | null;
+            /** Prompt Version */
+            prompt_version: string | null;
+            /** Timings Ms */
+            timings_ms: {
+                [key: string]: unknown;
+            };
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            debug?: components["schemas"]["AnswerDebugOut"] | null;
+            /**
+             * Note
+             * @default Citations show what each claim was based on. They do not prove the passage fully supports the claim.
+             */
+            note: string;
+        };
+        /** AnswerRequest */
+        AnswerRequest: {
+            /** Question */
+            question: string;
+            filters?: components["schemas"]["FiltersIn"];
+            /**
+             * Include Debug
+             * @default false
+             */
+            include_debug: boolean;
+        };
         /** Body_upload_document_api_v1_documents_post */
         Body_upload_document_api_v1_documents_post: {
             /**
@@ -241,6 +387,71 @@ export interface components {
             license?: string | null;
             /** Access Status */
             access_status?: ("open_access" | "user_provided" | "restricted" | "unknown") | null;
+        };
+        /** CandidateOut */
+        CandidateOut: {
+            /** Rank */
+            rank: number;
+            /** Evidence Id */
+            evidence_id: string | null;
+            /** Selected */
+            selected: boolean;
+            /** Reason */
+            reason: string | null;
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /** Document Title */
+            document_title: string | null;
+            /** Page Numbers */
+            page_numbers: number[];
+            /** Cosine Distance */
+            cosine_distance: number;
+            /** Similarity */
+            similarity: number;
+            /** Excerpt */
+            excerpt: string;
+        };
+        /** CitationOut */
+        CitationOut: {
+            /** Evidence Id */
+            evidence_id: string;
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /** Document Title */
+            document_title: string | null;
+            /** Authors */
+            authors: string[];
+            /** Publication Year */
+            publication_year: number | null;
+            /** Doi */
+            doi: string | null;
+            /** Metadata Source */
+            metadata_source: string | null;
+            /** Page Numbers */
+            page_numbers: number[];
+            /** Page Labels */
+            page_labels: (string | null)[];
+            /** Excerpt */
+            excerpt: string;
+            /** Chunk Id */
+            chunk_id: string | null;
+            /** Index Version Id */
+            index_version_id: string | null;
+            /** File Url */
+            file_url: string | null;
+        };
+        /** ClaimOut */
+        ClaimOut: {
+            /** Text */
+            text: string;
+            /** Citations */
+            citations: components["schemas"]["CitationOut"][];
         };
         /** DocumentList */
         DocumentList: {
@@ -1186,6 +1397,142 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EvaluationRunDetail"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    ask_api_v1_answers_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnswerRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnswerOut"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The model's reply failed validation twice */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Generation not configured or the provider failed */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default Response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_answer_api_v1_answers__query_run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                query_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnswerOut"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_answer_debug_api_v1_answers__query_run_id__debug_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                query_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnswerDebugOut"];
                 };
             };
             /** @description Unprocessable Entity */

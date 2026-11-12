@@ -108,6 +108,13 @@ those IDs. The server rejects unknown IDs and builds every citation (title, page
 stored snapshot, never from model text. Valid citations are a structural check, not proof that the passage
 supports the claim. Support is judged separately during evaluation.
 
+## Answer generation
+
+`application/answering.py` searches, chooses passages (`domain/answers.py`), calls the provider
+(`infrastructure/llm/openai_compatible.py`) and validates the reply. The provider gets the question and the selected
+passages, nothing else: no file names, IDs or other documents. Generation is off until `LLM_BASE_URL` and
+`LLM_MODEL` are set; search and evaluation work without it.
+
 ## Security boundaries
 
 - Local, single-user. No authentication, so it must not be exposed beyond `127.0.0.1`. Shared or remote use

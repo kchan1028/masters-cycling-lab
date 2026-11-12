@@ -21,3 +21,11 @@ class UnsupportedFile(ServiceError):
 
 class UploadTooLarge(ServiceError):
     pass
+
+
+class ProviderUnavailable(ServiceError):
+    """Answer generation is not configured or the provider failed. A service error, never an abstention."""
+
+
+class GenerationFailed(ServiceError):
+    """The model kept replying in a shape that failed validation."""
