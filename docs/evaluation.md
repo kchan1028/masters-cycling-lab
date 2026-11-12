@@ -15,7 +15,8 @@ make evaluate SPLIT=dev
 ```
 
 `labels-check` finds every gold quotation on its stated page of the stored text and fails if any is missing.
-`evaluate` runs both retrieval modes over one split, stores an `evaluation_runs` row with per-question results, and
+`evaluate` runs three retrieval modes over one split (vector search, the lexical baseline, and hybrid: reciprocal
+rank fusion of the two), stores an `evaluation_runs` row with per-question results, and
 writes a JSON artifact to `artifacts/evaluations/` (git-ignored). The artifact records the questions file's SHA-256,
 the manifest's SHA-256, the split, embedding model and revision, query instruction, chunking and extractor
 settings of the indexed documents, the git commit (with `-dirty` for uncommitted changes), timestamps, and the top
@@ -78,7 +79,7 @@ the same index, and query latency p95 stays under 500 ms on CPU once the model i
   [research/evaluation/README.md](../research/evaluation/README.md#reviewing-labels)). Every number below was
   measured against labels no person has checked yet.
 
-## Experiments (dev only, nothing adopted yet)
+## Experiments (dev only)
 
 ### 2026-11-12: three ways to improve retrieval
 
@@ -113,10 +114,42 @@ What it shows:
   evidence coverage 0.61. Promising, not proven.
 
 Caveats: 16 questions with provisional labels, so one question is about 6 points; the fusion weight and candidate
-depth were picked on these same questions. Rank fusion is the candidate to evaluate properly next, as its own mode
-next to vector and lexical in every run, before it is used for answers.
+depth were picked on these same questions.
+
+Follow-up: rank fusion was added as a third mode, `hybrid`, with these settings, and measured on both splits. On the
+held-out split it was worse than vector search on every measure (see the first entry under Results), so answers
+still use vector search.
 
 ## Results
+
+### 2026-11-12, dataset v1, hybrid search added, runs at commit fe8c371
+
+The same dataset, corpus and index as the entry below. New: `hybrid`, reciprocal rank fusion (k = 60) of the top 100
+vector and top 100 lexical passages, lexical at half weight. Those settings were chosen on the dev split in the
+experiment above, before the test split was run with them.
+
+| Metric | Dev, vector | Dev, hybrid | Test, vector | Test, hybrid |
+|---|---|---|---|---|
+| Questions scored | 16 | 16 | 9 | 9 |
+| recall@5 | 0.76 | 0.74 | 0.48 | 0.48 |
+| recall@10 | 0.82 | 0.87 | 0.62 | **0.54** |
+| mrr@10 | 0.97 | 0.92 | 0.91 | **0.84** |
+| ndcg@10 | 0.88 | 0.87 | 0.77 | **0.70** |
+| evidence_coverage@10 | 0.53 | 0.68 | 0.61 | **0.50** |
+| unjudged@10 | 0.75 | 0.88 | 1.9 | 1.9 |
+
+Runs: dev `49444502`, test `a235cd90`, artifacts in `research/evaluation/results/`. Vector and lexical numbers are
+identical to the entry below.
+
+- On dev, where its settings were chosen, hybrid raised evidence coverage (0.53 to 0.68) and recall (0.82 to 0.87).
+  On the held-out split it was worse than vector search on every measure. With 9 test questions that is one or two
+  questions per metric, but the direction is consistent, and it is what overfitting the dev split looks like.
+- Answers keep using vector search. Hybrid stays as a measured mode, so it can be re-checked once the labels are
+  reviewed and there are more questions.
+- Latency: hybrid costs about the same as the lexical query it contains. Timed directly, seven times each with the
+  model loaded: median 19 ms for vector, 212 ms for lexical, 245 ms for hybrid. The p95 figures in these runs (up
+  to 33 s for hybrid on dev) were Docker Desktop stalling while other projects' containers were busy; vector search
+  had multi-second outliers in the same minutes.
 
 ### 2026-11-12, dataset v1, tie order fixed, runs at commit d830fa8
 

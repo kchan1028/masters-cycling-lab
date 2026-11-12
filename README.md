@@ -96,7 +96,7 @@ Open http://127.0.0.1:5173. API docs are at http://127.0.0.1:8000/api/docs.
 | `make corpus-ingest` | Upload the corpus with its manifest metadata and wait for the worker |
 | `make labels-check` | Check every gold quotation against the stored page text |
 | `make review REVIEWER="Your Name"` | Review provisional labels against the papers and record the verdict |
-| `make evaluate SPLIT=dev` | Retrieval evaluation (vector and lexical) with a stored artifact; `SPLIT=test` for the held-out split, from a clean checkout |
+| `make evaluate SPLIT=dev` | Retrieval evaluation (vector, lexical and hybrid) with a stored artifact; `SPLIT=test` for the held-out split, from a clean checkout |
 | `make test-live` | Opt-in: answer tests against the configured LLM provider (costs money) |
 | `make backup` / `make restore BACKUP=backups/<time>` | Copy the database and PDFs out; replace all data from a copy |
 | `make smoke` | End-to-end check against the running stack: upload, index, search, page, file, answer, delete |

@@ -8,7 +8,8 @@ anything not verified says so.
 - **Documents:** upload PDFs (browser, API or `make ingest`), duplicate detection by SHA-256, durable background
   ingestion with leases, retries and stable failure codes, page text with extraction warnings, metadata corrections,
   reindex without downtime, permanent deletion.
-- **Search:** exact cosine search over pinned bge-small-en-v1.5 embeddings, with a lexical baseline, filters by
+- **Search:** exact cosine search over pinned bge-small-en-v1.5 embeddings, with a lexical baseline and a hybrid
+  mode (rank fusion of both) that every evaluation run measures, filters by
   document and publication year, scores labelled as ordering only.
 - **Answers:** passages labelled `E1..En`, a versioned prompt, strict JSON validation with one repair attempt,
   citations built from stored snapshots, abstention without calling the model when evidence is missing, `502`/`503`
@@ -163,11 +164,12 @@ on every measure. Every number is against labels no person has reviewed.
    cited passage supports its claim. Record that as the first answer-support review.
 2. Review the 30 labels with `make review`, starting with the 11 test questions. Record dataset v2 and re-run both
    splits.
-3. Evaluate hybrid ranking. On dev, rank fusion of vector and lexical search (lexical at half weight) raised
-   evidence coverage from 0.53 to 0.68 and recall from 0.82 to 0.87, at a cost to MRR. A cap per paper and smaller
-   chunks did not help (see [evaluation.md](evaluation.md#experiments-dev-only-nothing-adopted-yet)). Add fusion
-   as a third search mode reported in every evaluation run, and use it for answers only if it holds up on reviewed
-   labels and new held-out questions, since the current test split has now been seen.
+3. Improve how passages are chosen within the right paper, the main retrieval weakness. Tried on dev: a cap per
+   paper and smaller chunks did not help; rank fusion with the lexical ranking helped on dev but was worse than
+   vector search on every held-out measure, so it is measured in every run (`hybrid`) but not used for answers (see
+   [evaluation.md](evaluation.md#experiments-dev-only)). Next to try, on dev: a cross-encoder reranker over the top
+   vector passages (reranking was out of scope for the MVP). Confirm on new held-out questions, since the current
+   test split has now been seen three times.
 4. Grow the question set (aim for 60 or more) so a single question moves results less.
 5. Add an answer evaluation command (citation validity, abstention accuracy, human support ratings) once answers
    exist.
