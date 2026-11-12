@@ -9,9 +9,10 @@ retrieval does, and to make every citation traceable to a PDF page.
 
 ## Decision
 
-**Exact search first.** Cosine distance with pgvector's `<=>` operator, ordered ascending, ties broken by chunk
-ID. No HNSW index: at this size a sequential scan is fast and the results are exact. HNSW can be added later
-only after comparing its recall against exact search, using `vector_cosine_ops`, and testing it with filters.
+**Exact search first.** Cosine distance with pgvector's `<=>` operator, ordered ascending, ties broken by the paper's
+SHA-256, then the chunk's position in it (not by chunk ID: IDs are random per ingest, so results would change after
+a re-ingest). No HNSW index: at this size a sequential scan is fast and the results are exact. HNSW can be added
+later only after comparing its recall against exact search, using `vector_cosine_ops`, and testing it with filters.
 
 **Scores are not probabilities.** Responses show the cosine distance and `similarity = 1 - distance`. There is no
 built-in relevance cut-off. If an abstention threshold is added, it is calibrated on the dev split and its
