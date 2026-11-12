@@ -10,8 +10,8 @@ Later milestones start only when the earlier ones pass their acceptance checks.
 | 2 | Durable PDF ingestion | Done |
 | 3 | Retrieval and first research validation | Done |
 | 4 | Grounded answers with citations | Done (live provider test blocked: no credentials) |
-| 5 | React workspace | Next |
-| 6 | Evaluation and handoff | Not started |
+| 5 | React workspace | Done (cited answers checked with a stubbed API only: no credentials) |
+| 6 | Evaluation and handoff | Next |
 
 The MVP is not complete until milestone 6 passes on a real corpus. Placeholder code, a fabricated corpus,
 untraceable citations or checks that were never run do not count.
@@ -122,11 +122,33 @@ beat the lexical baseline on every measure. Details and analysis in [evaluation.
   down or not configured: `503`, never an abstention.
 - Blocked: `make test-live` (real provider) needs `LLM_BASE_URL` and `LLM_MODEL`; none are configured, so it skips.
 
-## Milestone 5: React workspace
+## Milestone 5: React workspace (done, except a cited answer from a real provider)
 
-Documents, Research, Retrieval debug and Evaluations views, built on generated API types. Keyboard access,
-visible focus, honest empty, loading, error and abstention states. Upload → ready → ask → inspect passage →
-open the PDF at the physical page.
+- **Research:** ask a question, optionally limited by publication year. Each claim carries citation buttons; the
+  selected one shows the passage, title, authors, pages (physical and printed) and a link that opens the original
+  PDF at the physical page. "Not enough evidence" and a service failure (`502`/`503`) look different, and the
+  failure says it is not a finding about the research.
+- **Documents:** upload, indexing status with stage and progress (polled only while a job is queued or running),
+  failure codes, title and year corrections, page text with extraction warnings, reindex, and delete after a
+  confirmation.
+- **Retrieval debug:** search in vector or lexical mode with distance, similarity or lexical score, model,
+  revision and timings. "How this answer was built" shows every candidate passage, whether it was sent to the model
+  and why.
+- **Evaluations:** runs with vector and lexical metrics side by side, per-run detail with every metric, latency and
+  per-question scores and top hits. Labelled as automated retrieval metrics, not answer quality.
+- Types come from `backend/openapi.json`; `make check-api-types` fails if they drift. Hash routing, a skip link,
+  labelled controls, visible focus, light and dark themes. No research content is built into the frontend.
+- `make smoke`: upload → indexed → search → page text → original file → answer → delete, against the running
+  stack.
+
+Verified: 15 frontend tests (views against a stubbed API: cited answer, abstention, `503`, document states, upload,
+delete confirmation, a failed metadata save, retrieval, evaluations, navigation), lint, typecheck, build; `make smoke` passed against Docker
+with the answer step skipped (`LLM_NOT_CONFIGURED`). Checked by hand in a browser against the 20-paper corpus: the
+document list, page viewer, retrieval search, evaluation runs, and a question submitted from the keyboard showing the
+`503` failure; a file link with `#page=3` opened the PDF on page 3. Upload and delete in the UI are covered by the
+view tests (and the same API calls by `make smoke`). A successful metadata edit and a reindex from the UI have no
+test yet and were not tried by hand, to leave the corpus as it is.
+Blocked: a cited answer in the browser from a real provider needs `LLM_BASE_URL` and `LLM_MODEL`.
 
 ## Milestone 6: evaluation and handoff
 

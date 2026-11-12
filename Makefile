@@ -85,6 +85,5 @@ labels-check: ## Check every gold quotation in research/evaluation/questions.jso
 evaluate: model-host ## Retrieval evaluation, vector and lexical: make evaluate SPLIT=dev (or SPLIT=test)
 	$(UV) run mcl evaluate --split $(or $(SPLIT),dev)
 
-# Commands from the roadmap that later milestones implement. They fail loudly until then.
-smoke:
-	@echo "'make $@' is not implemented yet. docs/roadmap.md lists the milestone that adds it." >&2; exit 1
+smoke: ## End-to-end check of the running stack: upload, index, search, page, file, answer, delete
+	$(UV) run mcl smoke --base-url $(or $(BASE_URL),http://127.0.0.1:8080)

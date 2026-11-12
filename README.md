@@ -6,8 +6,9 @@ a hands-on project for learning how retrieval-augmented generation works, with e
 
 It uses pretrained models only. It does not give personal training or medical advice.
 
-**Status: milestone 4 of 6 done.** Search and grounded answers with server-checked citations work through the
-API. A real LLM provider has not been tested yet (no credentials configured). The React workspace comes next. See [docs/roadmap.md](docs/roadmap.md).
+**Status: milestone 5 of 6 done.** Upload papers, search them, ask questions and check every citation against the
+PDF page in the browser. A real LLM provider has not been tested yet (no credentials configured), so answers return
+`503` until one is set. Evaluation and handoff come next. See [docs/roadmap.md](docs/roadmap.md).
 
 ## Requirements
 
@@ -87,9 +88,7 @@ Open http://127.0.0.1:5173. API docs are at http://127.0.0.1:8000/api/docs.
 | `make corpus-ingest` | Upload the corpus with its manifest metadata and wait for the worker | now |
 | `make labels-check` | Check every gold quotation against the stored page text | now |
 | `make evaluate SPLIT=dev` | Retrieval evaluation (vector and lexical) with a stored artifact | now |
-| `make smoke` | End-to-end check against a running stack | milestone 5 |
-
-Commands that are not implemented yet exit with an error instead of pretending to work.
+| `make smoke` | End-to-end check against the running stack: upload, index, search, page, file, answer, delete | now |
 
 ## Configuration
 

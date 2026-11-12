@@ -61,7 +61,7 @@ ignore_missing_imports = true
 
 # PyMuPDF ships only partial type hints.
 [[tool.mypy.overrides]]
-module = ["masters_cycling_lab.infrastructure.pdf.*", "tests.*"]
+module = ["masters_cycling_lab.infrastructure.pdf.*", "masters_cycling_lab.smoke", "tests.*"]
 disallow_untyped_calls = false
 
 [tool.pytest.ini_options]
