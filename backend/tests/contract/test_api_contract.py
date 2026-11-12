@@ -1,13 +1,17 @@
 import json
 import uuid
+from collections.abc import Callable
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from masters_cycling_lab.config import Settings
 from masters_cycling_lab.main import create_app
 
 OPENAPI_SNAPSHOT = Path(__file__).resolve().parents[2] / "openapi.json"
+
+MakeSettings = Callable[..., Settings]
 
 
 def assert_error_envelope(response_json: dict[str, object], code: str, request_id: str) -> None:
@@ -24,6 +28,22 @@ def test_live_health(client: TestClient) -> None:
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
     uuid.UUID(response.headers["X-Request-ID"])
+
+
+def test_readiness_reports_an_unreachable_database(client: TestClient) -> None:
+    response = client.get("/api/v1/health/ready")
+
+    assert response.status_code == 503
+    error = response.json()["error"]
+    assert error["code"] == "NOT_READY"
+    assert error["details"]["checks"]["database"] == "unreachable"
+    assert error["details"]["checks"]["storage"] == "ok"
+    assert error["details"]["llm"] == "not_configured"
+
+
+def test_embedding_dimension_must_match_the_database_column(make_settings: MakeSettings) -> None:
+    with pytest.raises(RuntimeError, match="vector\\(384\\)"):
+        create_app(make_settings(embedding_dimension=768))
 
 
 def test_unknown_route_uses_error_envelope(client: TestClient) -> None:

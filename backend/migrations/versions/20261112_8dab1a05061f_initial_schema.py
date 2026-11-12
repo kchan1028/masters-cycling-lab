@@ -305,10 +305,6 @@ def upgrade() -> None:
             name=op.f("ck_ingestion_jobs_running_has_lease"),
         ),
         sa.CheckConstraint(
-            "status <> 'succeeded' or index_version_id is not null",
-            name=op.f("ck_ingestion_jobs_succeeded_has_index_version"),
-        ),
-        sa.CheckConstraint(
             "status in ('queued', 'running', 'succeeded', 'failed', 'canceled')",
             name=op.f("ck_ingestion_jobs_status_valid"),
         ),

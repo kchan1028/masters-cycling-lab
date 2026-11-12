@@ -285,3 +285,37 @@ def test_deleting_a_document_removes_its_index_data(db: Session) -> None:
 
     for table in (IndexVersion, DocumentPage, Chunk, ChunkSpan):
         assert db.scalar(select(func.count()).select_from(table)) == 0
+
+
+def test_documents_with_finished_ingestion_jobs_can_be_deleted(db: Session) -> None:
+    document = make_document()
+    add(db, document)
+    version = make_index_version(document.id, status="ready", completed_at=datetime.now(UTC))
+    add(db, version)
+    succeeded = IngestionJob(
+        document_id=document.id, status="succeeded", index_version_id=version.id, finished_at=datetime.now(UTC)
+    )
+    add(db, succeeded)
+    document.active_index_version_id = version.id
+    db.flush()
+
+    db.execute(delete(Document).where(Document.id == document.id))
+
+    assert db.scalar(select(func.count()).select_from(IngestionJob)) == 0
+
+
+def test_cleaning_up_an_old_index_version_keeps_the_job_history(db: Session) -> None:
+    document = make_document()
+    add(db, document)
+    old = make_index_version(document.id, status="retired", completed_at=datetime.now(UTC))
+    add(db, old)
+    job = IngestionJob(
+        document_id=document.id, status="succeeded", index_version_id=old.id, finished_at=datetime.now(UTC)
+    )
+    add(db, job)
+
+    db.execute(delete(IndexVersion).where(IndexVersion.id == old.id))
+    db.refresh(job)
+
+    assert job.status == "succeeded"
+    assert job.index_version_id is None

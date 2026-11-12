@@ -62,7 +62,7 @@ These are outside the code and can stall acceptance:
 - CI: lint, typecheck, tests, build, API type drift check, Compose validation, and integration tests against a
   pgvector service container.
 
-Verified: fresh database migrates; downgrade and re-upgrade work; 29 integration tests on constraints, migrations
+Verified: fresh database migrates; downgrade and re-upgrade work; 31 integration tests on constraints, migrations
 and readiness pass; data in both volumes survived `make down && make up`. See [operations.md](operations.md).
 
 ## Milestone 2: durable ingestion

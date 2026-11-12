@@ -1,12 +1,8 @@
-from collections.abc import Callable
-
 import pytest
 from fastapi.testclient import TestClient
 
 from masters_cycling_lab.config import Settings
 from masters_cycling_lab.main import create_app
-
-MakeSettings = Callable[..., Settings]
 
 
 @pytest.fixture
@@ -59,19 +55,3 @@ def test_reads_from_other_origins_are_not_blocked_but_get_no_cors_header(client:
     response = client.get("/api/v1/health/live", headers={"Origin": "https://evil.example"})
     assert response.status_code == 200
     assert "access-control-allow-origin" not in response.headers
-
-
-def test_embedding_dimension_must_match_the_database_column(make_settings: MakeSettings) -> None:
-    with pytest.raises(RuntimeError, match="vector\\(384\\)"):
-        create_app(make_settings(embedding_dimension=768))
-
-
-def test_readiness_reports_an_unreachable_database(client: TestClient) -> None:
-    response = client.get("/api/v1/health/ready")
-
-    assert response.status_code == 503
-    error = response.json()["error"]
-    assert error["code"] == "NOT_READY"
-    assert error["details"]["checks"]["database"] == "unreachable"
-    assert error["details"]["checks"]["storage"] == "ok"
-    assert error["details"]["llm"] == "not_configured"

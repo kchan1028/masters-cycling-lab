@@ -172,6 +172,7 @@ class IngestionJob(Base):
     error_message: Mapped[str | None]
 
     requested_config: Mapped[JsonObject]
+    # The version this job built. Cleared when an old version is cleaned up; the job's history stays.
     index_version_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("index_versions.id", ondelete="SET NULL"))
     created_at: Mapped[CreatedAt]
     started_at: Mapped[datetime | None]
@@ -194,7 +195,6 @@ class IngestionJob(Base):
             name="finished_at_matches_status",
         ),
         CheckConstraint("status <> 'failed' or error_code is not null", name="failed_has_error_code"),
-        CheckConstraint("status <> 'succeeded' or index_version_id is not null", name="succeeded_has_index_version"),
         # At most one queued or running job per document.
         Index(
             "uq_ingestion_jobs_one_active_per_document",
