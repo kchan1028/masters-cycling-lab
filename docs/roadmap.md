@@ -11,7 +11,7 @@ Later milestones start only when the earlier ones pass their acceptance checks.
 | 3 | Retrieval and first research validation | Done |
 | 4 | Grounded answers with citations | Done (live provider test blocked: no credentials) |
 | 5 | React workspace | Done (cited answers checked with a stubbed API only: no credentials) |
-| 6 | Evaluation and handoff | Next |
+| 6 | Evaluation and handoff | Done (labels not human-reviewed; answers not evaluated: no credentials) |
 
 The MVP is not complete until milestone 6 passes on a real corpus. Placeholder code, a fabricated corpus,
 untraceable citations or checks that were never run do not count.
@@ -150,10 +150,28 @@ view tests (and the same API calls by `make smoke`). A successful metadata edit 
 test yet and were not tried by hand, to leave the corpus as it is.
 Blocked: a cited answer in the browser from a real provider needs `LLM_BASE_URL` and `LLM_MODEL`.
 
-## Milestone 6: evaluation and handoff
+## Milestone 6: evaluation and handoff (done, with the two blockers above still open)
 
-Frozen dev and test splits, real evaluation artifacts in `artifacts/`, a human review workflow, operations docs
-(backup, restore, deletion, worker recovery), and a final run of every command from a fresh clone.
+- Dataset v1 frozen by SHA-256 (questions and manifest) with fixed split membership; the test split runs only from a
+  clean checkout so every held-out result names a commit.
+- Final dev and first held-out test runs, artifacts committed in `research/evaluation/results/`, reported with
+  analysis in [evaluation.md](evaluation.md). Test recall@10 0.62 missed its target; dev evidence coverage 0.53
+  missed its target. Nothing was tuned on test.
+- Human review workflow: `make review` shows each provisional question with its gold quotations in page context and
+  a PDF link, and records `reviewed_by`, `reviewed_on` and notes. Runs record how many labels were reviewed (0 of 30
+  so far).
+- `make backup` / `make restore`, deletion behaviour and what deletion does not remove, in
+  [operations.md](operations.md). Worker recovery was already documented there.
+- [Handoff](handoff.md): what works, checks run, results, unmet criteria, next steps.
+
+Verified: every README and Makefile command from a fresh clone in its own Compose project, including corpus
+download and ingest, both evaluations (vector metrics identical to the main stack), smoke, integration and model
+tests, and a backup → delete → restore cycle. Steps that failed because Docker ran out of memory or timed out passed
+on a rerun; two papers needed a reindex. Details in [handoff.md](handoff.md#checks-run). The run found that restore
+left nginx pointing at the API's old address (fixed: nginx now re-resolves it) and that lexical results depend on
+random chunk IDs for ties (documented, not fixed).
+
+Not done: answer-support review (no answers without a provider) and human label review (needs a person).
 
 ## Out of scope for the MVP
 
