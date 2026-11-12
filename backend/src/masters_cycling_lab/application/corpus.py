@@ -149,7 +149,11 @@ def download_missing(
         if entry.download_url is None:
             results.append((entry.corpus_id, "no download URL; add the file by hand"))
             continue
-        content = fetch(entry.download_url)
+        try:
+            content = fetch(entry.download_url)
+        except OSError as exc:  # urllib's URLError and HTTPError are OSErrors
+            results.append((entry.corpus_id, f"download failed: {exc}"))
+            continue
         if hashlib.sha256(content).hexdigest() != entry.sha256:
             results.append((entry.corpus_id, "downloaded file does not match the manifest SHA-256; not saved"))
             continue

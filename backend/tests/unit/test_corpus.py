@@ -67,3 +67,22 @@ def test_download_keeps_only_files_with_the_recorded_hash(tmp_path: Path) -> Non
     assert (tmp_path / "pdfs" / "paper.pdf").read_bytes() == real
     assert not (tmp_path / "pdfs" / "b.pdf").exists()
     assert dict(corpus.download_missing(manifest, entries[:1], fetch=lambda url: b""))["mcl-001"] == "already present"
+
+
+def test_one_failed_download_does_not_stop_the_others(tmp_path: Path) -> None:
+    first, second = make_pdf(["Paper one"]), make_pdf(["Paper two"])
+    manifest = write_manifest(
+        tmp_path,
+        manifest_entry(first, download_url="https://example.org/gone.pdf"),
+        manifest_entry(second, corpus_id="mcl-002", file="pdfs/two.pdf", doi=None, pmcid=None),
+    )
+
+    def fetch(url: str) -> bytes:
+        if url.endswith("gone.pdf"):
+            raise OSError("HTTP Error 404: Not Found")
+        return second
+
+    outcomes = dict(corpus.download_missing(manifest, load_manifest(manifest), fetch=fetch))
+
+    assert outcomes["mcl-001"].startswith("download failed")
+    assert outcomes["mcl-002"] == "downloaded"

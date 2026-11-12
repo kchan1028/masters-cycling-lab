@@ -22,7 +22,8 @@ make corpus-ingest
 `corpus-download` fetches each PDF from its recorded URL and keeps it only if the SHA-256 matches the manifest.
 `corpus-verify` checks every local file's size, SHA-256 and title, and reports how many are searchable.
 `corpus-ingest` uploads them through the normal pipeline (duplicates are skipped) and sets their metadata from the
-manifest, marked `manifest_verified`.
+manifest, marked `manifest_verified`. Running it again resets these papers' metadata to the manifest, so make
+corrections in `manifest.jsonl`, not through `PATCH /documents/{id}`.
 
 ## How the papers were chosen (2026-11-12)
 
