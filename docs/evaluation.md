@@ -100,13 +100,46 @@ got a reply from the model:
 - Both false abstentions had passages from the right paper in the model's context (mcl-010, mcl-015). Either those
   passages lacked the actual finding (the right paper but the wrong passage, as in the retrieval results) or the
   model is too cautious; a person looking at the two answers' debug view can tell which.
-- Abstention on the no-evidence and out-of-scope questions is untested: every one hit the provider limit. They did
-  reach the provider, so retrieval found passages close enough to send for all six; whether the app says "not
-  enough evidence" for them depends on the model.
+- Abstention on the no-evidence and out-of-scope questions is untested: every one hit the provider limit. They all
+  reached the provider because the app has no distance limit: it abstains without the model only when search
+  returns nothing. Whether it says "not enough evidence" for them is up to the model.
+- These answers used 6 passages per question. The default is now 10 (next section), so the scheduled run that
+  finishes the dev answers starts again with the new setting; the 13 answers above are kept separately.
 - Generation took a median 25 s per answer (up to 77 s); the model reasons before it writes. Search took about 25 ms.
 - A free tier is not enough for an answer evaluation: about 13 answers a day, then hours of cooldown. A complete run
   needs a provider with paid credits or a higher quota. `answer_run.py` resumes from its output file, so it can
   finish a run across several days, and spaces requests 15 s apart.
+
+## Why answers miss: the gold passage often never reaches the model (2026-11-13)
+
+[abstention.py](../research/evaluation/experiments/abstention.py) and
+[context_size.py](../research/evaluation/experiments/context_size.py) replay the answer flow's own search and
+passage choice without calling a model.
+
+**The model often never saw the answer.** With 6 passages, only 14 of the 37 answerable dev questions had any gold
+passage among those sent. Both false abstentions are explained: for q010 and q015 the passages came from the right
+paper, but none held the finding. In q003, for example, the gold sentence was in the 9th-ranked passage.
+
+| Passages sent (dev, 37 answerable) | Questions with a gold passage sent | Gold passages sent | Median tokens |
+|---|---|---|---|
+| 6 (old default) | 14 | 22 of 81 | ~2,500 |
+| 8 | 19 | 27 of 81 | ~3,300 |
+| **10 (new default)** | **20** | **30 of 81** | ~4,100 |
+| 12 | 21 | 31 of 81 | ~4,900 |
+
+Dropping the rule that skips passages overlapping one already chosen adds one or two questions at most, within
+noise, so it stays. Checked once on the held-out `test2` (18 answerable): 6 passages sent a gold passage for 8
+questions (14 of 48 gold passages), 10 passages for 9 (18 of 48). The gain is smaller there but in the same
+direction, and the cost is about 1,700 more input tokens per answer, well inside every model's context, so
+`RETRIEVAL_CONTEXT_K` is now 10. Even so, about half of the answerable questions still reach the model without
+their gold passage: picking the right passage within the right paper remains the main weakness.
+
+**Distance cannot tell unanswerable questions apart.** Best cosine distance on dev: answerable 0.080 to 0.265
+(median 0.200); no evidence or out of scope 0.218 to 0.450 (median 0.275). The ranges overlap: questions on
+creatine, protein per meal and heat acclimation look as close to the corpus as answerable ones. A limit at about
+0.27 would turn away only the three clearly off-topic questions (bike buying, FTP zones, beetroot) with almost no
+margin (the most distant answerable question is 0.265), so no distance limit was added; abstention stays with the
+model.
 
 ## Experiments (dev only)
 
