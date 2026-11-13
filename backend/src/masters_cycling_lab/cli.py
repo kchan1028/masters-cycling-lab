@@ -1,6 +1,7 @@
 import argparse
 import json
 import subprocess
+import sys
 import time
 import uuid
 from collections import Counter
@@ -264,6 +265,9 @@ def review(reviewer: str, split: str | None, question_id: str | None) -> int:
     if not todo:
         print("Nothing to review.")
         return 0
+    if not sys.stdin.isatty():  # without a keyboard every prompt reads an empty line and nothing is recorded
+        print("Review needs an interactive terminal: run it in a terminal window, not through a pipe or a chat shell.")
+        return 1
     titles = {entry.corpus_id: entry.title for entry in entries}
     engine = connected_engine(get_settings().database_url)
     if engine is None:
@@ -294,19 +298,22 @@ def review(reviewer: str, split: str | None, question_id: str | None) -> int:
                 print(f"  PDF: {APP_URL}/api/v1/documents/{document_ids[item.corpus_id]}/file#page={item.page}")
             print(f"\nRationale: {question.annotation.rationale}")
             try:
-                choice = input("\n[a]ccept as reviewed, [n]ote a problem (stays provisional), [s]kip, [q]uit: ").strip()
-                if choice.lower() == "q":
+                choice = ""
+                while choice not in ("a", "n", "s", "q"):  # an empty or mistyped answer asks again
+                    prompt = "\n[a]ccept as reviewed, [n]ote a problem (stays provisional), [s]kip, [q]uit: "
+                    choice = input(prompt).strip().lower()
+                if choice == "q":
                     break
-                if choice.lower() not in ("a", "n"):
+                if choice == "s":
                     continue
                 note = input("Note (optional for accept): ").strip() or None
             except EOFError:  # input closed: stop, keeping what was recorded
                 break
-            if choice.lower() == "n" and not note:
+            if choice == "n" and not note:
                 print("No note given; nothing recorded.")
                 continue
             evaluation.record_review(
-                path, question.id, reviewer=reviewer, reviewed=choice.lower() == "a", note=note, on=date.today()
+                path, question.id, reviewer=reviewer, reviewed=choice == "a", note=note, on=date.today()
             )
             print("Recorded.")
     return 0
