@@ -2515,7 +2515,7 @@
           "score_note": {
             "type": "string",
             "title": "Score Note",
-            "default": "Results are ordered by cosine distance (vector: lower is closer; similarity is 1 - distance), by keyword score (lexical), or by fusing both rankings (hybrid). The scores only order the results. They are not probabilities that a passage is relevant or correct."
+            "default": "Results are ordered by distance in meaning (vector: lower is closer; similarity is 1 - distance), by keyword score (lexical), or by combining both orders (hybrid). The scores only put the results in order. They are not the chance that a passage is relevant or correct."
           }
         },
         "type": "object",

@@ -182,7 +182,7 @@ def get_document_file(session: SessionDep, storage: StorageDep, document_id: Doc
     document = documents.get_document(session, document_id).document
     path = storage.path(document.storage_key)
     if not path.is_file():
-        raise ApiError(500, "FILE_MISSING", "The stored PDF for this document is missing.")
+        raise ApiError(500, "FILE_MISSING", "The stored PDF for this paper is missing.")
     return FileResponse(
         path,
         media_type="application/pdf",

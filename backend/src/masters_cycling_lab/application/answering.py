@@ -30,7 +30,7 @@ from masters_cycling_lab.domain.ports import Embedder, LanguageModel, ProviderEr
 from masters_cycling_lab.domain.retrieval import SearchFilters
 from masters_cycling_lab.infrastructure.db.models import AnswerCitation, AnswerClaim, Document, QueryEvidence, QueryRun
 
-NO_EVIDENCE = "No indexed passage matched this question and its filters, so no answer was generated."
+NO_EVIDENCE = "No passage in the papers matched this question and its filters, so no answer was written."
 
 
 def answer_question(
@@ -107,7 +107,7 @@ def answer_question(
             if attempt == 2:
                 fail(session, run, "GENERATION_INVALID", timings)
                 raise GenerationFailed(
-                    "GENERATION_INVALID", f"The model's answer failed validation twice: {problem}"
+                    "GENERATION_INVALID", f"The answer model gave an unusable reply twice: {problem}"
                 ) from problem
             repair = (
                 f"Your reply was rejected: {problem} "

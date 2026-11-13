@@ -201,7 +201,7 @@ class JobRunner:
         pages = remove_repeated_edge_lines(list(extracted.pages))
         chunks = chunk_pages(pages, self.embedder.token_offsets, config)
         if not chunks:
-            raise IngestionProblem("NO_TEXT", "No text was left to index after extraction.")
+            raise IngestionProblem("NO_TEXT", "No readable text was found in this PDF.")
         self.check_chunks(chunks, {page.page_number: page.text for page in pages})
 
         version_id = uuid.uuid4()
@@ -357,7 +357,9 @@ class JobRunner:
                 raise RuntimeError(f"Chunk {chunk.ordinal} does not match its page spans")
             # The model would silently cut off anything past its limit, so refuse instead.
             if self.embedder.count_tokens(chunk.text) > self.embedder.max_tokens:
-                raise IngestionProblem("CHUNK_TOO_LONG", f"Chunk {chunk.ordinal} is longer than the model accepts.")
+                raise IngestionProblem(
+                    "CHUNK_TOO_LONG", f"Passage {chunk.ordinal} is longer than the search model accepts."
+                )
 
     def check_vectors(self, vectors: npt.NDArray[np.float32], expected_rows: int) -> None:
         if vectors.shape != (expected_rows, self.settings.embedding_dimension) or not np.isfinite(vectors).all():
@@ -382,7 +384,7 @@ class JobRunner:
                 if job.attempt_count >= job.max_attempts:
                     job.status = "failed"
                     job.finished_at = datetime.now(UTC)
-                    job.error_message = f"Ingestion failed {job.attempt_count} times. The worker log has details."
+                    job.error_message = f"Processing failed {job.attempt_count} times. The worker log has details."
                 else:
                     job.status = "queued"
                     job.available_after = datetime.now(UTC) + RETRY_BASE_DELAY * 2 ** (job.attempt_count - 1)
