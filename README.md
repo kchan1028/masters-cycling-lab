@@ -114,6 +114,7 @@ each one. Things to know:
 
 ## Documentation
 
+- [Plain-English overview](docs/overview.html): what the app does, how it answers and how well it works, without jargon
 - [Handoff](docs/handoff.md): what works, what was verified, results, open blockers and next steps
 - [Roadmap](docs/roadmap.md): milestones, acceptance checks, assumptions and blockers
 - [Architecture](docs/architecture.md): processes, layers, data model, security boundaries
