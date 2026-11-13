@@ -63,11 +63,11 @@ def choose_evidence(hits: Sequence[SearchHit], max_passages: int, token_budget: 
         cost = estimate_tokens(hit.text) + 40  # room for the label and source line
         selected = sum(choice.label is not None for choice in choices)
         if overlaps:
-            choices.append(EvidenceChoice(hit, None, "overlaps a passage already selected"))
+            choices.append(EvidenceChoice(hit, None, "overlaps a passage already chosen"))
         elif selected >= max_passages:
             choices.append(EvidenceChoice(hit, None, f"beyond the {max_passages}-passage limit"))
         elif used + cost > token_budget:
-            choices.append(EvidenceChoice(hit, None, "does not fit in the context budget"))
+            choices.append(EvidenceChoice(hit, None, "does not fit in the space left for the answer model"))
         else:
             used += cost
             chosen_spans.extend(spans)

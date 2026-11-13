@@ -143,7 +143,7 @@ def request_ingestion(session: Session, settings: Settings, document_id: uuid.UU
     except IntegrityError as exc:
         session.rollback()
         raise Conflict(
-            "INGESTION_ALREADY_ACTIVE", "This document already has a queued or running ingestion job."
+            "INGESTION_ALREADY_ACTIVE", "This paper is already waiting or being processed."
         ) from exc
     return job
 
@@ -151,14 +151,14 @@ def request_ingestion(session: Session, settings: Settings, document_id: uuid.UU
 def get_job(session: Session, job_id: uuid.UUID) -> IngestionJob:
     job = session.get(IngestionJob, job_id)
     if job is None:
-        raise NotFound("JOB_NOT_FOUND", "No ingestion job with this ID.")
+        raise NotFound("JOB_NOT_FOUND", "No processing job with this ID.")
     return job
 
 
 def get_page(session: Session, document_id: uuid.UUID, page_number: int) -> DocumentPage:
     document = live_document(session, document_id)
     if document.active_index_version_id is None:
-        raise Conflict("DOCUMENT_NOT_READY", "The document has not finished indexing.")
+        raise Conflict("DOCUMENT_NOT_READY", "This paper is not ready to search yet.")
     page = session.scalars(
         select(DocumentPage).where(
             DocumentPage.index_version_id == document.active_index_version_id,
@@ -166,7 +166,7 @@ def get_page(session: Session, document_id: uuid.UUID, page_number: int) -> Docu
         )
     ).first()
     if page is None:
-        raise NotFound("PAGE_NOT_FOUND", f"Page {page_number} does not exist; the document has {document.page_count}.")
+        raise NotFound("PAGE_NOT_FOUND", f"Page {page_number} does not exist; the paper has {document.page_count}.")
     return page
 
 
@@ -178,7 +178,7 @@ def delete_document(session: Session, storage: LocalFileStorage, document_id: uu
     """
     document = session.get(Document, document_id)
     if document is None:
-        raise NotFound("DOCUMENT_NOT_FOUND", "No document with this ID.")
+        raise NotFound("DOCUMENT_NOT_FOUND", "No paper with this ID.")
     storage_key = document.storage_key
     now = datetime.now(UTC)
 
@@ -206,7 +206,7 @@ def delete_document(session: Session, storage: LocalFileStorage, document_id: uu
 def live_document(session: Session, document_id: uuid.UUID) -> Document:
     document = session.get(Document, document_id)
     if document is None or document.deleted_at is not None:
-        raise NotFound("DOCUMENT_NOT_FOUND", "No document with this ID.")
+        raise NotFound("DOCUMENT_NOT_FOUND", "No paper with this ID.")
     return document
 
 

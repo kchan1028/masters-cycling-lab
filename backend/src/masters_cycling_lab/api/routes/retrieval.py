@@ -11,9 +11,9 @@ from masters_cycling_lab.domain.retrieval import SearchFilters, SearchHit, Searc
 router = APIRouter(prefix="/retrieval", tags=["retrieval"])
 
 SCORE_NOTE = (
-    "Results are ordered by cosine distance (vector: lower is closer; similarity is 1 - distance), by keyword score "
-    "(lexical), or by fusing both rankings (hybrid). The scores only order the results. They are not probabilities "
-    "that a passage is relevant or correct."
+    "Results are ordered by distance in meaning (vector: lower is closer; similarity is 1 - distance), by keyword "
+    "score (lexical), or by combining both orders (hybrid). The scores only put the results in order. They are not "
+    "the chance that a passage is relevant or correct."
 )
 
 
