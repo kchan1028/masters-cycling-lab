@@ -142,9 +142,7 @@ def request_ingestion(session: Session, settings: Settings, document_id: uuid.UU
         session.commit()
     except IntegrityError as exc:
         session.rollback()
-        raise Conflict(
-            "INGESTION_ALREADY_ACTIVE", "This paper is already waiting or being processed."
-        ) from exc
+        raise Conflict("INGESTION_ALREADY_ACTIVE", "This paper is already waiting or being processed.") from exc
     return job
 
 

@@ -357,7 +357,9 @@ class JobRunner:
                 raise RuntimeError(f"Chunk {chunk.ordinal} does not match its page spans")
             # The model would silently cut off anything past its limit, so refuse instead.
             if self.embedder.count_tokens(chunk.text) > self.embedder.max_tokens:
-                raise IngestionProblem("CHUNK_TOO_LONG", f"Passage {chunk.ordinal} is longer than the search model accepts.")
+                raise IngestionProblem(
+                    "CHUNK_TOO_LONG", f"Passage {chunk.ordinal} is longer than the search model accepts."
+                )
 
     def check_vectors(self, vectors: npt.NDArray[np.float32], expected_rows: int) -> None:
         if vectors.shape != (expected_rows, self.settings.embedding_dimension) or not np.isfinite(vectors).all():
