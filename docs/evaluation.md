@@ -164,6 +164,12 @@ citation's page against the pages holding the question's gold quotations:
 - Seven questions are too few to compare the two settings beyond q010. The comparison is worth repeating once the
   run is complete, with the six no-evidence and out-of-scope questions included.
 
+**First answer-support review (2026-11-13).** KC rated each claim of these 7 answers against the excerpts it cites,
+with [rate_answers.py](../research/evaluation/experiments/rate_answers.py): all 19 claims supported, none partly or
+not supported. That includes q001, whose citations miss the gold pages: the page it cites reports the same finding.
+Seven answers to direct questions are a small and easy sample; the synthesis, population-mismatch and no-evidence
+questions still to come are where unsupported claims are more likely.
+
 ## Experiments (dev only)
 
 ### 2026-11-12: three ways to improve retrieval

@@ -166,8 +166,9 @@ questions. Every number is against labels no person has reviewed.
 ## Next steps, in order
 
 1. Rate whether each cited passage supports its claim with `rate_answers.py` (see
-   [research/evaluation/README.md](../research/evaluation/README.md#rating-answers)), on the answers that exist, and
-   record the counts in docs/evaluation.md as the first answer-support review.
+   [research/evaluation/README.md](../research/evaluation/README.md#rating-answers)). The first 7 answers with 10
+   passages are rated (19 of 19 claims supported); rate the rest as the nightly run adds them, and record the counts
+   in docs/evaluation.md.
 2. Finish the dev answer run with 10 passages (the scheduled task does this on the free tier) and check abstention
    on the six no-evidence and out-of-scope questions, still untested. All 74 labels are reviewed
    and none changed (dataset v5). Record a new dataset version when labels change.
