@@ -44,13 +44,13 @@ test('shows ranked passages with distance and similarity', async () => {
   const user = userEvent.setup()
   render(<RetrievalView />)
 
-  await user.type(screen.getByLabelText('Query'), 'recovery')
+  await user.type(screen.getByLabelText('Search for'), 'recovery')
   await user.click(screen.getByRole('button', { name: 'Search' }))
 
   expect(await screen.findByText('0.123')).toBeInTheDocument()
   expect(screen.getByText('0.877')).toBeInTheDocument()
   expect(screen.getByText('Recovery in masters cyclists (2021)')).toBeInTheDocument()
-  expect(screen.getByText(/1 results from 20 searchable documents/)).toBeInTheDocument()
+  expect(screen.getByText(/1 results from 20 searchable papers/)).toBeInTheDocument()
   expect(sentJson(fetchMock)).toEqual({
     query: 'recovery',
     mode: 'vector',
@@ -94,11 +94,11 @@ test('hybrid results show the distance and the keyword score', async () => {
   const user = userEvent.setup()
   render(<RetrievalView />)
 
-  await user.type(screen.getByLabelText('Query'), 'recovery')
-  await user.selectOptions(screen.getByLabelText('Mode'), 'hybrid')
+  await user.type(screen.getByLabelText('Search for'), 'recovery')
+  await user.selectOptions(screen.getByLabelText('Search by'), 'hybrid')
   await user.click(screen.getByRole('button', { name: 'Search' }))
 
-  expect(await screen.findByRole('columnheader', { name: 'Lexical score' })).toBeInTheDocument()
+  expect(await screen.findByRole('columnheader', { name: 'Keyword score' })).toBeInTheDocument()
   expect(screen.getByRole('columnheader', { name: 'Distance' })).toBeInTheDocument()
   expect(screen.queryByRole('columnheader', { name: 'Similarity' })).not.toBeInTheDocument()
   expect(screen.getByText('0.400')).toBeInTheDocument()
@@ -141,5 +141,5 @@ test('opens the passages behind an answer from its link', async () => {
 
   expect(await screen.findByText('closest passage is above the distance limit')).toBeInTheDocument()
   expect(screen.getByLabelText('Answer ID')).toHaveValue('run-1')
-  expect(screen.getByText(/Model: not called/)).toBeInTheDocument()
+  expect(screen.getByText(/Answer model: not called/)).toBeInTheDocument()
 })

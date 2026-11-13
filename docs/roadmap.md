@@ -131,7 +131,7 @@ beat the lexical baseline on every measure. Details and analysis in [evaluation.
 - **Documents:** upload, indexing status with stage and progress (polled only while a job is queued or running),
   failure codes, title and year corrections, page text with extraction warnings, reindex, and delete after a
   confirmation.
-- **Retrieval debug:** search in vector or lexical mode with distance, similarity or lexical score, model,
+- **Search details page:** search in vector or lexical mode with distance, similarity or lexical score, model,
   revision and timings. "How this answer was built" shows every candidate passage, whether it was sent to the model
   and why.
 - **Evaluations:** runs with vector and lexical metrics side by side, per-run detail with every metric, latency and

@@ -14,8 +14,8 @@ anything not verified says so.
 - **Answers:** passages labelled `E1..En`, a versioned prompt, strict JSON validation with one repair attempt,
   citations built from stored snapshots, abstention without calling the model when evidence is missing, `502`/`503`
   for provider problems. Works with any OpenAI-compatible endpoint; **never run against a real one** (no credentials).
-- **Workspace:** Research (claims, citation passages, PDF at the physical page), Documents, Retrieval debug
-  (including how an answer was built) and Evaluations views.
+- **Workspace:** Ask a question (claims, citation passages, PDF at the physical page), Papers, Search details
+  (including how an answer was built) and Search scores pages.
 - **Evaluation:** 74 labelled questions (43 dev, 11 held-out test, 20 fresh held-out test2) over 20 CC BY papers,
   gold quotations anchored to paper, physical page and exact text; recall, MRR, nDCG, evidence coverage, unjudged
   count and latency for vector, lexical and hybrid search; JSON artifacts with full provenance.

@@ -74,7 +74,7 @@ with `uv --directory backend run mcl review --reviewer "Your Name" --question q0
 judgment; it must not be done by an AI or a script.
 
 Do not change a `test` question's labels because of a result; fix only labelling errors, and say so in a note. Every
-evaluation run records how many of its split's labels were reviewed, and the Evaluations page shows it.
+evaluation run records how many of its split's labels were reviewed, and the Search scores page shows it.
 
 ## Rating answers
 

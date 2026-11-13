@@ -25,8 +25,8 @@ test('says when there are no runs yet', async () => {
 
   render(<EvaluationsView />)
 
-  expect(await screen.findByText(/No evaluation runs yet/)).toBeInTheDocument()
-  expect(screen.getByText(/Automated retrieval metrics only/)).toBeInTheDocument()
+  expect(await screen.findByText(/No test runs yet/)).toBeInTheDocument()
+  expect(screen.getByText(/Automatic search scores only/)).toBeInTheDocument()
 })
 
 test('compares vector and lexical metrics and opens a run', async () => {
@@ -77,5 +77,5 @@ test('shows every mode a run measured, in order', async () => {
 
   const row = (await screen.findByText(/3a354b1/)).closest('tr') as HTMLElement
   expect(within(row).getByText('/ 0.67 / 0.87', { exact: false })).toBeInTheDocument()
-  expect(within(row).getByText(/vector \/ lexical \/ hybrid/)).toBeInTheDocument()
+  expect(within(row).getByText(/meaning \/ keywords \/ both combined/)).toBeInTheDocument()
 })
