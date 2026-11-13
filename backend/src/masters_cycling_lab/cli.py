@@ -178,8 +178,8 @@ def evaluate(split: str, modes: list[str], k: int, check_only: bool) -> int:
         return 1
     revision = code_revision()
     # A held-out result has to be tied to a commit, or nobody can tell what produced it.
-    if split == "test" and not check_only and (revision is None or revision.endswith("-dirty")):
-        print("The test split runs only from a clean git checkout. Commit or stash your changes first.")
+    if split in evaluation.HELD_OUT and not check_only and (revision is None or revision.endswith("-dirty")):
+        print("Held-out splits run only from a clean git checkout. Commit or stash your changes first.")
         return 1
     engine = make_engine(settings.database_url)
     with Session(engine) as session:
@@ -195,8 +195,8 @@ def evaluate(split: str, modes: list[str], k: int, check_only: bool) -> int:
         chosen = [question for question in questions if question.split == split]
         counts = evaluation.review_counts(chosen)
         print(f"Labels for the {split} split: {counts['reviewed']} of {len(chosen)} reviewed by a person.")
-        if split == "test":
-            print("Note: the test split is held out. Use it to report results, not to tune settings.")
+        if split in evaluation.HELD_OUT:
+            print(f"Note: the {split} split is held out. Use it to report results, not to tune settings.")
 
         from masters_cycling_lab.infrastructure.embeddings.sentence_transformers_adapter import (
             SentenceTransformerEmbedder,
@@ -345,7 +345,7 @@ def main(argv: list[str] | None = None) -> int:
     corpus_command_parser.add_argument("--wait", action="store_true", help="after ingest, wait for the worker")
 
     evaluate_parser = commands.add_parser("evaluate", help="run the labelled retrieval evaluation")
-    evaluate_parser.add_argument("--split", choices=["dev", "test"], default="dev")
+    evaluate_parser.add_argument("--split", choices=evaluation.SPLITS, default="dev")
     evaluate_parser.add_argument(
         "--modes", nargs="+", choices=["vector", "lexical", "hybrid"], default=["vector", "lexical", "hybrid"]
     )
@@ -354,7 +354,7 @@ def main(argv: list[str] | None = None) -> int:
 
     review_parser = commands.add_parser("review", help="review provisional labels against the papers")
     review_parser.add_argument("--reviewer", required=True, help="your name, stored with each verdict")
-    review_parser.add_argument("--split", choices=["dev", "test"], help="only this split")
+    review_parser.add_argument("--split", choices=evaluation.SPLITS, help="only this split")
     review_parser.add_argument("--question", help="one question by ID, reviewed or not")
 
     smoke_parser = commands.add_parser("smoke", help="end-to-end check against a running stack")
