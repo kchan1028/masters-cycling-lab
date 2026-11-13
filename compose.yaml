@@ -10,6 +10,9 @@ x-backend: &backend
   environment:
     # Containers reach the database by service name; .env's DATABASE_URL is for tools on the host.
     DATABASE_URL: postgresql+psycopg://mcl:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/mcl
+    # A provider on this machine or behind an SSH tunnel is 127.0.0.1 for host tools but host.docker.internal for
+    # containers. Set LLM_DOCKER_BASE_URL for that case; otherwise the containers use LLM_BASE_URL as it is.
+    LLM_BASE_URL: ${LLM_DOCKER_BASE_URL:-${LLM_BASE_URL:-}}
     STORAGE_ROOT: /data/storage
     MODEL_CACHE_DIR: /data/models
     HF_HOME: /data/models

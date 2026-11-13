@@ -97,6 +97,29 @@ LLM settings the answer step is reported as skipped (`503 LLM_NOT_CONFIGURED`); 
 It needs the embedding model (`make download-model`) and takes about a minute, mostly the API loading the model on
 its first search.
 
+## Answer generation (LLM provider)
+
+Answers need an OpenAI-compatible `/chat/completions` endpoint: set `LLM_BASE_URL`, `LLM_MODEL` and, if it needs one,
+`LLM_API_KEY` in `.env`, then `make up`. The question and the selected passages are sent to that provider.
+
+If the provider is on this machine or reached through an SSH tunnel, the host and the containers see it at different
+addresses. Set both, as with the database:
+
+```
+LLM_BASE_URL=http://127.0.0.1:20128/v1                      # host tools: make test-live
+LLM_DOCKER_BASE_URL=http://host.docker.internal:20128/v1    # api container
+```
+
+Example: a private [OmniRoute](https://github.com/diegosouzapw/OmniRoute) gateway on a VPS that listens only on the
+VPS's localhost. Open the tunnel with `ssh -fN -L 20128:127.0.0.1:20128 <host>` and give this app its own OmniRoute
+API key. Pin a specific model (for example `ollama-cloud/gpt-oss:120b-medium`) rather than a combo that falls back
+across providers: a combo can answer with a different model from one request to the next, which makes answers and
+their evaluation impossible to reproduce. Reasoning models spend output tokens on reasoning, so raise
+`LLM_MAX_OUTPUT_TOKENS` (4096) and `LLM_CONTEXT_WINDOW_TOKENS` (32768). A free tier that runs out of quota shows up as
+`503 PROVIDER_UNAVAILABLE`, never as "not enough evidence".
+
+`make test-live` checks the provider with one real answer and costs whatever the provider charges.
+
 ## Stopping and data
 
 ```bash
