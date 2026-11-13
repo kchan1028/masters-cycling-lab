@@ -79,7 +79,8 @@ the same index, and query latency p95 stays under 500 ms on CPU once the model i
 - Labels are AI drafts until a person reviews them with `make review` (see
   [research/evaluation/README.md](../research/evaluation/README.md#reviewing-labels)). Every number below was
   measured before any review. Since then 19 of the 20 `test2` labels have been reviewed and accepted unchanged
-  (dataset v3), so the `test2` results stand as reported; the dev and `test` labels are still unreviewed.
+  (dataset v3), so the `test2` results stand as reported; 10 of the 43 dev labels have also been
+  reviewed, unchanged; the rest of dev and all of `test` are still unreviewed.
 
 ## Experiments (dev only)
 
