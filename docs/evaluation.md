@@ -174,6 +174,19 @@ setting chosen on these questions. For answers, which use the passages rather th
 promising option so far. Not adopted: it would need a check on `test2` and then an answer-level comparison once an
 LLM provider is configured.
 
+Held-out check, run once at commit `ba61ba8` with only the setting chosen on dev (bge-reranker-base, top 20), on the
+18 scored `test2` questions:
+
+| Variant (test2) | recall@10 | MRR | nDCG | evidence coverage |
+|---|---|---|---|---|
+| Vector only (same as the official test2 run) | 0.77 | 0.81 | 0.72 | 0.41 |
+| bge-reranker-base, top 20 | 0.76 | 0.91 | 0.75 | 0.36 |
+
+The dev gain did not hold. On fresh questions the reranker ranked the answering paper higher (MRR 0.81 to 0.91) and
+found the answering passage less often (evidence coverage 0.41 to 0.36): the opposite of what it did on dev. Each
+change is one or two questions and the direction flips between splits, so there is no reliable gain. Not adopted.
+With this, none of the five options tried beats plain vector search on held-out questions.
+
 ## Results
 
 ### 2026-11-12, dataset v2 (74 questions), runs at commit be07843
