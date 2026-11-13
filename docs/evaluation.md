@@ -145,6 +145,35 @@ none beats plain vector search robustly. With 16 provisional dev questions, a re
 indistinguishable from noise. Reviewing the labels and adding questions would make the next comparison worth more
 than another experiment would.
 
+### 2026-11-12: both experiments re-run on dataset v2 (37 scored dev questions)
+
+The same scripts, unchanged, on the larger dev split. Top 10 passages unless stated.
+
+| Variant | recall | MRR | nDCG | evidence coverage |
+|---|---|---|---|---|
+| Vector only (current) | 0.76 | 0.90 | 0.80 | 0.45 |
+| At most 2 passages per paper | 0.90 | 0.90 | 0.85 | 0.20 |
+| 100-token chunks, 30 passages (same ~3,000 tokens) | 0.91 | 0.87 | 0.85 | 0.41 |
+| Rank fusion, lexical at half weight | 0.77 | 0.80 | 0.73 | 0.48 |
+| Reranker MiniLM-L-12, top 20 | 0.79 | 0.85 | 0.79 | 0.45 |
+| Reranker MiniLM-L-6, top 20 | 0.77 | 0.83 | 0.77 | 0.43 |
+| Reranker bge-reranker-base (`2cfc18c`), top 20 | 0.80 | 0.79 | 0.73 | 0.53 |
+| Reranker bge-reranker-base, top 50 | 0.76 | 0.77 | 0.69 | 0.39 |
+
+The conclusions hold, and one changes in size: rank fusion's dev advantage in evidence coverage shrinks from 0.15
+(16 questions) to 0.03 (37 questions) while it still costs 0.10 of MRR. Most of the earlier gain was the small
+question set, which is also why it did not hold on either held-out split. None of the cheap levers improves on plain
+vector search.
+
+The larger general reranker, `BAAI/bge-reranker-base` (MIT, about 1.1 GB, trained on broader data than MS MARCO),
+is the first option to move evidence coverage by more than a question or two: re-scoring the top 20 vector passages
+raises it from 0.45 to 0.53 and recall from 0.76 to 0.80. It is a trade-off, not a clean win. The paper that
+answers the question drops down the list (MRR 0.90 to 0.79, nDCG 0.80 to 0.73), it takes a median 234 ms per
+question on CPU, and at depth 50 it is worse on everything (evidence coverage 0.39), so the result depends on a
+setting chosen on these questions. For answers, which use the passages rather than the paper order, it is the most
+promising option so far. Not adopted: it would need a check on `test2` and then an answer-level comparison once an
+LLM provider is configured.
+
 ## Results
 
 ### 2026-11-12, dataset v2 (74 questions), runs at commit be07843
