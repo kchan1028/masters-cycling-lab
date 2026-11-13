@@ -169,8 +169,9 @@ questions. Every number is against labels no person has reviewed.
    paper and smaller chunks did not help; rank fusion with the lexical ranking helped on dev but was worse than
    vector search on every held-out measure, so it is measured in every run (`hybrid`) but not used for answers (see
    [evaluation.md](evaluation.md#experiments-dev-only)). Two small MS MARCO cross-encoder rerankers did not help
-   either. The question set is now 74 (37 scored on dev), so re-running the experiment scripts on it is cheap and
-   more trustworthy than before; a larger general reranker (for example `BAAI/bge-reranker-base`, MIT, about 1.1 GB)
-   is the remaining cheap test. Report on `test2`, which nothing has been tuned on yet.
+   either. Re-run on the 37 scored dev questions of dataset v2, both experiments reach the same conclusions, and
+   fusion's earlier dev gain mostly disappears. The remaining untried option is a larger general reranker (for
+   example `BAAI/bge-reranker-base`, MIT, about 1.1 GB, slower on CPU). Report anything on `test2`, which nothing has
+   been tuned on yet.
 4. Add an answer evaluation command (citation validity, abstention accuracy, human support ratings) once answers
    exist.
