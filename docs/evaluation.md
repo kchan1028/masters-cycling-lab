@@ -80,7 +80,8 @@ the same index, and query latency p95 stays under 500 ms on CPU once the model i
   [research/evaluation/README.md](../research/evaluation/README.md#reviewing-labels)). Every number below was
   measured before any review. Since then 19 of the 20 `test2` labels have been reviewed and accepted unchanged
   (dataset v3), so the `test2` results stand as reported. All 43 dev labels have since been reviewed and accepted
-  unchanged too (dataset v4), so the dev results stand as well; only the 11 `test` labels and q033 are unreviewed.
+  unchanged too (dataset v4), and then q033 and the 11 `test` labels (dataset v5): every label is now reviewed and
+  none changed, so every result below stands as reported.
 
 ## First answers from a real provider (dev, partial)
 

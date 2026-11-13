@@ -87,6 +87,7 @@ versions reported in [docs/evaluation.md](../../docs/evaluation.md) are:
 | v2 | `2e64817a818cc966…` | `e68d33b48785581c…` | 2026-11-12, commit `bf821f8` | 74 provisional, 0 reviewed; adds `test2` |
 | v3 | `8feb3b48f2228fdf…` | `e68d33b48785581c…` | 2026-11-13, commit `79dd4e2` | 19 reviewed (`test2`), 55 provisional; labels unchanged from v2 |
 | v4 | `a928b3a4f8b8292b…` | `e68d33b48785581c…` | 2026-11-13, commit `a60a3b5` | 62 reviewed (all 43 `dev`, 19 `test2`), 12 provisional (11 `test`, q033); labels unchanged from v2 |
+| v5 | `6d6b3e8009e4f373…` | `e68d33b48785581c…` | 2026-11-13, commit `977f0c7` | all 74 reviewed; labels unchanged from v2 |
 
 Changing the file (including recording reviews) makes a new version. Add a row here when results are reported on
 it. Split membership is fixed: questions never move between splits. `mcl evaluate --split test` (or `test2`) runs only
