@@ -76,9 +76,10 @@ the same index, and query latency p95 stays under 500 ms on CPU once the model i
   with 18 scored `test2` questions by about 6; differences of a few points between runs are noise.
 - Relevance judgments are incomplete: only documents an annotator considered were graded. `unjudged@k` shows how
   often the system returns documents nobody judged.
-- All labels are provisional AI drafts until a person reviews them with `make review` (see
+- Labels are AI drafts until a person reviews them with `make review` (see
   [research/evaluation/README.md](../research/evaluation/README.md#reviewing-labels)). Every number below was
-  measured against labels no person has checked yet.
+  measured before any review. Since then 19 of the 20 `test2` labels have been reviewed and accepted unchanged
+  (dataset v3), so the `test2` results stand as reported; the dev and `test` labels are still unreviewed.
 
 ## Experiments (dev only)
 

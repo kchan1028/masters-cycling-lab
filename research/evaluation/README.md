@@ -40,12 +40,13 @@ text, including line-break hyphenation such as `lit- tle`; matching ignores whit
 
 ## Review status
 
-Every question here was drafted by Claude (an AI) on 2026-11-12 from the stored text of the papers, and is marked
-`provisional`. q001 to q030 were written in one pass. For q031 to q074, four agents each drafted questions from five
+Every question here was drafted by Claude (an AI) on 2026-11-12 from the stored text of the papers. On 2026-11-13 KC
+reviewed 19 of the 20 `test2` questions with `make review` and accepted them unchanged (q033 was skipped); the other
+55 are still `provisional`. q001 to q030 were written in one pass. For q031 to q074, four agents each drafted questions from five
 papers' stored text; the five questions without evidence (q070 to q074) were written after a text search of all 20
 papers showed no paper covers their topic. All 44 drafts were checked mechanically (schema, every quotation on its
 page, near-duplicates); one near-duplicate was dropped, one grade lowered, and questions on the same topic kept in
-the same split. Splits alternate within each question type. That means:
+the same split. Splits alternate within each question type. For the provisional questions that means:
 
 - The quotations are real: `make labels-check` proves each one appears on its stated page.
 - The judgments are not independent human ground truth: which papers are relevant, the grades, the expected points
@@ -84,6 +85,7 @@ versions reported in [docs/evaluation.md](../../docs/evaluation.md) are:
 |---|---|---|---|---|
 | v1 | `9b4564552f8e5b54…` | `e68d33b48785581c…` | 2026-11-12, commit `3294220` | 30 provisional, 0 reviewed |
 | v2 | `2e64817a818cc966…` | `e68d33b48785581c…` | 2026-11-12, commit `bf821f8` | 74 provisional, 0 reviewed; adds `test2` |
+| v3 | `8feb3b48f2228fdf…` | `e68d33b48785581c…` | 2026-11-13, commit `79dd4e2` | 19 reviewed (`test2`), 55 provisional; labels unchanged from v2 |
 
 Changing the file (including recording reviews) makes a new version. Add a row here when results are reported on
 it. Split membership is fixed: questions never move between splits. `mcl evaluate --split test` (or `test2`) runs only
