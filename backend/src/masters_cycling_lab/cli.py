@@ -266,56 +266,63 @@ def review(reviewer: str, split: str | None, question_id: str | None) -> int:
         print("Nothing to review.")
         return 0
     if not sys.stdin.isatty():  # without a keyboard every prompt reads an empty line and nothing is recorded
-        print("Review needs an interactive terminal: run it in a terminal window, not through a pipe or a chat shell.")
+        print("Review needs an interactive terminal: run it in a terminal window, not through a pipe.")
         return 1
     titles = {entry.corpus_id: entry.title for entry in entries}
     engine = connected_engine(get_settings().database_url)
     if engine is None:
         return 1
+    # Read every page up front: a connection left idle while someone reads gets dropped by Docker's port forwarding.
     with Session(engine) as session:
         index = evaluation.corpus_index(session, entries)
-        document_ids = {corpus_id: document_id for document_id, corpus_id in index.corpus_ids.items()}
-        for number, question in enumerate(todo, start=1):
-            print(f"\n=== {number}/{len(todo)}  {question.id} ({question.split}, {question.question_type}) ===")
-            print(question.question)
-            print(f"Answerability: {question.answerability}. Population: {question.population_applicability}")
-            print("Expected points:", *[f"  - {point}" for point in question.expected_points], sep="\n")
-            print("Expected limitations:", *[f"  - {item}" for item in question.expected_limitations], sep="\n")
-            print("Document grades (2 answers, 1 related, 0 not relevant; others unjudged):")
-            for corpus_id, grade in sorted(question.document_relevance.items()):
-                print(f"  {grade}  {corpus_id}  {titles.get(corpus_id, '?')}")
-            for item in question.evidence:
-                version = index.active_versions.get(item.corpus_id)
-                text = evaluation.page_text(session, version, item.page) if version else ""
-                found = metrics.find_quote(text, item.quote)
-                print(f"\n  Gold passage, {item.corpus_id} page {item.page} (relevance {item.relevance}):")
-                if found is None:
-                    print(f"  NOT FOUND on the stored page: {item.quote}")
-                    continue
-                start, end = found
-                before, after = text[max(0, start - CONTEXT_CHARS) : start], text[end : end + CONTEXT_CHARS]
-                print(f"  ...{before}>>>{text[start:end]}<<<{after}...")
-                print(f"  PDF: {APP_URL}/api/v1/documents/{document_ids[item.corpus_id]}/file#page={item.page}")
-            print(f"\nRationale: {question.annotation.rationale}")
-            try:
-                choice = ""
-                while choice not in ("a", "n", "s", "q"):  # an empty or mistyped answer asks again
-                    prompt = "\n[a]ccept as reviewed, [n]ote a problem (stays provisional), [s]kip, [q]uit: "
-                    choice = input(prompt).strip().lower()
-                if choice == "q":
-                    break
-                if choice == "s":
-                    continue
-                note = input("Note (optional for accept): ").strip() or None
-            except EOFError:  # input closed: stop, keeping what was recorded
-                break
-            if choice == "n" and not note:
-                print("No note given; nothing recorded.")
+        pages = {
+            (item.corpus_id, item.page): evaluation.page_text(session, version, item.page) if version else ""
+            for question in todo
+            for item in question.evidence
+            for version in [index.active_versions.get(item.corpus_id)]
+        }
+    engine.dispose()
+    document_ids = {corpus_id: document_id for document_id, corpus_id in index.corpus_ids.items()}
+    for number, question in enumerate(todo, start=1):
+        print(f"\n=== {number}/{len(todo)}  {question.id} ({question.split}, {question.question_type}) ===")
+        print(question.question)
+        print(f"Answerability: {question.answerability}. Population: {question.population_applicability}")
+        print("Expected points:", *[f"  - {point}" for point in question.expected_points], sep="\n")
+        print("Expected limitations:", *[f"  - {item}" for item in question.expected_limitations], sep="\n")
+        print("Document grades (2 answers, 1 related, 0 not relevant; others unjudged):")
+        for corpus_id, grade in sorted(question.document_relevance.items()):
+            print(f"  {grade}  {corpus_id}  {titles.get(corpus_id, '?')}")
+        for item in question.evidence:
+            text = pages[(item.corpus_id, item.page)]
+            found = metrics.find_quote(text, item.quote)
+            print(f"\n  Gold passage, {item.corpus_id} page {item.page} (relevance {item.relevance}):")
+            if found is None:
+                print(f"  NOT FOUND on the stored page: {item.quote}")
                 continue
-            evaluation.record_review(
-                path, question.id, reviewer=reviewer, reviewed=choice == "a", note=note, on=date.today()
-            )
-            print("Recorded.")
+            start, end = found
+            before, after = text[max(0, start - CONTEXT_CHARS) : start], text[end : end + CONTEXT_CHARS]
+            print(f"  ...{before}>>>{text[start:end]}<<<{after}...")
+            print(f"  PDF: {APP_URL}/api/v1/documents/{document_ids[item.corpus_id]}/file#page={item.page}")
+        print(f"\nRationale: {question.annotation.rationale}")
+        try:
+            choice = ""
+            while choice not in ("a", "n", "s", "q"):  # an empty or mistyped answer asks again
+                prompt = "\n[a]ccept as reviewed, [n]ote a problem (stays provisional), [s]kip, [q]uit: "
+                choice = input(prompt).strip().lower()
+            if choice == "q":
+                break
+            if choice == "s":
+                continue
+            note = input("Note (optional for accept): ").strip() or None
+        except EOFError:  # input closed: stop, keeping what was recorded
+            break
+        if choice == "n" and not note:
+            print("No note given; nothing recorded.")
+            continue
+        evaluation.record_review(
+            path, question.id, reviewer=reviewer, reviewed=choice == "a", note=note, on=date.today()
+        )
+        print("Recorded.")
     return 0
 
 
