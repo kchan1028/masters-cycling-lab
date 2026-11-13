@@ -102,6 +102,9 @@ were attempted and 11 got an answer:
   model is too cautious; a person looking at the two answers' debug view can tell which.
 - Abstention on the no-evidence questions is untested: every one of them hit the provider limit.
 - Generation took a median 22 s per answer (up to 77 s); the model reasons before it writes. Search took about 25 ms.
+- Finishing the run failed the same day: the free tier stayed in cooldown for over 30 minutes of retries, which
+  looks like a daily request cap rather than a per-minute limit. A complete answer evaluation needs a provider with
+  paid credits or a higher quota. `answer_run.py` resumes from its output file and spaces requests 15 s apart.
 
 ## Experiments (dev only)
 
