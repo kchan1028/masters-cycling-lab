@@ -22,5 +22,6 @@ def test_the_configured_provider_follows_the_answer_contract() -> None:
         },  # fmt: skip
         {"role": "user", "content": "Go."},
     ]
-    draft = parse_answer(llm.complete(messages, 200).text, {"E1"})
+    # The configured budget, not a small fixed one: reasoning models spend part of it before they write the answer.
+    draft = parse_answer(llm.complete(messages, settings.llm_max_output_tokens).text, {"E1"})
     assert draft.status == "answered"
