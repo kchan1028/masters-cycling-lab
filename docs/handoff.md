@@ -165,8 +165,9 @@ questions. Every number is against labels no person has reviewed.
 
 ## Next steps, in order
 
-1. Configure an LLM provider, run `make test-live`, then ask the dev questions in the browser and review whether each
-   cited passage supports its claim. Record that as the first answer-support review.
+1. Rate whether each cited passage supports its claim with `rate_answers.py` (see
+   [research/evaluation/README.md](../research/evaluation/README.md#rating-answers)), on the answers that exist, and
+   record the counts in docs/evaluation.md as the first answer-support review.
 2. Finish the dev answer run with 10 passages (the scheduled task does this on the free tier) and check abstention
    on the six no-evidence and out-of-scope questions, still untested. All 74 labels are reviewed
    and none changed (dataset v5). Record a new dataset version when labels change.
