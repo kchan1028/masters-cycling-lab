@@ -23,11 +23,11 @@ def setup_corpus(lab: Lab, tmp_path: Path) -> list[ManifestEntry]:
 
 
 def run(
-    lab: Lab, questions: list[evaluation.Question], entries: list[ManifestEntry], tmp_path: Path
+    lab: Lab, questions: list[evaluation.Question], entries: list[ManifestEntry], tmp_path: Path, split: str = "dev"
 ) -> tuple[uuid.UUID, Path, dict[str, Any]]:
     with Session(lab.engine) as session:
         return evaluation.run_evaluation(
-            session, FakeEmbedder(lab.settings), questions, entries, split="dev",
+            session, FakeEmbedder(lab.settings), questions, entries, split=split,
             modes=("vector", "lexical", "hybrid"), k=10, dataset_sha256="a" * 64, corpus_sha256="b" * 64,
             code_revision="test", artifacts_dir=tmp_path / "out",
         )  # fmt: skip
@@ -54,6 +54,19 @@ def test_a_run_is_scored_stored_and_written_as_an_artifact(lab: Lab, tmp_path: P
     assert client.get("/api/v1/evaluation-runs").json()["total"] == 1
     detail = client.get(f"/api/v1/evaluation-runs/{run_id}").json()
     assert detail["results"][0]["question_id"] == "q900" and "vector" in detail["metrics"]
+
+
+def test_a_run_on_the_second_held_out_split_is_stored(lab: Lab, tmp_path: Path) -> None:
+    entries = setup_corpus(lab, tmp_path)
+    quote = "Sentence 1.0 on masters in masters cyclists older endurance athletes"
+    questions = [evaluation.Question.model_validate(question(
+        split="test2", evidence=[{"corpus_id": "mcl-001", "page": 1, "quote": quote, "relevance": 2}]))]  # fmt: skip
+
+    run_id, _, summary = run(lab, questions, entries, tmp_path, split="test2")
+
+    assert summary["vector"]["recall@10"] == 1.0
+    client = TestClient(create_app(lab.settings))
+    assert client.get(f"/api/v1/evaluation-runs/{run_id}").json()["split"] == "test2"
 
 
 def test_a_quote_that_is_not_on_its_page_stops_the_run(lab: Lab, tmp_path: Path) -> None:
