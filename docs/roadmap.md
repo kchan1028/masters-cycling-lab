@@ -113,7 +113,7 @@ beat the lexical baseline on every measure. Details and analysis in [evaluation.
   reporting is required; usage is stored only when the provider reports it.
 - Versioned prompt (`answer-v1`): passages are labelled `E1..En`, wrapped as untrusted quoted evidence (they can't close
   or forge an evidence block), and the model is told to separate findings, limitations and population mismatch.
-- Context selection in rank order: overlapping passages skipped, at most `RETRIEVAL_CONTEXT_K`, within a token budget
+- Context selection in rank order: overlapping passages skipped, at most `RETRIEVAL_CONTEXT_K` (10; 6 until 2026-11-13), within a token budget
   that reserves room for instructions, question and output. Every candidate is stored with the reason it was or wasn't
   sent, plus a snapshot of exactly the text that was sent.
 - Strict validation: valid JSON, every claim cites only labels that were sent, `answered` needs claims. One repair

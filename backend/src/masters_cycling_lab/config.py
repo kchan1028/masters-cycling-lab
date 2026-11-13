@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     max_pdf_pages: int = Field(default=300, gt=0)
 
     retrieval_candidate_k: int = Field(default=20, gt=0, le=100)
-    retrieval_context_k: int = Field(default=6, gt=0, le=50)
+    retrieval_context_k: int = Field(default=10, gt=0, le=50)  # 6 often left out the gold passage
 
     worker_poll_seconds: float = Field(default=2.0, gt=0)
 
