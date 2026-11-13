@@ -22,8 +22,9 @@ the manifest's SHA-256, the split, embedding model and revision, query instructi
 settings of the indexed documents, the git commit (with `-dirty` for uncommitted changes), timestamps, and the top
 results for every question.
 
-The test split is held out: tune only on `dev`, and run `SPLIT=test` to report. It runs only from a clean checkout,
-so the result is tied to a commit.
+The `test` and `test2` splits are held out: tune only on `dev`, and run `SPLIT=test2` to report (`test` has been
+reported three times and is no longer fresh). Held-out splits run only from a clean checkout, so the result is tied
+to a commit.
 
 The artifacts of the runs reported below are committed in
 [research/evaluation/results/](../research/evaluation/results/). Their excerpts come from the CC BY papers listed in
@@ -71,8 +72,8 @@ the same index, and query latency p95 stays under 500 ms on CPU once the model i
 
 ## Caveats
 
-- 30 questions and 20 papers. A single question moves an average by 4 to 6 points; differences of a few points
-  between runs are noise.
+- 74 questions and 20 papers. With 37 scored dev questions one question moves an average by about 3 points, and
+  with 18 scored `test2` questions by about 6; differences of a few points between runs are noise.
 - Relevance judgments are incomplete: only documents an annotator considered were graded. `unjudged@k` shows how
   often the system returns documents nobody judged.
 - All labels are provisional AI drafts until a person reviews them with `make review` (see
@@ -145,6 +146,35 @@ indistinguishable from noise. Reviewing the labels and adding questions would ma
 than another experiment would.
 
 ## Results
+
+### 2026-11-12, dataset v2 (74 questions), runs at commit be07843
+
+44 new questions (see [research/evaluation/README.md](../research/evaluation/README.md#current-set)) and a fresh
+held-out split, `test2`, which nothing has been tuned on. Same corpus, index and settings as the entries below.
+
+| Metric | Dev, vector | Dev, hybrid | Dev, lexical | Test2, vector | Test2, hybrid | Test2, lexical | Target (vector) |
+|---|---|---|---|---|---|---|---|
+| Questions scored | 37 | 37 | 37 | 18 | 18 | 18 | |
+| recall@5 | 0.70 | 0.62 | 0.41 | 0.63 | 0.64 | 0.36 | |
+| recall@10 | 0.76 | 0.77 | 0.52 | 0.77 | 0.75 | 0.48 | ≥ 0.80: **missed** on both |
+| mrr@10 | 0.90 | 0.80 | 0.51 | 0.81 | 0.83 | 0.51 | ≥ 0.60: met |
+| ndcg@10 | 0.80 | 0.73 | 0.42 | 0.72 | 0.72 | 0.38 | ≥ 0.60: met |
+| evidence_coverage@10 | 0.45 | 0.48 | 0.19 | 0.41 | 0.33 | 0.15 | ≥ 0.60: **missed** on both |
+| unjudged@10 | 1.4 | 1.5 | 3.0 | 1.7 | 1.6 | 2.1 | |
+
+Runs: dev `8d1e6f28`, test2 `f0b58fb5`, artifacts in `research/evaluation/results/`. Vector latency p95 was 22 ms
+on dev and 34 ms on test2; the lexical and hybrid means on dev were inflated by Docker stalls again.
+
+- The larger dev split is harder than the original 16 scored questions: vector recall@10 0.82 there, 0.76 here, and
+  evidence coverage 0.53 there, 0.45 here. The first numbers were optimistic, not wrong; with twice the questions
+  the new ones are the better estimate.
+- On the fresh `test2` split, vector search scores like it does on dev (recall@10 0.77, evidence coverage 0.41), so
+  the dev numbers now generalise.
+- Hybrid is not better than vector on fresh questions: about the same recall, MRR and nDCG, and lower evidence
+  coverage (0.33 against 0.41). Together with the earlier `test` result, that settles it for now: answers stay on
+  vector search.
+- The weak spot is unchanged and now measured on 55 questions: the right paper is usually found (MRR 0.81 to 0.90),
+  the right passage much less often (evidence coverage 0.41 to 0.45).
 
 ### 2026-11-12, dataset v1, hybrid search added, runs at commit fe8c371
 

@@ -5,15 +5,20 @@ controlled; evaluation runs only read it. Metrics and targets are in [docs/evalu
 
 ## Current set
 
-30 questions: 19 `dev`, 11 `test` (held out, never used for tuning).
+74 questions in three splits:
+
+- `dev`, 43 questions: for tuning and experiments.
+- `test`, 11 questions: held out. Results on it have been reported three times, so it is no longer fresh.
+- `test2`, 20 questions: held out, added on 2026-11-12 (q031 to q074 are split between `dev` and `test2`). Not
+  used for any choice so far.
 
 | `question_type` | Count | What it tests |
 |---|---|---|
-| `direct` | 18 | One paper answers it |
-| `synthesis` | 3 | The answer combines several papers |
-| `population_mismatch` | 4 | Relevant evidence exists, but for another population (runners, young athletes) |
-| `insufficient_evidence` | 3 | The corpus does not answer it; the system should say so |
-| `out_of_scope` | 2 | Not a research question for this app (personal coaching, equipment) |
+| `direct` | 48 | One paper answers it |
+| `synthesis` | 7 | The answer combines several papers |
+| `population_mismatch` | 9 | Relevant evidence exists, but for another population (runners, young athletes) |
+| `insufficient_evidence` | 6 | The corpus does not answer it; the system should say so |
+| `out_of_scope` | 4 | Not a research question for this app (personal coaching, equipment) |
 
 ## Fields
 
@@ -35,7 +40,11 @@ text, including line-break hyphenation such as `lit- tle`; matching ignores whit
 ## Review status
 
 Every question here was drafted by Claude (an AI) on 2026-11-12 from the stored text of the papers, and is marked
-`provisional`. That means:
+`provisional`. q001 to q030 were written in one pass. For q031 to q074, four agents each drafted questions from five
+papers' stored text; the five questions without evidence (q070 to q074) were written after a text search of all 20
+papers showed no paper covers their topic. All 44 drafts were checked mechanically (schema, every quotation on its
+page, near-duplicates); one near-duplicate was dropped, one grade lowered, and questions on the same topic kept in
+the same split. Splits alternate within each question type. That means:
 
 - The quotations are real: `make labels-check` proves each one appears on its stated page.
 - The judgments are not independent human ground truth: which papers are relevant, the grades, the expected points
@@ -73,7 +82,8 @@ versions reported in [docs/evaluation.md](../../docs/evaluation.md) are:
 | Version | `questions.jsonl` SHA-256 | `manifest.jsonl` SHA-256 | Frozen | Labels |
 |---|---|---|---|---|
 | v1 | `9b4564552f8e5b54…` | `e68d33b48785581c…` | 2026-11-12, commit `3294220` | 30 provisional, 0 reviewed |
+| v2 | `2e64817a818cc966…` | `e68d33b48785581c…` | 2026-11-12, commit `bf821f8` | 74 provisional, 0 reviewed; adds `test2` |
 
 Changing the file (including recording reviews) makes a new version. Add a row here when results are reported on
-it. Split membership is fixed: questions do not move between `dev` and `test`. `mcl evaluate --split test` runs only
+it. Split membership is fixed: questions never move between splits. `mcl evaluate --split test` (or `test2`) runs only
 from a clean checkout, so every held-out result points at a commit.

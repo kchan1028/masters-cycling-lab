@@ -16,7 +16,7 @@ anything not verified says so.
   for provider problems. Works with any OpenAI-compatible endpoint; **never run against a real one** (no credentials).
 - **Workspace:** Research (claims, citation passages, PDF at the physical page), Documents, Retrieval debug
   (including how an answer was built) and Evaluations views.
-- **Evaluation:** 30 labelled questions (19 dev, 11 held-out test) over 20 CC BY papers, gold quotations anchored to
+- **Evaluation:** 74 labelled questions (43 dev, 11 held-out test, 20 fresh held-out test2) over 20 CC BY papers, gold quotations anchored to
   paper, physical page and exact text; recall, MRR, nDCG, evidence coverage, unjudged count and latency for vector
   and lexical search; JSON artifacts with full provenance.
 - **Operations:** `make backup` / `make restore`, `make smoke`, readiness checks, a label review workflow
@@ -109,20 +109,21 @@ run.
 Provenance, licence and SHA-256 for each are in [research/corpus/manifest.jsonl](../research/corpus/manifest.jsonl);
 population notes are provisional.
 
-Final retrieval results, dataset v1, vector search (details in [evaluation.md](evaluation.md)):
+Latest retrieval results, dataset v2 (74 questions), vector search (details and earlier runs in
+[evaluation.md](evaluation.md)):
 
-| Metric | Dev (16 scored) | Held-out test (9 scored) | Target |
+| Metric | Dev (37 scored) | Fresh held-out test2 (18 scored) | Target |
 |---|---|---|---|
-| recall@10 | 0.82 | 0.62 | ≥ 0.80 |
-| mrr@10 | 0.97 | 0.91 | ≥ 0.60 |
-| ndcg@10 | 0.88 | 0.77 | ≥ 0.60 |
-| evidence_coverage@10 | 0.53 | 0.61 | ≥ 0.60 |
-| latency p95 | 62 ms | 67 ms | < 500 ms |
+| recall@10 | 0.76 | 0.77 | ≥ 0.80 |
+| mrr@10 | 0.90 | 0.81 | ≥ 0.60 |
+| ndcg@10 | 0.80 | 0.72 | ≥ 0.60 |
+| evidence_coverage@10 | 0.45 | 0.41 | ≥ 0.60 |
+| latency p95 | 22 ms | 34 ms | < 500 ms |
 
-The paper that answers a question is nearly always found and ranked first. Recall misses are mostly secondary
-("related") papers, because a strong paper fills several of the top 10 places with its own passages; evidence
-coverage misses are the right paper found through a neighbouring passage. Vector search beats the lexical baseline
-on every measure. Every number is against labels no person has reviewed.
+The paper that answers a question is usually found and ranked near the top; the passage that answers it much less
+often, so recall and evidence coverage miss their targets on both splits. Dev and fresh held-out numbers agree, so
+they generalise. Vector search beats the lexical baseline on every measure; hybrid ranking is no better on fresh
+questions. Every number is against labels no person has reviewed.
 
 ## Open blockers
 
@@ -130,7 +131,7 @@ on every measure. Every number is against labels no person has reviewed.
    fake model. Answer quality, answer-support review, abstention accuracy and the browser's ask → cited answer path
    with a real model are all unverified. Needs: `LLM_BASE_URL`, `LLM_MODEL` and, if required, `LLM_API_KEY` for a
    provider you accept sending questions and passages to.
-2. **No label has been reviewed by a person.** All 30 questions are AI drafts marked `provisional`. The quotations
+2. **No label has been reviewed by a person.** All 74 questions are AI drafts marked `provisional`. The quotations
    are proven to exist on their pages; the relevance grades, expected points and limitations are one model's
    reading. Needs: a person's time with `make review`.
 
@@ -153,7 +154,7 @@ on every measure. Every number is against labels no person has reviewed.
 - Chunks never cross pages, so a sentence that runs over a page break is split.
 - Deleting a document removes its file, index and the answers that quoted it, but older evaluation runs keep up to
   300 characters of each passage they returned.
-- With 30 questions, one question moves an average by 4 to 6 points.
+- With 37 scored dev and 18 scored test2 questions, one question moves an average by about 3 and 6 points.
 - Docker Desktop on this machine stalls for several seconds now and then and ran short of memory while other
   projects' containers were up; the app itself answers in milliseconds. Latency figures come from runs without a
   stall.
@@ -162,16 +163,14 @@ on every measure. Every number is against labels no person has reviewed.
 
 1. Configure an LLM provider, run `make test-live`, then ask the dev questions in the browser and review whether each
    cited passage supports its claim. Record that as the first answer-support review.
-2. Review the 30 labels with `make review`, starting with the 11 test questions. Record dataset v2 and re-run both
-   splits.
+2. Review the labels with `make review`, starting with the 20 fresh held-out ones (`SPLIT=test2`). Record the new
+   dataset version and re-run the splits.
 3. Improve how passages are chosen within the right paper, the main retrieval weakness. Tried on dev: a cap per
    paper and smaller chunks did not help; rank fusion with the lexical ranking helped on dev but was worse than
    vector search on every held-out measure, so it is measured in every run (`hybrid`) but not used for answers (see
    [evaluation.md](evaluation.md#experiments-dev-only)). Two small MS MARCO cross-encoder rerankers did not help
-   either. Before more experiments, do steps 2 and 4: with 16 provisional dev questions a few points of difference is
-   noise. After that, a larger general reranker (for example `BAAI/bge-reranker-base`, MIT, about 1.1 GB) is the
-   remaining cheap test. Confirm anything on new held-out questions, since the current test split has now been seen
-   three times.
-4. Grow the question set (aim for 60 or more) so a single question moves results less.
-5. Add an answer evaluation command (citation validity, abstention accuracy, human support ratings) once answers
+   either. The question set is now 74 (37 scored on dev), so re-running the experiment scripts on it is cheap and
+   more trustworthy than before; a larger general reranker (for example `BAAI/bge-reranker-base`, MIT, about 1.1 GB)
+   is the remaining cheap test. Report on `test2`, which nothing has been tuned on yet.
+4. Add an answer evaluation command (citation validity, abstention accuracy, human support ratings) once answers
    exist.
