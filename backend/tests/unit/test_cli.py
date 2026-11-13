@@ -68,3 +68,12 @@ def test_ctrl_c_stops_a_review_cleanly(monkeypatch: pytest.MonkeyPatch, capsys: 
 
     assert cli.main(["review", "--reviewer", "KC"]) == 0
     assert "Every verdict recorded so far is saved" in capsys.readouterr().out
+
+
+def test_review_refuses_without_a_terminal(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    # Started from a pipe or a chat shell, every prompt read an empty line and 33 questions went by unrecorded.
+    monkeypatch.setattr(cli.sys.stdin, "isatty", lambda: False)
+    monkeypatch.setattr(cli, "connected_engine", lambda url: pytest.fail("refused before touching the database"))
+
+    assert cli.review("KC", "dev", None) == 1
+    assert "interactive terminal" in capsys.readouterr().out
