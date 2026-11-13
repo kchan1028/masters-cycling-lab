@@ -141,6 +141,28 @@ creatine, protein per meal and heat acclimation look as close to the corpus as a
 margin (the most distant answerable question is 0.265), so no distance limit was added; abstention stays with the
 model.
 
+## Answers with 10 passages (dev, partial, 2026-11-13)
+
+Same provider and prompt, `RETRIEVAL_CONTEXT_K=10`. The first day's free quota covered 7 questions, q001 to q010;
+the scheduled run finishes the rest. Summarised with
+[answer_report.py](../research/evaluation/experiments/answer_report.py), which counts abstentions and checks each
+citation's page against the pages holding the question's gold quotations:
+
+| | 6 passages (15 replies) | 10 passages (7 replies) |
+|---|---|---|
+| Answerable questions answered | 13 of 15 | 7 of 7 |
+| Answers citing a grade-2 paper | 12 | 7 |
+| Answers citing a page that holds a gold quotation | 9 | 4 |
+| False abstentions | q010, q015 | none so far |
+
+- q010, a false abstention with 6 passages, is answered with 10 and cites the gold page in mcl-010, as the
+  context-size analysis predicted.
+- The gold-page check is strict: the gold quotations are a sample of the evidence, not all of it. q001 cites page 5
+  of mcl-001, which reports the same finding as the gold quotations on pages 1 and 2, and scores 0. A low count is a
+  reason to look, not a wrong answer; whether a passage supports its claim still needs a person.
+- Seven questions are too few to compare the two settings beyond q010. The comparison is worth repeating once the
+  run is complete, with the six no-evidence and out-of-scope questions included.
+
 ## Experiments (dev only)
 
 ### 2026-11-12: three ways to improve retrieval

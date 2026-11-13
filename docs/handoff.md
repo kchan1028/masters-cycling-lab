@@ -180,5 +180,6 @@ questions. Every number is against labels no person has reviewed.
    lowered it (0.41 to 0.36) while raising MRR, so it is not adopted either. None of the five options beats plain
    vector search on held-out questions. The next useful step for retrieval is the reviewed labels (step 2), then an
    answer-level comparison once answers exist, rather than another ranking experiment.
-4. Add an answer evaluation command (citation validity, abstention accuracy, human support ratings) once answers
-   exist.
+4. Answer evaluation: [answer_report.py](../research/evaluation/experiments/answer_report.py) summarises an answer
+   run (abstention, grade-2 papers cited, citations on a gold page). Still missing: human ratings of whether each
+   cited passage supports its claim, and a CLI command once the report's shape has settled.
