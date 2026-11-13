@@ -13,7 +13,6 @@ The first run downloads the rerankers below into MODEL_CACHE_DIR (data/models, g
 import statistics
 import time
 
-from huggingface_hub import model_info
 from retrieval_levers import passages, report, scores
 from sentence_transformers import CrossEncoder
 from sqlalchemy.orm import Session
@@ -24,7 +23,11 @@ from masters_cycling_lab.domain.retrieval import SearchFilters, SearchHit
 from masters_cycling_lab.infrastructure.db.session import make_engine
 from masters_cycling_lab.infrastructure.embeddings.sentence_transformers_adapter import SentenceTransformerEmbedder
 
-RERANKERS = ["cross-encoder/ms-marco-MiniLM-L-6-v2", "cross-encoder/ms-marco-MiniLM-L-12-v2"]  # Apache-2.0
+# Apache-2.0, pinned to the revisions the reported results were measured with.
+RERANKERS = [
+    ("cross-encoder/ms-marco-MiniLM-L-6-v2", "233902d25c440f23af6f7d6e94d2946bac0bee0a"),
+    ("cross-encoder/ms-marco-MiniLM-L-12-v2", "7b0235231ca2674cb8ca8f022859a6eba2b1c968"),
+]
 DEPTHS = [20, 50]  # how many vector passages are re-scored
 
 
@@ -53,10 +56,10 @@ def main() -> None:
 
     print(f"Dev split, {len(scored)} scored questions, top 10 passages\n")
     report("vector only", [scores(q, passages(pool[q.id], index.corpus_ids), gold[q.id], 10) for q in scored])
-    for name in RERANKERS:
-        model = CrossEncoder(name, max_length=512, cache_folder=str(settings.model_cache_dir))
+    for name, revision in RERANKERS:
+        model = CrossEncoder(name, revision=revision, max_length=512, cache_folder=str(settings.model_cache_dir))
         model.predict([("warm up", "warm up")], show_progress_bar=False)
-        print(f"\n{name} at {model_info(name).sha}")
+        print(f"\n{name} at {revision}")
         for depth in DEPTHS:
             per_question, seconds = [], []
             for q in scored:
