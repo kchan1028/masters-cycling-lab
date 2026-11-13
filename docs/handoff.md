@@ -167,9 +167,11 @@ on every measure. Every number is against labels no person has reviewed.
 3. Improve how passages are chosen within the right paper, the main retrieval weakness. Tried on dev: a cap per
    paper and smaller chunks did not help; rank fusion with the lexical ranking helped on dev but was worse than
    vector search on every held-out measure, so it is measured in every run (`hybrid`) but not used for answers (see
-   [evaluation.md](evaluation.md#experiments-dev-only)). Next to try, on dev: a cross-encoder reranker over the top
-   vector passages (reranking was out of scope for the MVP). Confirm on new held-out questions, since the current
-   test split has now been seen three times.
+   [evaluation.md](evaluation.md#experiments-dev-only)). Two small MS MARCO cross-encoder rerankers did not help
+   either. Before more experiments, do steps 2 and 4: with 16 provisional dev questions a few points of difference is
+   noise. After that, a larger general reranker (for example `BAAI/bge-reranker-base`, MIT, about 1.1 GB) is the
+   remaining cheap test. Confirm anything on new held-out questions, since the current test split has now been seen
+   three times.
 4. Grow the question set (aim for 60 or more) so a single question moves results less.
 5. Add an answer evaluation command (citation validity, abstention accuracy, human support ratings) once answers
    exist.

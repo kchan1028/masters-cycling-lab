@@ -120,6 +120,30 @@ Follow-up: rank fusion was added as a third mode, `hybrid`, with these settings,
 held-out split it was worse than vector search on every measure (see the first entry under Results), so answers
 still use vector search.
 
+### 2026-11-12: a cross-encoder reranker
+
+A cross-encoder reads the question and a passage together, which should be better at picking the right passage
+within a paper. [research/evaluation/experiments/reranker.py](../research/evaluation/experiments/reranker.py)
+re-scores the top 20 or 50 vector passages and keeps the best 10. Two small open rerankers trained on MS MARCO web
+search questions (Apache-2.0), on CPU, dev split, 16 questions:
+
+| Variant | recall@10 | MRR | nDCG | evidence coverage | rerank time (median) |
+|---|---|---|---|---|---|
+| Vector only | 0.82 | 0.97 | 0.88 | 0.53 | |
+| MiniLM-L-6 (`233902d`), top 20 | 0.82 | 0.91 | 0.85 | 0.53 | 39 ms |
+| MiniLM-L-6, top 50 | 0.81 | 0.91 | 0.85 | 0.50 | 107 ms |
+| MiniLM-L-12 (`7b02352`), top 20 | 0.84 | 0.90 | 0.85 | 0.53 | 68 ms |
+| MiniLM-L-12, top 50 | 0.78 | 0.88 | 0.81 | 0.58 | 168 ms |
+
+No gain. Evidence coverage stays within one question of vector search, and the first relevant paper moves down
+(MRR falls from 0.97 to between 0.88 and 0.91). These models learned what a good answer to a web search looks like, not a sentence in a
+physiology paper. Not adopted; nothing was changed in the app.
+
+Where this leaves retrieval: four cheap levers (a cap per paper, smaller chunks, rank fusion, a small reranker) and
+none beats plain vector search robustly. With 16 provisional dev questions, a real difference of a few points is
+indistinguishable from noise. Reviewing the labels and adding questions would make the next comparison worth more
+than another experiment would.
+
 ## Results
 
 ### 2026-11-12, dataset v1, hybrid search added, runs at commit fe8c371
