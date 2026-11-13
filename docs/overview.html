@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Masters Cycling Lab</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Masters Cycling Lab is a local app that answers questions about cycling research for older riders. Every claim links to the PDF page it came from.">
@@ -35,6 +40,7 @@
 }
 * { box-sizing: border-box; }
 body {
+  margin: 0;
   background: var(--bg); color: var(--text);
   font: 17px/1.6 var(--body);
   padding-left: max(16px, env(safe-area-inset-left, 0px));
@@ -138,7 +144,8 @@ footer { border-top: 1px solid var(--rule); padding-top: 1rem; font-size: 0.85re
   .axis .spacer { display: none; }
 }
 </style>
-
+</head>
+<body>
 <main>
   <header>
     <p class="eyebrow">Plain-English overview · as of 13 November 2026</p>
@@ -368,3 +375,5 @@ make corpus-ingest</code></pre>
   ]
 }
 </script>
+</body>
+</html>
