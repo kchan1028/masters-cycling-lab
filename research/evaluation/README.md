@@ -41,8 +41,8 @@ text, including line-break hyphenation such as `lit- tle`; matching ignores whit
 ## Review status
 
 Every question here was drafted by Claude (an AI) on 2026-11-12 from the stored text of the papers. On 2026-11-13 KC
-reviewed 19 of the 20 `test2` questions with `make review` and accepted them unchanged (q033 was skipped); the other
-55 are still `provisional`. q001 to q030 were written in one pass. For q031 to q074, four agents each drafted questions from five
+reviewed with `make review` and accepted unchanged 19 of the 20 `test2` questions (q033 was skipped) and 10 of the 43
+`dev` questions (q001 to q015); the other 45 are still `provisional`. q001 to q030 were written in one pass. For q031 to q074, four agents each drafted questions from five
 papers' stored text; the five questions without evidence (q070 to q074) were written after a text search of all 20
 papers showed no paper covers their topic. All 44 drafts were checked mechanically (schema, every quotation on its
 page, near-duplicates); one near-duplicate was dropped, one grade lowered, and questions on the same topic kept in

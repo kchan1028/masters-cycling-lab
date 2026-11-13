@@ -131,9 +131,9 @@ questions. Every number is against labels no person has reviewed.
    fake model. Answer quality, answer-support review, abstention accuracy and the browser's ask → cited answer path
    with a real model are all unverified. Needs: `LLM_BASE_URL`, `LLM_MODEL` and, if required, `LLM_API_KEY` for a
    provider you accept sending questions and passages to.
-2. **Most labels are not reviewed by a person yet.** All 74 questions are AI drafts. KC reviewed 19 of the 20
-   `test2` questions on 2026-11-13 and accepted them unchanged; the other 55 (q033, all 43 dev and all 11 test) are
-   `provisional`: their quotations are proven to exist on their pages, but the relevance grades, expected points and
+2. **Most labels are not reviewed by a person yet.** All 74 questions are AI drafts. On 2026-11-13 KC reviewed
+   and accepted unchanged 19 of the 20 `test2` questions and 10 of the 43 dev questions (q001 to q015); the other 45
+   (q033, 33 dev from q017 on, and all 11 test) are `provisional`: their quotations are proven to exist on their pages, but the relevance grades, expected points and
    limitations are one model's reading. Needs: more of a person's time with `make review`.
 
 ## Acceptance criteria not met
@@ -164,8 +164,8 @@ questions. Every number is against labels no person has reviewed.
 
 1. Configure an LLM provider, run `make test-live`, then ask the dev questions in the browser and review whether each
    cited passage supports its claim. Record that as the first answer-support review.
-2. Finish reviewing the labels with `make review`: q033, then the 43 dev questions (`SPLIT=dev`), then the 11 in
-   `test`. Record a new dataset version when labels change.
+2. Finish reviewing the labels with `make review`: the 33 remaining dev questions (`SPLIT=dev` resumes at q017),
+   q033, then the 11 in `test`. Record a new dataset version when labels change.
 3. Improve how passages are chosen within the right paper, the main retrieval weakness. Tried on dev: a cap per
    paper and smaller chunks did not help; rank fusion with the lexical ranking helped on dev but was worse than
    vector search on every held-out measure, so it is measured in every run (`hybrid`) but not used for answers (see
