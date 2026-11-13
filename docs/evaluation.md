@@ -85,26 +85,28 @@ the same index, and query latency p95 stays under 500 ms on CPU once the model i
 ## First answers from a real provider (dev, partial)
 
 2026-11-13, `gemini/gemini-3.6-flash` through a private OmniRoute gateway, prompt `answer-v1`, with
-[research/evaluation/experiments/answer_run.py](../research/evaluation/experiments/answer_run.py). The provider's free
-tier started refusing part way (`503 PROVIDER_UNAVAILABLE`, then a 20-minute cooldown), so 20 of the 43 dev questions
-were attempted and 11 got an answer:
+[research/evaluation/experiments/answer_run.py](../research/evaluation/experiments/answer_run.py), over two days
+because the provider's free tier allows only about a dozen answers a day. All 43 dev questions were attempted; 15
+got a reply from the model:
 
 | Outcome | Questions |
 |---|---|
-| Answered | 9 of 17 answerable attempted; every one cites a paper graded 2 for that question |
+| Answered | 13 of 37 answerable; 12 cite a paper graded 2 for that question |
 | "Not enough evidence" on an answerable question | 2 (q010, q015) |
-| Provider unavailable (`503`) | 9, including all three no-evidence and out-of-scope questions attempted |
+| Provider unavailable (`503`, free-tier cap; one `502`) | 28, including all six no-evidence and out-of-scope questions |
 
-- Citations point at the right papers: in all 9 answers at least one cited paper is the one the labels say answers
-  the question. Whether each cited passage supports its claim has not been reviewed by a person yet.
+- Citations mostly point at the right papers. The exception, q062, cites mcl-004 and mcl-020 (graded 1, related)
+  but not mcl-017 (graded 2). Whether each cited passage supports its claim has not been reviewed by a person yet.
 - Both false abstentions had passages from the right paper in the model's context (mcl-010, mcl-015). Either those
   passages lacked the actual finding (the right paper but the wrong passage, as in the retrieval results) or the
   model is too cautious; a person looking at the two answers' debug view can tell which.
-- Abstention on the no-evidence questions is untested: every one of them hit the provider limit.
-- Generation took a median 22 s per answer (up to 77 s); the model reasons before it writes. Search took about 25 ms.
-- Finishing the run failed the same day: the free tier stayed in cooldown for over 30 minutes of retries, which
-  looks like a daily request cap rather than a per-minute limit. A complete answer evaluation needs a provider with
-  paid credits or a higher quota. `answer_run.py` resumes from its output file and spaces requests 15 s apart.
+- Abstention on the no-evidence and out-of-scope questions is untested: every one hit the provider limit. They did
+  reach the provider, so retrieval found passages close enough to send for all six; whether the app says "not
+  enough evidence" for them depends on the model.
+- Generation took a median 25 s per answer (up to 77 s); the model reasons before it writes. Search took about 25 ms.
+- A free tier is not enough for an answer evaluation: about 13 answers a day, then hours of cooldown. A complete run
+  needs a provider with paid credits or a higher quota. `answer_run.py` resumes from its output file, so it can
+  finish a run across several days, and spaces requests 15 s apart.
 
 ## Experiments (dev only)
 

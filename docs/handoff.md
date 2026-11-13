@@ -128,7 +128,7 @@ questions. Every number is against labels no person has reviewed.
 ## Open blockers
 
 1. **The LLM provider is only partly tested.** Update 2026-11-13: `make test-live` passes with
-   `gemini/gemini-3.6-flash` through OmniRoute, and 11 real dev answers were generated before the free tier ran out
+   `gemini/gemini-3.6-flash` through OmniRoute, and 13 real dev answers were generated before the free tier's daily cap
    (see [evaluation.md](evaluation.md#first-answers-from-a-real-provider-dev-partial)). The text below was written
    before that. `make test-live` skips, and no answer has been generated outside tests with a
    fake model. Answer quality, answer-support review, abstention accuracy and the browser's ask → cited answer path
