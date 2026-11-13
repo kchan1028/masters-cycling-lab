@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Masters Cycling Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Masters Cycling Lab is a local app that answers questions about cycling research for older riders. Every claim links to the PDF page it came from.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column, two full-width figures (pipeline, scorecard) that break out wider. Tokens follow the app's own styles.css. */
+:root {
+  --bg: #fbfaf8;
+  --surface: #f1efea;
+  --text: #1d2125;
+  --muted: #5a636d;
+  --rule: #dcd8d0;
+  --accent: #1f5f8b;
+  --ok: #2c6e3f;
+  --problem: #9a3412;
+  --dot-a: #1f5f8b;
+  --dot-b: #b45309;
+  --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16191c; --surface: #1f2327; --text: #e6e3de; --muted: #a3a9b0; --rule: #343a40;
+    --accent: #7db7e0; --ok: #7ccf95; --problem: #f0a37a;
+    --dot-a: #7db7e0; --dot-b: #f2b465; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #16191c; --surface: #1f2327; --text: #e6e3de; --muted: #a3a9b0; --rule: #343a40;
+  --accent: #7db7e0; --ok: #7ccf95; --problem: #f0a37a;
+  --dot-a: #7db7e0; --dot-b: #f2b465; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg); color: var(--text);
+  font: 17px/1.6 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 68rem; margin: 0 auto; padding-block: 3rem 4rem; display: grid; gap: 3.5rem; }
+.col { max-width: 42rem; min-width: 0; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font: 700 clamp(2.6rem, 7vw, 4.2rem)/1 var(--display); letter-spacing: 0.01em; text-transform: uppercase; }
+h2 { font: 700 clamp(1.6rem, 3.6vw, 2.1rem)/1.1 var(--display); letter-spacing: 0.01em; }
+h3 { font-size: 1rem; font-weight: 600; }
+p { margin: 0; }
+section { display: grid; gap: 1rem; }
+section > * { min-width: 0; }
+a { color: var(--accent); text-underline-offset: 2px; }
+code, .mono { font-family: var(--mono); font-size: 0.88em; }
+.eyebrow { font: 500 0.78rem var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 1.2rem; line-height: 1.55; max-width: 40rem; }
+.answer { font-size: 1.08rem; font-weight: 500; }
+.muted { color: var(--muted); }
+.small { font-size: 0.9rem; }
+.stack { display: grid; gap: 1rem; }
+
+/* Header + short version */
+header { display: grid; gap: 1.25rem; }
+.short { border-top: 3px solid var(--text); padding-top: 1.25rem; display: grid; gap: 1rem; max-width: 52rem; }
+.short ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.9rem; counter-reset: k; }
+.short li { display: grid; grid-template-columns: 2.2rem 1fr; gap: 0.15rem 0.75rem; counter-increment: k; }
+.short li::before { content: counter(k); font: 700 1.6rem/1 var(--display); color: var(--accent); grid-row: span 2; }
+.short li strong { font-weight: 600; }
+.short li span { color: var(--muted); }
+
+/* Pipeline figure */
+figure { margin: 0; display: grid; gap: 1rem; min-width: 0; }
+figcaption { font-size: 0.95rem; color: var(--muted); max-width: 42rem; }
+.flow { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 0 1.25rem; align-items: start; }
+.lane { display: grid; gap: 0.6rem; min-width: 0; }
+.lane h3 { font: 500 0.78rem var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding-bottom: 0.4rem; border-bottom: 1px solid var(--rule); }
+.lane ol { list-style: none; margin: 0; padding: 0; display: grid; }
+.lane li { display: grid; grid-template-columns: 1.8rem minmax(0, 1fr); gap: 0 0.6rem; position: relative; padding-bottom: 1rem; }
+.lane li::before { content: attr(data-n); font: 600 0.8rem/1.6rem var(--mono); width: 1.8rem; height: 1.8rem; text-align: center; border-radius: 50%; border: 1.5px solid var(--accent); color: var(--accent); background: var(--bg); position: relative; z-index: 1; }
+.lane li:not(:last-child)::after { content: ""; position: absolute; left: calc(0.9rem - 0.75px); top: 1.8rem; bottom: 0; width: 1.5px; background: var(--rule); }
+.lane li > div { display: grid; gap: 0.1rem; padding-top: 0.1rem; }
+.lane b { font-weight: 600; }
+.lane .note { font-size: 0.88rem; color: var(--muted); }
+.lane li.check::before { background: var(--accent); color: var(--bg); }
+.store { align-self: center; display: grid; justify-items: center; gap: 0.5rem; padding-top: 2rem; }
+.store .box { border: 1.5px solid var(--text); background: var(--surface); padding: 0.9rem 1rem; width: 11rem; text-align: center; display: grid; gap: 0.2rem; }
+.store .box b { font: 700 1.25rem/1.1 var(--display); text-transform: uppercase; letter-spacing: 0.02em; }
+.store .box span { font-size: 0.82rem; color: var(--muted); }
+.arrow { font: 500 0.75rem var(--mono); color: var(--muted); display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
+.arrow::after { content: "→"; font-size: 1.1rem; color: var(--text); }
+.abstain { border-left: 3px solid var(--problem); padding: 0.2rem 0 0.2rem 0.9rem; font-size: 0.95rem; max-width: 42rem; }
+
+/* Scorecard */
+.score { display: grid; border-top: 1px solid var(--rule); }
+.row, .axis { display: grid; grid-template-columns: minmax(0, 17rem) minmax(0, 1fr) 7.5rem; gap: 0.5rem 1.5rem; align-items: center; }
+.row { padding: 1rem 0; border-bottom: 1px solid var(--rule); }
+.row .label b { display: block; font-weight: 600; font-size: 0.98rem; }
+.row .label span { font-size: 0.82rem; color: var(--muted); font-family: var(--mono); }
+.track { position: relative; height: 2.6rem; margin-right: 8px; }
+.track .base { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--rule); }
+.track .target { position: absolute; top: 0.15rem; bottom: 0.15rem; width: 0; border-left: 2px dashed var(--text); }
+.track .target i { position: absolute; top: -0.25rem; left: 4px; font: 500 0.68rem var(--mono); font-style: normal; color: var(--muted); white-space: nowrap; }
+.dot { position: absolute; top: 50%; width: 14px; height: 14px; margin-left: -7px; transform: translateY(-50%); background: var(--dot-a); border-radius: 50%; }
+.dot.b { background: var(--dot-b); border-radius: 0; width: 11px; height: 11px; margin-left: -5.5px; transform: translateY(-50%) rotate(45deg); }
+.vals { font: 500 0.88rem var(--mono); font-variant-numeric: tabular-nums; display: grid; gap: 0.1rem; }
+.vals .miss { color: var(--problem); }
+.vals .hit { color: var(--ok); }
+.axis .scale { position: relative; height: 1.2rem; margin-right: 8px; font: 0.72rem var(--mono); color: var(--muted); }
+.axis .scale span { position: absolute; transform: translateX(-50%); }
+.axis .scale span:first-child { transform: none; }
+.axis .scale span:last-child { transform: translateX(-100%); }
+.legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; font-size: 0.88rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 0.5rem; }
+.legend .k { display: inline-block; width: 12px; height: 12px; background: var(--dot-a); border-radius: 50%; }
+.legend .k.b { background: var(--dot-b); border-radius: 0; transform: rotate(45deg); width: 10px; height: 10px; }
+.legend .k.t { background: none; border-radius: 0; width: 0; height: 14px; border-left: 2px dashed var(--text); }
+
+/* Tables and lists */
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+caption { text-align: left; padding-bottom: 0.4rem; }
+th, td { text-align: left; padding: 0.55rem 0.9rem 0.55rem 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font: 500 0.75rem var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+ul.plain { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.5rem; }
+ul.plain li::marker { color: var(--muted); }
+pre { margin: 0; background: var(--surface); padding: 0.9rem 1rem; overflow-x: auto; font: 0.85rem/1.6 var(--mono); }
+footer { border-top: 1px solid var(--rule); padding-top: 1rem; font-size: 0.85rem; color: var(--muted); max-width: 42rem; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 760px) {
+  .flow { grid-template-columns: minmax(0, 1fr); gap: 0.75rem; }
+  .store { padding-top: 0; justify-items: start; }
+  .store .arrow::after { content: "↓"; }
+  .store .box { width: 100%; text-align: left; }
+  .row, .axis { grid-template-columns: minmax(0, 1fr) 6.5rem; }
+  .row .label { grid-column: 1 / -1; }
+  .axis .spacer { display: none; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">Plain-English overview · as of 13 November 2026</p>
+    <h1>Masters Cycling Lab</h1>
+    <p class="lede">Masters Cycling Lab is a research app that runs on your own computer. You load cycling research papers as PDFs, ask a question in plain English, and get a short answer in which every claim links to the passage and PDF page it came from.</p>
+
+    <div class="short" aria-labelledby="short-h">
+      <h2 id="short-h">The short version</h2>
+      <p>It is good at telling you which study says what, and it lets you check every answer against the source. It is still weak at finding the exact paragraph that holds the answer, and it is a reading tool, not a coach.</p>
+      <ol>
+        <li><strong>You can check every answer.</strong><span>Each claim cites a numbered passage. Click it and the PDF opens at that page.</span></li>
+        <li><strong>It finds the right paper far more often than the right paragraph.</strong><span>About three in four relevant papers show up in the top ten results. The passage with the answer shows up less than half the time.</span></li>
+        <li><strong>It is a one-person research tool.</strong><span>No login, no training plans, no medical advice. It runs on 127.0.0.1 and nowhere else.</span></li>
+      </ol>
+    </div>
+  </header>
+
+  <section aria-labelledby="how-h">
+    <div class="col stack">
+      <h2 id="how-h">How does Masters Cycling Lab answer a question?</h2>
+      <p class="answer">Masters Cycling Lab finds the ten passages in your papers that are closest in meaning to your question, sends only those ten to a language model, and keeps the answer only if every claim cites one of them.</p>
+      <p>This approach is called retrieval-augmented generation, or RAG: look things up first, then write the answer from what you found. The model is asked to answer from those passages only, and the app rejects any citation to a passage it was not shown.</p>
+    </div>
+
+    <figure aria-labelledby="flow-cap">
+      <div class="flow">
+        <div class="lane">
+          <h3>Once, when you add a paper</h3>
+          <ol>
+            <li data-n="1"><div><b>Upload a PDF</b><span class="note">The same file twice is caught by its fingerprint (SHA-256).</span></div></li>
+            <li data-n="2"><div><b>Read the text of each page</b><span class="note">Scanned PDFs with no text layer are turned away.</span></div></li>
+            <li data-n="3"><div><b>Cut pages into short passages</b><span class="note">A passage never runs across two pages, so every citation has one page number.</span></div></li>
+            <li data-n="4"><div><b>Turn each passage into numbers</b><span class="note">A small model, <span class="mono">bge-small-en-v1.5</span>, captures meaning as a list of numbers. It runs on your CPU.</span></div></li>
+          </ol>
+        </div>
+
+        <div class="store">
+          <span class="arrow">saved to</span>
+          <div class="box"><b>Your library</b><span>PostgreSQL with pgvector: pages, passages and their numbers</span></div>
+          <span class="arrow">searched by</span>
+        </div>
+
+        <div class="lane">
+          <h3>Every time you ask</h3>
+          <ol>
+            <li data-n="1"><div><b>Ask a question</b><span class="note">The same small model turns it into numbers.</span></div></li>
+            <li data-n="2"><div><b>Find the 10 closest passages</b><span class="note">About 25 milliseconds, on the CPU.</span></div></li>
+            <li data-n="3"><div><b>A language model writes the answer</b><span class="note">It sees only those passages, labelled <span class="mono">E1</span> to <span class="mono">E10</span>, and must cite them.</span></div></li>
+            <li data-n="4" class="check"><div><b>The app checks every citation</b><span class="note">A citation must point to a passage that was sent. A malformed reply gets one retry, then an error.</span></div></li>
+            <li data-n="5"><div><b>Open the source</b><span class="note">Click a citation and the PDF opens at that physical page.</span></div></li>
+          </ol>
+        </div>
+      </div>
+      <figcaption id="flow-cap">Adding a paper happens once. Asking a question reads from the same library every time, and the language model only ever sees the ten passages search picked.</figcaption>
+    </figure>
+
+    <p class="abstain"><b>When there is nothing to cite.</b> If search returns no passages, the app says there is not enough evidence and never calls the model. Otherwise the model decides, and it can also reply that the passages do not answer the question.</p>
+  </section>
+
+  <section aria-labelledby="well-h">
+    <div class="col stack">
+      <h2 id="well-h">How well does it work?</h2>
+      <p class="answer">On 20 research papers and 74 test questions, Masters Cycling Lab put about three in four relevant papers in its top ten results, but the passage holding the answer was there less than half the time.</p>
+      <p>The test questions come with hand-checked answers: which papers are relevant and the exact sentences, with page numbers, that answer them. A person reviewed all 74 and changed none. 37 practice questions were used while tuning; 18 fresh ones were held back and run once.</p>
+    </div>
+
+    <figure aria-labelledby="score-cap">
+      <div class="legend" aria-hidden="true">
+        <span><i class="k"></i>Practice questions (37)</span>
+        <span><i class="k b"></i>Fresh questions (18)</span>
+        <span><i class="k t"></i>Target set before the first run</span>
+      </div>
+      <div class="score" aria-hidden="true">
+        <div class="row">
+          <div class="label"><b>Expected papers found in the top 10</b><span>recall@10</span></div>
+          <div class="track"><i class="base"></i><i class="target" style="left:80%"><i>0.80</i></i><i class="dot" style="left:76%"></i><i class="dot b" style="left:77%"></i></div>
+          <div class="vals"><span class="miss">0.76 · 0.77</span><span class="muted small">just under</span></div>
+        </div>
+        <div class="row">
+          <div class="label"><b>How high the first right paper ranks</b><span>MRR@10 · 1.0 means always first</span></div>
+          <div class="track"><i class="base"></i><i class="target" style="left:60%"><i>0.60</i></i><i class="dot" style="left:90%"></i><i class="dot b" style="left:81%"></i></div>
+          <div class="vals"><span class="hit">0.90 · 0.81</span><span class="muted small">met</span></div>
+        </div>
+        <div class="row">
+          <div class="label"><b>Overall ranking quality</b><span>nDCG@10</span></div>
+          <div class="track"><i class="base"></i><i class="target" style="left:60%"><i>0.60</i></i><i class="dot" style="left:80%"></i><i class="dot b" style="left:72%"></i></div>
+          <div class="vals"><span class="hit">0.80 · 0.72</span><span class="muted small">met</span></div>
+        </div>
+        <div class="row">
+          <div class="label"><b>Key passages found in the top 10</b><span>evidence_coverage@10</span></div>
+          <div class="track"><i class="base"></i><i class="target" style="left:60%"><i>0.60</i></i><i class="dot" style="left:45%"></i><i class="dot b" style="left:41%"></i></div>
+          <div class="vals"><span class="miss">0.45 · 0.41</span><span class="muted small">well under</span></div>
+        </div>
+      </div>
+      <div class="axis" aria-hidden="true"><span class="spacer"></span><div class="scale"><span style="left:0">0</span><span style="left:25%">0.25</span><span style="left:50%">0.5</span><span style="left:75%">0.75</span><span style="left:100%">1.0</span></div><span></span></div>
+      <figcaption id="score-cap">Search finds the right papers and ranks them well. Finding the passage inside the paper is the weak spot. Vector search, dataset v2, 12 November 2026. With this few questions, one question moves an average by about 3 points (practice) or 6 points (fresh).</figcaption>
+
+      <div class="tablewrap">
+        <table>
+          <caption class="eyebrow">Same numbers as a table</caption>
+          <thead><tr><th>Measure</th><th>Practice</th><th>Fresh</th><th>Target</th></tr></thead>
+          <tbody>
+            <tr><td>Expected papers found in the top 10 (recall@10)</td><td class="num">0.76</td><td class="num">0.77</td><td class="num">≥ 0.80</td></tr>
+            <tr><td>How high the first right paper ranks (MRR@10)</td><td class="num">0.90</td><td class="num">0.81</td><td class="num">≥ 0.60</td></tr>
+            <tr><td>Overall ranking quality (nDCG@10)</td><td class="num">0.80</td><td class="num">0.72</td><td class="num">≥ 0.60</td></tr>
+            <tr><td>Key passages found in the top 10 (evidence coverage@10)</td><td class="num">0.45</td><td class="num">0.41</td><td class="num">≥ 0.60</td></tr>
+            <tr><td>Slow search time (95th percentile)</td><td class="num">22 ms</td><td class="num">34 ms</td><td class="num">&lt; 500 ms</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </figure>
+  </section>
+
+  <section aria-labelledby="answers-h" class="col">
+    <h2 id="answers-h">Are the answers right?</h2>
+    <p class="answer">In the first seven answers a person checked, all 19 claims were supported by the passages they cited. That is a small, easy sample, and the harder questions have not run yet.</p>
+    <p>Answers were generated with Google's Gemini 3.6 Flash on a free tier, which allows about a dozen answers a day. That is why there are so few so far. Each answer took a median of 25 seconds to write; the search behind it took about 25 milliseconds.</p>
+    <ul class="plain">
+      <li>With 10 passages, all 7 questions were answered and every answer cited the paper graded most relevant.</li>
+      <li>With the earlier setting of 6 passages, 2 of 15 answerable questions came back as "not enough evidence". In both cases the model had the right paper but not the paragraph with the finding. With 10 passages, the one retested so far (q010) was answered and cited the right page.</li>
+      <li>The six questions that should get "not enough evidence" or "out of scope" (bike buying, FTP zones and beetroot among them) have not reached the model yet. Whether it declines them properly is still unknown.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="miss-h" class="col">
+    <h2 id="miss-h">Why does it sometimes miss the answer?</h2>
+    <p class="answer">Usually because the passage with the answer never reaches the model. With 10 passages, only 20 of the 37 answerable practice questions had any answer passage among those sent.</p>
+    <p>Several fixes were tried: mixing in keyword search, capping passages per paper, smaller passages, and three rerankers that re-score the top results. Some helped on the practice questions. None beat plain meaning-based search on the fresh ones, so none is used for answers. The next step is measuring answers end to end rather than running another ranking experiment.</p>
+  </section>
+
+  <section aria-labelledby="lib-h" class="col">
+    <h2 id="lib-h">What research is in the library?</h2>
+    <p class="answer">The test library is 20 open-access papers on masters and older cyclists, training and physiology: 259 pages cut into 1,269 passages.</p>
+    <p>All 20 are published under CC BY and downloaded from PubMed Central's open-access collection, each checked against a recorded SHA-256 fingerprint. You can add your own PDFs from the Papers page; they stay on your machine and are never stored in git.</p>
+  </section>
+
+  <section aria-labelledby="not-h" class="col">
+    <h2 id="not-h">What can't it do?</h2>
+    <ul class="plain">
+      <li>It quotes studies. It does not write training plans or give medical guidance.</li>
+      <li>It has no login and is meant for one person. Keep it on 127.0.0.1 and don't expose it to a network.</li>
+      <li>It can't read scanned PDFs, because there is no OCR. Tables lose their layout, figures are skipped, and two-column pages can mix their lines.</li>
+      <li>A sentence that crosses a page break gets split in two, because passages stop at the page edge.</li>
+      <li>Answers need a language model you choose, at any OpenAI-compatible endpoint. Your question and the ten passages are sent to it; API keys stay on the server. Search and the PDF viewer work without one.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="built-h" class="col">
+    <h2 id="built-h">What is it built with?</h2>
+    <p>Five pieces, started together with Docker Compose. There is no separate vector database and no RAG framework.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Piece</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td>Web app (React, served by nginx)</td><td>Ask a question, Papers, Search details and Search scores pages</td></tr>
+          <tr><td>API (Python, FastAPI)</td><td>Search, answers, citations and the PDF viewer</td></tr>
+          <tr><td>Worker (Python)</td><td>Reads and indexes new PDFs in the background, with retries</td></tr>
+          <tr><td>PostgreSQL with pgvector</td><td>Stores pages, passages, their numbers, answers and test runs</td></tr>
+          <tr><td>Language model (your choice)</td><td>Any OpenAI-compatible endpoint; called only to write answers</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">PDF reading uses PyMuPDF, which is licensed AGPL-3.0. That matters if you distribute the app or run it for other people. The project itself has no licence yet.</p>
+  </section>
+
+  <section aria-labelledby="next-h" class="col">
+    <h2 id="next-h">What happens next?</h2>
+    <p>Finish the answer run on a provider with a higher daily limit, including the six questions it should decline, and rate every claim the way the first 19 were rated. Then work on picking the right paragraph inside the right paper, which is where most misses start.</p>
+    <p>To run it yourself, follow the <a href="https://github.com/kchan1028/masters-cycling-lab/blob/main/README.md">README</a>. The short path, after copying <code>.env.example</code> to <code>.env</code> and setting a database password:</p>
+    <pre><code>make bootstrap
+make up
+make migrate
+make download-model
+make corpus-download
+make corpus-ingest</code></pre>
+    <p>Then open <code>http://127.0.0.1:8080</code>.</p>
+  </section>
+
+  <footer>
+    Figures come from the project's <a href="https://github.com/kchan1028/masters-cycling-lab/blob/main/docs/handoff.md">handoff notes</a> and <a href="https://github.com/kchan1028/masters-cycling-lab/blob/main/docs/evaluation.md">evaluation log</a> as of 13 November 2026. Retrieval numbers are from vector search on dataset v2; answer numbers are from a partial run on the practice questions.
+  </footer>
+</main>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "#app",
+      "name": "Masters Cycling Lab",
+      "applicationCategory": "Research",
+      "operatingSystem": "Docker (runs locally)",
+      "description": "A local research app that answers questions about cycling research for masters and older cyclists, with every claim linked to the passage and PDF page it came from.",
+      "featureList": [
+        "Upload and index research PDFs",
+        "Meaning-based search over passages",
+        "Answers whose citations open the PDF at the cited page",
+        "Built-in retrieval evaluation"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How does Masters Cycling Lab answer a question?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Masters Cycling Lab finds the ten passages in your papers that are closest in meaning to your question, sends only those ten to a language model, and keeps the answer only if every claim cites one of them." }
+        },
+        {
+          "@type": "Question",
+          "name": "How well does it work?",
+          "acceptedAnswer": { "@type": "Answer", "text": "On 20 research papers and 74 test questions, Masters Cycling Lab put about three in four relevant papers in its top ten results, but the passage holding the answer was there less than half the time." }
+        },
+        {
+          "@type": "Question",
+          "name": "Are the answers right?",
+          "acceptedAnswer": { "@type": "Answer", "text": "In the first seven answers a person checked, all 19 claims were supported by the passages they cited. That is a small, easy sample, and the harder questions have not run yet." }
+        },
+        {
+          "@type": "Question",
+          "name": "What research is in the library?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The test library is 20 open-access papers on masters and older cyclists, training and physiology: 259 pages cut into 1,269 passages." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</body>
+</html>
