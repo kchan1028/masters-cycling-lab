@@ -71,7 +71,7 @@ def test_ctrl_c_stops_a_review_cleanly(monkeypatch: pytest.MonkeyPatch, capsys: 
 
 
 def test_review_refuses_without_a_terminal(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
-    # Started from a pipe or a chat shell, every prompt read an empty line and 33 questions went by unrecorded.
+    # Without a terminal every prompt would read an empty line, and questions would go by unrecorded.
     monkeypatch.setattr(cli.sys.stdin, "isatty", lambda: False)
     monkeypatch.setattr(cli, "connected_engine", lambda url: pytest.fail("refused before touching the database"))
 
