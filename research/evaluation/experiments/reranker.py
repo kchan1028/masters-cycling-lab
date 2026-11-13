@@ -23,10 +23,12 @@ from masters_cycling_lab.domain.retrieval import SearchFilters, SearchHit
 from masters_cycling_lab.infrastructure.db.session import make_engine
 from masters_cycling_lab.infrastructure.embeddings.sentence_transformers_adapter import SentenceTransformerEmbedder
 
-# Apache-2.0, pinned to the revisions the reported results were measured with.
+# Pinned to the revisions the reported results were measured with. The MiniLM models (Apache-2.0, about 90 and
+# 130 MB) were trained on MS MARCO web search; bge-reranker-base (MIT, about 1.1 GB) on broader data.
 RERANKERS = [
     ("cross-encoder/ms-marco-MiniLM-L-6-v2", "233902d25c440f23af6f7d6e94d2946bac0bee0a"),
     ("cross-encoder/ms-marco-MiniLM-L-12-v2", "7b0235231ca2674cb8ca8f022859a6eba2b1c968"),
+    ("BAAI/bge-reranker-base", "2cfc18c9415c912f9d8155881c133215df768a70"),
 ]
 DEPTHS = [20, 50]  # how many vector passages are re-scored
 

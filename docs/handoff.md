@@ -170,8 +170,9 @@ questions. Every number is against labels no person has reviewed.
    vector search on every held-out measure, so it is measured in every run (`hybrid`) but not used for answers (see
    [evaluation.md](evaluation.md#experiments-dev-only)). Two small MS MARCO cross-encoder rerankers did not help
    either. Re-run on the 37 scored dev questions of dataset v2, both experiments reach the same conclusions, and
-   fusion's earlier dev gain mostly disappears. The remaining untried option is a larger general reranker (for
-   example `BAAI/bge-reranker-base`, MIT, about 1.1 GB, slower on CPU). Report anything on `test2`, which nothing has
-   been tuned on yet.
+   fusion's earlier dev gain mostly disappears. A larger general reranker, `BAAI/bge-reranker-base` (MIT, about
+   1.1 GB), re-scoring the top 20 raised dev evidence coverage from 0.45 to 0.53 but lowered MRR from 0.90 to 0.79
+   and adds about 234 ms per question. It is the most promising option for answers; check it once on `test2`, then
+   compare answers with and without it after step 1, before adopting it.
 4. Add an answer evaluation command (citation validity, abstention accuracy, human support ratings) once answers
    exist.
