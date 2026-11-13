@@ -47,7 +47,7 @@ make migrate
 make download-model
 ```
 
-Add your own PDFs from the Documents page or with `make ingest FILE=/absolute/path/paper.pdf`. To load the 20-paper
+Add your own PDFs from the Papers page or with `make ingest FILE=/absolute/path/paper.pdf`. To load the 20-paper
 open-access research corpus the evaluation uses (about 10 minutes on CPU):
 
 ```bash

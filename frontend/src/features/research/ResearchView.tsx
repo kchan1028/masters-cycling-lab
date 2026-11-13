@@ -43,7 +43,7 @@ export default function ResearchView() {
           placeholder="What does the research say about recovery in masters cyclists?"
         />
         <div className="row">
-          <label htmlFor="year-from">Published from (optional)</label>
+          <label htmlFor="year-from">Published in or after (optional)</label>
           <input
             id="year-from"
             type="number"
@@ -62,7 +62,7 @@ export default function ResearchView() {
         {state.kind === 'loading' && <p>Searching the papers and writing an answer…</p>}
         {state.kind === 'failure' && (
           <div className="notice problem" role="alert">
-            <strong>{state.serviceProblem ? 'The system could not answer.' : 'The request was not accepted.'}</strong>
+            <strong>{state.serviceProblem ? 'The system could not answer.' : 'The question was not accepted.'}</strong>
             <p>{state.message}</p>
             {state.serviceProblem && <p>This is a service problem, not a finding that the research has no answer.</p>}
           </div>
@@ -138,11 +138,11 @@ function EvidenceCard({ citation }: { citation: Citation }) {
   return (
     <div>
       <h3>
-        {citation.evidence_id}: {citation.document_title ?? 'Untitled document'}
+        {citation.evidence_id}: {citation.document_title ?? 'Untitled paper'}
       </h3>
       <p className="muted">
         {byline.filter(Boolean).join(' · ')}
-        {citation.metadata_source === 'extracted_unverified' && ' · metadata not verified'}
+        {citation.metadata_source === 'extracted_unverified' && ' · paper details not verified'}
       </p>
       <p>
         Page {citation.page_numbers.join(', ')}

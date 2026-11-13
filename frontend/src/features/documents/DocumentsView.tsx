@@ -3,6 +3,12 @@ import { api, errorMessage, fileUrl, type Document, type Page } from '../../api/
 
 const POLL_MS = 3000
 
+const STAGE_TEXT: Record<string, string> = {
+  extracting: 'reading pages',
+  embedding: 'building search index',
+  activating: 'finishing',
+}
+
 function isActive(document: Document): boolean {
   return ['queued', 'running'].includes(document.latest_job?.status ?? '')
 }
@@ -11,10 +17,11 @@ function statusText(document: Document): string {
   const job = document.latest_job
   if (job && isActive(document)) {
     const progress = job.progress_total ? ` ${job.progress_done}/${job.progress_total}` : ''
-    return job.status === 'queued' ? 'Queued' : `Indexing (${job.stage ?? 'starting'}${progress})`
+    const stage = job.stage ? (STAGE_TEXT[job.stage] ?? job.stage) : 'starting'
+    return job.status === 'queued' ? 'Waiting its turn' : `Processing (${stage}${progress})`
   }
   if (job?.status === 'failed') return `Failed: ${job.error_code}`
-  return document.searchable ? 'Searchable' : 'Not indexed'
+  return document.searchable ? 'Ready to search' : 'Not ready to search'
 }
 
 export default function DocumentsView() {
@@ -69,26 +76,28 @@ export default function DocumentsView() {
     if (!file) return
     await run('upload', async () => {
       const result = await api.upload(file)
-      return result.duplicate ? 'This file is already in the corpus.' : `${file.name} uploaded and queued.`
+      return result.duplicate
+        ? 'This paper is already in the library.'
+        : `${file.name} uploaded. Getting it ready to search.`
     })
     input.value = ''
   }
 
   function remove(document: Document) {
     const name = document.title ?? document.original_filename
-    if (window.confirm(`Delete "${name}", its index and any answers that quoted it? This cannot be undone.`)) {
+    if (window.confirm(`Delete "${name}", its search index and any answers that cite it? This cannot be undone.`)) {
       void run(document.id, async () => {
         await api.deleteDocument(document.id)
-        return 'Document deleted.'
+        return 'Paper deleted.'
       })
     }
   }
 
   return (
     <section aria-labelledby="documents-heading">
-      <h2 id="documents-heading">Documents</h2>
+      <h2 id="documents-heading">Papers</h2>
       <form onSubmit={upload} className="row">
-        <label htmlFor="pdf">Upload a PDF</label>
+        <label htmlFor="pdf">Upload a research paper (PDF)</label>
         <input id="pdf" name="pdf" type="file" accept="application/pdf,.pdf" />
         <button type="submit" disabled={busy !== null}>
           {busy === 'upload' ? 'Uploading…' : 'Upload'}
@@ -102,14 +111,14 @@ export default function DocumentsView() {
           {error}
         </p>
       )}
-      {documents === null && !error && <p>Loading documents…</p>}
-      {documents?.length === 0 && <p>No documents yet. Upload a research PDF to start.</p>}
+      {documents === null && !error && <p>Loading papers…</p>}
+      {documents?.length === 0 && <p>No papers yet. Upload a cycling research PDF to start.</p>}
       {documents && documents.length > 0 && (
         <table>
-          <caption className="visually-hidden">Documents in the corpus</caption>
+          <caption className="visually-hidden">Papers in the library</caption>
           <thead>
             <tr>
-              <th scope="col">Document</th>
+              <th scope="col">Paper</th>
               <th scope="col">Year</th>
               <th scope="col">Pages</th>
               <th scope="col">Status</th>
@@ -125,14 +134,14 @@ export default function DocumentsView() {
                 onReindex={() =>
                   void run(document.id, async () => {
                     await api.reindex(document.id)
-                    return 'Rebuild queued. The current index stays searchable until it is ready.'
+                    return 'Rebuild started. The paper stays searchable until the new index is ready.'
                   })
                 }
                 onDelete={() => remove(document)}
                 onSave={(patch) =>
                   run(document.id, async () => {
                     await api.updateDocument(document.id, patch)
-                    return 'Metadata saved.'
+                    return 'Title and year saved.'
                   })
                 }
               />
@@ -195,7 +204,7 @@ function DocumentRow({ document, disabled, onReindex, onDelete, onSave }: RowPro
             Pages
           </button>
           <button type="button" onClick={onReindex} disabled={disabled || isActive(document)}>
-            Reindex
+            Rebuild index
           </button>
           <button type="button" onClick={onDelete} disabled={disabled}>
             Delete
@@ -273,7 +282,7 @@ function PageViewer({ document }: { document: Document }) {
       {page && (
         <>
           {page.warnings.length > 0 && (
-            <ul className="warnings" aria-label="Extraction warnings">
+            <ul className="warnings" aria-label="Problems reading this page">
               {page.warnings.map((warning) => (
                 <li key={warning}>{warning}</li>
               ))}

@@ -18,9 +18,9 @@ function timings(values: Record<string, unknown>): string {
 export default function RetrievalView() {
   return (
     <section aria-labelledby="retrieval-heading">
-      <h2 id="retrieval-heading">Retrieval debug</h2>
+      <h2 id="retrieval-heading">Search details</h2>
       <p className="muted">
-        See exactly which passages a query finds, before any answer is written. Scores only order the results.
+        See exactly which passages a search finds, before any answer is written. Scores only put the results in order.
       </p>
       <SearchPanel />
       <AnswerDebugPanel />
@@ -53,16 +53,19 @@ function SearchPanel() {
   return (
     <>
       <form onSubmit={submit} className="stack">
-        <label htmlFor="search-query">Query</label>
-        <input id="search-query" value={query} maxLength={1000} onChange={(event) => setQuery(event.target.value)} />
+        <label htmlFor="search-query">Search for</label>
+        <input
+          id="search-query"
+          placeholder="e.g. recovery after hard intervals"
+          value={query} maxLength={1000} onChange={(event) => setQuery(event.target.value)} />
         <div className="row">
-          <label htmlFor="search-mode">Mode</label>
+          <label htmlFor="search-mode">Search by</label>
           <select id="search-mode" value={mode} onChange={(event) => setMode(event.target.value as typeof mode)}>
-            <option value="vector">Vector (embeddings)</option>
-            <option value="lexical">Lexical (keywords)</option>
-            <option value="hybrid">Hybrid (both rankings fused)</option>
+            <option value="vector">Meaning (vector)</option>
+            <option value="lexical">Keywords (lexical)</option>
+            <option value="hybrid">Both combined (hybrid)</option>
           </select>
-          <label htmlFor="candidate-k">Results</label>
+          <label htmlFor="candidate-k">Number of results</label>
           <input
             id="candidate-k"
             type="number"
@@ -94,13 +97,13 @@ function SearchResults({ result }: { result: SearchResponse }) {
   return (
     <div className="stack">
       <p className="muted">
-        {result.results.length} results from {result.searched_documents} searchable documents ·{' '}
+        {result.results.length} results from {result.searched_documents} searchable papers ·{' '}
         {timings(result.timings_ms)}
         {result.embedding_model_id && ` · ${result.embedding_model_id} @ ${result.embedding_model_revision?.slice(0, 7)}`}
       </p>
       <p className="muted">{result.score_note}</p>
       {result.results.length === 0 ? (
-        <p>Nothing matched. Check that documents are indexed, or try other words.</p>
+        <p>Nothing matched. Check that the papers are ready to search, or try other words.</p>
       ) : (
         <table>
           <caption className="visually-hidden">Search results</caption>
@@ -111,7 +114,7 @@ function SearchResults({ result }: { result: SearchResponse }) {
               <th scope="col">Pages</th>
               {showDistance && <th scope="col">Distance</th>}
               {showSimilarity && <th scope="col">Similarity</th>}
-              {showLexical && <th scope="col">Lexical score</th>}
+              {showLexical && <th scope="col">Keyword score</th>}
             </tr>
           </thead>
           <tbody>
@@ -121,7 +124,7 @@ function SearchResults({ result }: { result: SearchResponse }) {
                 <td>
                   <details>
                     <summary>
-                      {hit.document_title ?? 'Untitled document'}
+                      {hit.document_title ?? 'Untitled paper'}
                       {hit.publication_year && ` (${hit.publication_year})`}
                     </summary>
                     <p className="excerpt">{hit.excerpt}</p>
@@ -190,18 +193,19 @@ function AnswerDebugPanel() {
       {debug && (
         <>
           <p className="muted">
-            Embeddings: {debug.embedding_model_id} @ {debug.embedding_model_revision.slice(0, 7)} · Model:{' '}
-            {debug.llm_model ?? 'not called'} · Prompt: {debug.prompt_version ?? '—'} · {timings(debug.timings_ms)}
+            Search model: {debug.embedding_model_id} @ {debug.embedding_model_revision.slice(0, 7)} ·
+            Answer model: {debug.llm_model ?? 'not called'} · Prompt version: {debug.prompt_version ?? '—'} ·{' '}
+            {timings(debug.timings_ms)}
           </p>
           <table>
-            <caption className="visually-hidden">Candidate passages</caption>
+            <caption className="visually-hidden">Passages the search found</caption>
             <thead>
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Passage</th>
                 <th scope="col">Pages</th>
                 <th scope="col">Distance</th>
-                <th scope="col">Sent to model</th>
+                <th scope="col">Given to the answer model</th>
               </tr>
             </thead>
             <tbody>
@@ -210,7 +214,7 @@ function AnswerDebugPanel() {
                   <td>{candidate.rank}</td>
                   <td>
                     <details>
-                      <summary>{candidate.document_title ?? 'Untitled document'}</summary>
+                      <summary>{candidate.document_title ?? 'Untitled paper'}</summary>
                       <p className="excerpt">{candidate.excerpt}</p>
                     </details>
                   </td>

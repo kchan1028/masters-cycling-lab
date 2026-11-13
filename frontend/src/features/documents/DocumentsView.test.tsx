@@ -55,10 +55,10 @@ test('lists documents with their indexing status', async () => {
     'href',
     '/api/v1/documents/doc-1/file',
   )
-  expect(screen.getByText('Searchable')).toBeInTheDocument()
+  expect(screen.getByText('Ready to search')).toBeInTheDocument()
   expect(screen.getByText('Failed: OCR_REQUIRED')).toBeInTheDocument()
   expect(screen.getByText('No text layer.')).toBeInTheDocument()
-  expect(screen.getByText('Indexing (embedding 2/5)')).toBeInTheDocument()
+  expect(screen.getByText('Processing (building search index 2/5)')).toBeInTheDocument()
 })
 
 test('shows an empty state', async () => {
@@ -66,7 +66,7 @@ test('shows an empty state', async () => {
 
   render(<DocumentsView />)
 
-  expect(await screen.findByText(/No documents yet/)).toBeInTheDocument()
+  expect(await screen.findByText(/No papers yet/)).toBeInTheDocument()
 })
 
 test('uploads a PDF and refreshes the list', async () => {
@@ -76,12 +76,12 @@ test('uploads a PDF and refreshes the list', async () => {
   ])
   const user = userEvent.setup()
   render(<DocumentsView />)
-  await screen.findByText(/No documents yet/)
+  await screen.findByText(/No papers yet/)
 
-  await user.upload(screen.getByLabelText('Upload a PDF'), new File(['%PDF-1.7'], 'recovery.pdf'))
+  await user.upload(screen.getByLabelText('Upload a research paper (PDF)'), new File(['%PDF-1.7'], 'recovery.pdf'))
   await user.click(screen.getByRole('button', { name: 'Upload' }))
 
-  expect(await screen.findByText('recovery.pdf uploaded and queued.')).toBeInTheDocument()
+  expect(await screen.findByText('recovery.pdf uploaded. Getting it ready to search.')).toBeInTheDocument()
   const [url, init] = fetchMock.mock.calls[1] ?? []
   expect(url).toBe('/api/v1/documents')
   expect((init?.body as FormData).get('file')).toBeInstanceOf(File)
@@ -99,7 +99,7 @@ test('deletes only after confirmation', async () => {
   expect(fetchMock).toHaveBeenCalledTimes(1)
 
   await user.click(screen.getByRole('button', { name: 'Delete' }))
-  expect(await screen.findByText('Document deleted.')).toBeInTheDocument()
+  expect(await screen.findByText('Paper deleted.')).toBeInTheDocument()
   expect(fetchMock).toHaveBeenCalledWith('/api/v1/documents/doc-1', { method: 'DELETE' })
 })
 

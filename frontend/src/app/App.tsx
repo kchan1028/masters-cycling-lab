@@ -6,18 +6,18 @@ import ResearchView from '../features/research/ResearchView'
 import RetrievalView from '../features/retrieval-debug/RetrievalView'
 
 const VIEWS = [
-  { path: 'research', label: 'Research' },
-  { path: 'documents', label: 'Documents' },
-  { path: 'retrieval', label: 'Retrieval debug' },
-  { path: 'evaluations', label: 'Evaluations' },
+  { path: 'research', label: 'Ask a question' },
+  { path: 'documents', label: 'Papers' },
+  { path: 'retrieval', label: 'Search details' },
+  { path: 'evaluations', label: 'Search scores' },
 ] as const
 
 type ApiState = 'checking' | 'reachable' | 'unreachable'
 
 const apiStateText: Record<ApiState, string> = {
-  checking: 'Checking the API…',
-  reachable: 'API is reachable.',
-  unreachable: 'API is not reachable. Start the backend and reload.',
+  checking: 'Connecting to the server…',
+  reachable: 'Connected to the server.',
+  unreachable: "Can't reach the server. Start the backend and reload.",
 }
 
 function currentPath(): string {

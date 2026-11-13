@@ -14,7 +14,7 @@ test('reports a reachable API', async () => {
 
   render(<App />)
 
-  expect(await screen.findByText('API is reachable.')).toBeInTheDocument()
+  expect(await screen.findByText('Connected to the server.')).toBeInTheDocument()
   expect(fetchMock).toHaveBeenCalledWith('/api/v1/health/live', undefined)
 })
 
@@ -23,7 +23,7 @@ test('says so when the API is down', async () => {
 
   render(<App />)
 
-  expect(await screen.findByRole('status')).toHaveTextContent('API is not reachable')
+  expect(await screen.findByRole('status')).toHaveTextContent("Can't reach the server")
 })
 
 test('switches views from the main navigation', async () => {
@@ -35,9 +35,9 @@ test('switches views from the main navigation', async () => {
   render(<App />)
   expect(screen.getByRole('heading', { name: 'Ask the research' })).toBeInTheDocument()
 
-  await user.click(screen.getByRole('link', { name: 'Documents' }))
+  await user.click(screen.getByRole('link', { name: 'Papers' }))
 
-  expect(await screen.findByRole('heading', { name: 'Documents' })).toBeInTheDocument()
-  expect(screen.getByRole('link', { name: 'Documents' })).toHaveAttribute('aria-current', 'page')
+  expect(await screen.findByRole('heading', { name: 'Papers' })).toBeInTheDocument()
+  expect(screen.getByRole('link', { name: 'Papers' })).toHaveAttribute('aria-current', 'page')
   expect(screen.queryByRole('heading', { name: 'Ask the research' })).not.toBeInTheDocument()
 })

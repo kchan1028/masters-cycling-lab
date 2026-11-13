@@ -162,7 +162,7 @@ API container gets a new address; nginx looks it up again within 10 seconds, so 
 
 ## Deleting a document
 
-`DELETE /api/v1/documents/{id}` (or Delete on the Documents page) is permanent and hides the document at once: its
+`DELETE /api/v1/documents/{id}` (or Delete on the Papers page) is permanent and hides the document at once: its
 PDF, index versions, pages, chunks and embeddings, and every stored answer that quoted it are removed. Not removed:
 evaluation runs (in the database and in `artifacts/evaluations/`) keep up to 300 characters of each passage they
 returned, so a deleted paper's excerpts stay in older runs; and backups made before the deletion still contain it.
