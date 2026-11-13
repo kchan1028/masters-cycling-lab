@@ -43,7 +43,9 @@ def main() -> None:
                 print(f"Question: {answer['question']}")
                 print(f"\nClaim: {claim['text']}")
                 for citation in claim["citations"]:
-                    pages = ", ".join(citation["page_labels"])
+                    # A page without a printed label falls back to its page number in the PDF.
+                    labels = zip(citation["page_labels"], citation["page_numbers"], strict=True)
+                    pages = ", ".join(label or str(number) for label, number in labels)
                     print(f"\n  [{citation['evidence_id']}] {citation['document_title']}, page {pages}")
                     print("  " + citation["excerpt"].replace("\n", "\n  "))
                 prompt = "\n[s]upported, [p]artly, [n]ot supported, [k] skip answer, [q]uit: "
