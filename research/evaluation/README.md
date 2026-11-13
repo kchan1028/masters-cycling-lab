@@ -76,6 +76,19 @@ judgment; it must not be done by an AI or a script.
 Do not change a `test` question's labels because of a result; fix only labelling errors, and say so in a note. Every
 evaluation run records how many of its split's labels were reviewed, and the Evaluations page shows it.
 
+## Rating answers
+
+```bash
+uv --directory backend run python ../research/evaluation/experiments/rate_answers.py "Your Name" ../artifacts/answers/answers-dev.json
+```
+
+Run it in a terminal on an answer run saved by `answer_run.py`. For each claim of each answer it prints the
+question, the claim and the excerpts it cites, and asks whether those excerpts **s**upport the claim, support it only
+**p**artly (the claim says more than they do), or do **n**ot support it, with an optional note. `k` skips the rest of
+an answer and `q` quits. Ratings are saved after every claim to `answers-dev.ratings.json` next to the answers (in the
+git-ignored `artifacts/`) and a later run resumes. Rate what the excerpts say, not what the paper says elsewhere, and
+leave it to a person, as with labels.
+
 ## Dataset versions
 
 Results are only comparable on the same questions and corpus. Each run stores the SHA-256 of both files; the
