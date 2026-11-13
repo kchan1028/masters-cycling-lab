@@ -79,3 +79,14 @@ test('shows every mode a run measured, in order', async () => {
   expect(within(row).getByText('/ 0.67 / 0.87', { exact: false })).toBeInTheDocument()
   expect(within(row).getByText(/meaning \/ keywords \/ both combined/)).toBeInTheDocument()
 })
+
+test('names the scores in plain English and keeps the code as a tooltip', async () => {
+  stubApi([{ path: '/evaluation-runs', body: { items: [run], total: 1, limit: 50, offset: 0 } }])
+
+  render(<EvaluationsView />)
+
+  const header = await screen.findByRole('columnheader', { name: 'Expected papers found, top 10' })
+  expect(header).toHaveAttribute('title', 'recall@10')
+  expect(screen.getByRole('columnheader', { name: 'How high the first right paper ranks, top 10' })).toBeInTheDocument()
+  expect(screen.getByRole('columnheader', { name: 'Key passages found, top 10' })).toBeInTheDocument()
+})
