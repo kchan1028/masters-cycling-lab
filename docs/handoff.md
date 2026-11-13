@@ -168,8 +168,8 @@ questions. Every number is against labels no person has reviewed.
 1. Configure an LLM provider, run `make test-live`, then ask the dev questions in the browser and review whether each
    cited passage supports its claim. Record that as the first answer-support review.
 2. Finish the dev answer run with 10 passages (the scheduled task does this on the free tier) and check abstention
-   on the six no-evidence and out-of-scope questions, still untested. Then finish reviewing the labels with
-   `make review`: the 33 remaining dev questions (`SPLIT=dev` resumes at q017), q033, then the 11 in `test`. Record a new dataset version when labels change.
+   on the six no-evidence and out-of-scope questions, still untested. All dev labels are reviewed (dataset v4); what
+   is left is q033 (`make review REVIEWER=... SPLIT=test2`) and the 11 in `test` (`SPLIT=test`). Record a new dataset version when labels change.
 3. Improve how passages are chosen within the right paper, the main retrieval weakness. Tried on dev: a cap per
    paper and smaller chunks did not help; rank fusion with the lexical ranking helped on dev but was worse than
    vector search on every held-out measure, so it is measured in every run (`hybrid`) but not used for answers (see
