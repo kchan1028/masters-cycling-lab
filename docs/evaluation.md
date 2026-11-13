@@ -82,6 +82,27 @@ the same index, and query latency p95 stays under 500 ms on CPU once the model i
   (dataset v3), so the `test2` results stand as reported; 10 of the 43 dev labels have also been
   reviewed, unchanged; the rest of dev and all of `test` are still unreviewed.
 
+## First answers from a real provider (dev, partial)
+
+2026-11-13, `gemini/gemini-3.6-flash` through a private OmniRoute gateway, prompt `answer-v1`, with
+[research/evaluation/experiments/answer_run.py](../research/evaluation/experiments/answer_run.py). The provider's free
+tier started refusing part way (`503 PROVIDER_UNAVAILABLE`, then a 20-minute cooldown), so 20 of the 43 dev questions
+were attempted and 11 got an answer:
+
+| Outcome | Questions |
+|---|---|
+| Answered | 9 of 17 answerable attempted; every one cites a paper graded 2 for that question |
+| "Not enough evidence" on an answerable question | 2 (q010, q015) |
+| Provider unavailable (`503`) | 9, including all three no-evidence and out-of-scope questions attempted |
+
+- Citations point at the right papers: in all 9 answers at least one cited paper is the one the labels say answers
+  the question. Whether each cited passage supports its claim has not been reviewed by a person yet.
+- Both false abstentions had passages from the right paper in the model's context (mcl-010, mcl-015). Either those
+  passages lacked the actual finding (the right paper but the wrong passage, as in the retrieval results) or the
+  model is too cautious; a person looking at the two answers' debug view can tell which.
+- Abstention on the no-evidence questions is untested: every one of them hit the provider limit.
+- Generation took a median 22 s per answer (up to 77 s); the model reasons before it writes. Search took about 25 ms.
+
 ## Experiments (dev only)
 
 ### 2026-11-12: three ways to improve retrieval
