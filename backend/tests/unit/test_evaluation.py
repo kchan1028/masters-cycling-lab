@@ -55,7 +55,7 @@ def test_span_coverage_needs_the_same_document_page_and_overlap() -> None:
 def test_the_committed_questions_are_valid_and_balanced() -> None:
     questions = load_questions(DEFAULT_QUESTIONS)
     assert len(questions) >= 25
-    assert {q.split for q in questions} == {"dev", "test"}
+    assert {"dev", "test"} <= {q.split for q in questions}
     types = {q.question_type for q in questions}
     assert types == {"direct", "synthesis", "population_mismatch", "insufficient_evidence", "out_of_scope"}
 

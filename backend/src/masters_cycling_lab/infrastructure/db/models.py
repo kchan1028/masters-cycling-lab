@@ -404,7 +404,7 @@ class EvaluationRun(Base):
     finished_at: Mapped[datetime | None]
 
     __table_args__ = (
-        one_of("split", ("train", "dev", "test")),
+        one_of("split", ("train", "dev", "test", "test2")),
         one_of("status", ("running", "completed", "failed")),
         CheckConstraint("(status = 'running') = (finished_at is null)", name="finished_at_matches_status"),
         is_sha256("dataset_sha256"),
