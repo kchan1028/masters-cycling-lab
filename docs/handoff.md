@@ -16,9 +16,9 @@ anything not verified says so.
   for provider problems. Works with any OpenAI-compatible endpoint; **never run against a real one** (no credentials).
 - **Workspace:** Research (claims, citation passages, PDF at the physical page), Documents, Retrieval debug
   (including how an answer was built) and Evaluations views.
-- **Evaluation:** 74 labelled questions (43 dev, 11 held-out test, 20 fresh held-out test2) over 20 CC BY papers, gold quotations anchored to
-  paper, physical page and exact text; recall, MRR, nDCG, evidence coverage, unjudged count and latency for vector
-  and lexical search; JSON artifacts with full provenance.
+- **Evaluation:** 74 labelled questions (43 dev, 11 held-out test, 20 fresh held-out test2) over 20 CC BY papers,
+  gold quotations anchored to paper, physical page and exact text; recall, MRR, nDCG, evidence coverage, unjudged
+  count and latency for vector, lexical and hybrid search; JSON artifacts with full provenance.
 - **Operations:** `make backup` / `make restore`, `make smoke`, readiness checks, a label review workflow
   (`make review`).
 
@@ -121,8 +121,8 @@ Latest retrieval results, dataset v2 (74 questions), vector search (details and 
 | latency p95 | 22 ms | 34 ms | < 500 ms |
 
 The paper that answers a question is usually found and ranked near the top; the passage that answers it much less
-often, so recall and evidence coverage miss their targets on both splits. Dev and fresh held-out numbers agree, so
-they generalise. Vector search beats the lexical baseline on every measure; hybrid ranking is no better on fresh
+often, so recall and evidence coverage miss their targets on both splits. Dev and fresh held-out numbers agree,
+which suggests the dev numbers are representative. Vector search beats the lexical baseline on every measure; hybrid ranking is no better on fresh
 questions. Every number is against labels no person has reviewed.
 
 ## Open blockers

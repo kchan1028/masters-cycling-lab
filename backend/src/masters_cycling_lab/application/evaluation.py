@@ -13,7 +13,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
-from typing import Any, Literal, Self
+from typing import Any, Literal, Self, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 from sqlalchemy import select
@@ -43,7 +43,9 @@ from masters_cycling_lab.infrastructure.db.models import (
 
 DEFAULT_QUESTIONS = REPO_ROOT / "research" / "evaluation" / "questions.jsonl"
 CUTOFFS = (5, 10)
-SPLITS = ("dev", "test", "test2")
+# "dev" is for tuning. "test" and "test2" are held out; "test2" was added once "test" had been seen several times.
+Split = Literal["dev", "test", "test2"]
+SPLITS: tuple[str, ...] = get_args(Split)
 HELD_OUT = ("test", "test2")
 Grade = Literal[0, 1, 2]
 Day = date  # inside Annotation, "date" is a field name
@@ -81,8 +83,7 @@ class Question(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     id: str = Field(pattern=r"^q\d{3}$")
-    # "dev" is for tuning. "test" and "test2" are held out; "test2" was added once "test" had been seen several times.
-    split: Literal["dev", "test", "test2"]
+    split: Split
     question: str = Field(min_length=5, max_length=500)
     question_type: Literal["direct", "synthesis", "population_mismatch", "insufficient_evidence", "out_of_scope"]
     answerability: Literal["answerable", "partially_answerable", "insufficient_evidence", "out_of_scope"]

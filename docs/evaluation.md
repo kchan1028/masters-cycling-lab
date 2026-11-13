@@ -168,8 +168,8 @@ on dev and 34 ms on test2; the lexical and hybrid means on dev were inflated by 
 - The larger dev split is harder than the original 16 scored questions: vector recall@10 0.82 there, 0.76 here, and
   evidence coverage 0.53 there, 0.45 here. The first numbers were optimistic, not wrong; with twice the questions
   the new ones are the better estimate.
-- On the fresh `test2` split, vector search scores like it does on dev (recall@10 0.77, evidence coverage 0.41), so
-  the dev numbers now generalise.
+- On the fresh `test2` split, vector search scores like it does on dev (recall@10 0.77, evidence coverage 0.41),
+  which suggests the dev numbers are representative.
 - Hybrid is not better than vector on fresh questions: about the same recall, MRR and nDCG, and lower evidence
   coverage (0.33 against 0.41). Together with the earlier `test` result, that settles it for now: answers stay on
   vector search.
