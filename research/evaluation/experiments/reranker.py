@@ -7,9 +7,13 @@ retrieval_levers.py). Read-only. Results are in docs/evaluation.md ("Experiments
 
     uv --directory backend run python ../research/evaluation/experiments/reranker.py
 
-The first run downloads the rerankers below into MODEL_CACHE_DIR (data/models, git-ignored). Dev questions only.
+The first run downloads the rerankers below into MODEL_CACHE_DIR (data/models, git-ignored). Choose settings on the
+dev split (the default). A held-out split is for one check of the configuration already chosen, from a commit:
+
+    ... reranker.py --split test2 --models BAAI/bge-reranker-base --depths 20
 """
 
+import argparse
 import statistics
 import time
 
@@ -40,8 +44,15 @@ def reranked(model: CrossEncoder, question: str, hits: list[SearchHit]) -> list[
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    parser.add_argument("--split", choices=evaluation.SPLITS, default="dev")
+    parser.add_argument("--models", nargs="+", choices=[name for name, _ in RERANKERS], help="default: all")
+    parser.add_argument("--depths", nargs="+", type=int, default=DEPTHS)
+    args = parser.parse_args()
+    rerankers = [(name, revision) for name, revision in RERANKERS if not args.models or name in args.models]
+
     settings = get_settings()
-    questions = [q for q in evaluation.load_questions(evaluation.DEFAULT_QUESTIONS) if q.split == "dev"]
+    questions = [q for q in evaluation.load_questions(evaluation.DEFAULT_QUESTIONS) if q.split == args.split]
     scored = [q for q in questions if q.answerability in ("answerable", "partially_answerable")]
     entries = corpus.load_manifest(corpus.DEFAULT_MANIFEST)
     embedder = SentenceTransformerEmbedder(settings)
@@ -52,17 +63,17 @@ def main() -> None:
         if problems:
             raise SystemExit("\n".join(problems))
         pool = {
-            q.id: retrieval.search(session, q.question, SearchFilters(), max(DEPTHS), "vector", embedder).hits
+            q.id: retrieval.search(session, q.question, SearchFilters(), max(args.depths), "vector", embedder).hits
             for q in scored
         }
 
-    print(f"Dev split, {len(scored)} scored questions, top 10 passages\n")
+    print(f"{args.split} split, {len(scored)} scored questions, top 10 passages\n")
     report("vector only", [scores(q, passages(pool[q.id], index.corpus_ids), gold[q.id], 10) for q in scored])
-    for name, revision in RERANKERS:
+    for name, revision in rerankers:
         model = CrossEncoder(name, revision=revision, max_length=512, cache_folder=str(settings.model_cache_dir))
         model.predict([("warm up", "warm up")], show_progress_bar=False)
         print(f"\n{name} at {revision}")
-        for depth in DEPTHS:
+        for depth in args.depths:
             per_question, seconds = [], []
             for q in scored:
                 started = time.perf_counter()

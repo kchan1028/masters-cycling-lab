@@ -9,8 +9,9 @@ controlled; evaluation runs only read it. Metrics and targets are in [docs/evalu
 
 - `dev`, 43 questions: for tuning and experiments.
 - `test`, 11 questions: held out. Results on it have been reported three times, so it is no longer fresh.
-- `test2`, 20 questions: held out, added on 2026-11-12 (q031 to q074 are split between `dev` and `test2`). Not
-  used for any choice so far.
+- `test2`, 20 questions: held out, added on 2026-11-12 (q031 to q074 are split between `dev` and `test2`).
+  Reported twice: the dataset v2 run, and one check of a reranker setting chosen on dev (not adopted). No setting
+  has been chosen because of it.
 
 | `question_type` | Count | What it tests |
 |---|---|---|

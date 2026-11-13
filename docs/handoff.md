@@ -171,8 +171,9 @@ questions. Every number is against labels no person has reviewed.
    [evaluation.md](evaluation.md#experiments-dev-only)). Two small MS MARCO cross-encoder rerankers did not help
    either. Re-run on the 37 scored dev questions of dataset v2, both experiments reach the same conclusions, and
    fusion's earlier dev gain mostly disappears. A larger general reranker, `BAAI/bge-reranker-base` (MIT, about
-   1.1 GB), re-scoring the top 20 raised dev evidence coverage from 0.45 to 0.53 but lowered MRR from 0.90 to 0.79
-   and adds about 234 ms per question. It is the most promising option for answers; check it once on `test2`, then
-   compare answers with and without it after step 1, before adopting it.
+   1.1 GB), re-scoring the top 20 raised dev evidence coverage from 0.45 to 0.53, but on the held-out `test2` it
+   lowered it (0.41 to 0.36) while raising MRR, so it is not adopted either. None of the five options beats plain
+   vector search on held-out questions. The next useful step for retrieval is the reviewed labels (step 2), then an
+   answer-level comparison once answers exist, rather than another ranking experiment.
 4. Add an answer evaluation command (citation validity, abstention accuracy, human support ratings) once answers
    exist.
