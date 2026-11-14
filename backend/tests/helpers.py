@@ -37,7 +37,7 @@ def make_pdf(
     if roman_labels:
         document.set_page_labels([{"startpage": 0, "prefix": "", "style": "r", "firstpagenum": 1}])
     if password:
-        encryption = pymupdf.PDF_ENCRYPT_AES_256
+        encryption = pymupdf.PDF_ENCRYPT_AES_256  # type: ignore[attr-defined]  # missing from PyMuPDF's hints
         return bytes(document.tobytes(encryption=encryption, owner_pw=password, user_pw=password))
     return bytes(document.tobytes())
 
