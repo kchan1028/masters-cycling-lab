@@ -1,3 +1,4 @@
+import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
 
@@ -72,7 +73,7 @@ def test_ctrl_c_stops_a_review_cleanly(monkeypatch: pytest.MonkeyPatch, capsys: 
 
 def test_review_refuses_without_a_terminal(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
     # Without a terminal every prompt would read an empty line, and questions would go by unrecorded.
-    monkeypatch.setattr(cli.sys.stdin, "isatty", lambda: False)
+    monkeypatch.setattr(sys.stdin, "isatty", lambda: False)
     monkeypatch.setattr(cli, "connected_engine", lambda url: pytest.fail("refused before touching the database"))
 
     assert cli.review("KC", "dev", None) == 1
