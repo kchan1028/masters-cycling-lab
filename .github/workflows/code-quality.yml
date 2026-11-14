@@ -1,0 +1,36 @@
+name: Code quality
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: code-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      # setup-uv publishes exact tags only (no floating v10).
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: "0.13.7"
+          enable-cache: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: make bootstrap
+      - name: Lint (Ruff, ESLint)
+        run: make lint
+      - name: Typecheck (mypy, tsc)
+        run: make typecheck
+      - name: Offline tests (pytest, Vitest)
+        run: make test
+      - name: OpenAPI file and frontend types are up to date
+        run: make check-api-types
