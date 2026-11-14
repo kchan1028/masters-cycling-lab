@@ -119,7 +119,8 @@ with known high-severity vulnerabilities ([what CI checks](docs/operations.md#co
   skipped.
 - Local and single-user, with no authentication. Don't expose it beyond `127.0.0.1`.
 
-The [handoff](docs/handoff.md) and [evaluation caveats](docs/evaluation.md#caveats) have the full list.
+The [handoff](docs/handoff.md) and [evaluation caveats](docs/evaluation.md#caveats) have the full list, and the
+[production readiness assessment](docs/production-readiness.md) rates each operational area.
 
 ## Requirements
 
@@ -235,6 +236,8 @@ each one. Things to know:
 - [Code tour](docs/code-tour.md): follow an upload and a question through the code, file by file
 - [API reference](docs/api.md): every endpoint, the error format and where the OpenAPI spec lives
 - [Operations](docs/operations.md): running, checking and resetting the local stack
+- [Production readiness](docs/production-readiness.md): status by area (tests, security, data, operations, quality, cost) and what hosted use would need
+- [Risk register](docs/risk-register.md): material risks with impact, likelihood, mitigation and next action
 - [Evaluation](docs/evaluation.md): metrics, targets and results
 - [Dependencies and licences](docs/dependencies.md): pinned versions and what the licences mean
 - [Decisions](docs/decisions/README.md): why the stack, model, queue, retrieval, evaluation and provider interface work the way they do

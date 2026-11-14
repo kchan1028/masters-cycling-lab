@@ -1,0 +1,31 @@
+# Risk register
+
+Material risks for Masters Cycling Lab as of 2026-11-14, ranked by exposure. The area-by-area status is in
+[production readiness](production-readiness.md).
+
+**Assumptions behind every likelihood below:** one trusted operator runs the app on their own machine under Docker
+Compose, ports stay bound to `127.0.0.1`, the corpus stays in the tens to low hundreds of papers, and answers come
+from a third-party OpenAI-compatible provider. If any of these changes, re-rate the affected risks.
+
+Scale: **Impact** is what happens to the operator's data or the trustworthiness of results. **Likelihood** is how
+likely it is under the assumptions above. Both are Low, Medium or High.
+
+| ID | Risk | Impact | Likelihood | Existing mitigation | Remaining exposure | Next action |
+|---|---|---|---|---|---|---|
+| R1 | **Answers cite the right paper but miss the passage that holds the finding** (retrieval quality) | High: answers can be incomplete or falsely abstain | High: evidence coverage is 0.41 to 0.45; about half of answerable dev questions reach the model without a gold passage | 10 passages sent per answer (up from 6); citations rebuilt from storage; debug view shows what the model saw | Users may trust a fluent answer built on the wrong passage | Measure answer-level effects once the answer run is complete; then try a stronger or domain-adapted embedding model, judged on a fresh held-out split |
+| R2 | **Answer quality is under-measured** (RAG evaluation) | High: support rates can't be quoted, and abstention on unanswerable questions is unknown | High: 7 rated answers, one rater, no abstention results yet | Citation validity enforced on every answer; human review recorded with `rate_answers.py`; automated judgment kept separate | Unsupported claims on harder question types may be common and undetected | Finish the dev answer run on a paid or higher-quota provider; rate all answers; add a second rater |
+| R3 | **Exposure beyond localhost** (document security, no auth) | High: anyone who reaches port 8080 can read, upload and delete everything | Low: needs the operator to change `compose.yaml`, add a tunnel or forward a port | Ports bound to `127.0.0.1`; `Host` allowlist; origin check on writes; documented in SECURITY.md | One edit removes the protection; nothing in the app detects it | Add authentication before any shared use; consider refusing to start when bound to a non-loopback address without auth |
+| R4 | **LLM provider unavailable, capped or changed** (model-provider risk) | Medium: answers stop or change behaviour; search keeps working | High on a free tier: about 13 answers a day before cooldown | Provider failure returns `503`, never a fake abstention; model name, prompt version and usage stored per answer; `answer_run.py` resumes | No retry or fallback; a provider can change a model behind the same name | Use a paid key with a spending cap for evaluation; pin one model; add bounded retries for timeouts and 5xx only |
+| R5 | **Question and passage text sent to a third party** (data protection) | Medium: research questions and document excerpts leave the machine | Medium: happens on every answer when a provider is set | Only the question and selected passages are sent; keys server-side; provider can be left unset; documented in SECURITY.md | Depends on the provider's retention and training policies | Choose a provider with a no-training, limited-retention policy before using non-public documents |
+| R6 | **Hostile or malformed PDF** (ingestion) | Medium: a parser bug could crash or compromise the worker container | Low: the operator chooses the PDFs; the corpus is open-access papers with checked hashes | Type, size and page limits; parsing in the worker container with CPU and memory caps; non-root; stable failure codes | PyMuPDF parses untrusted input in-process; container isolation only | Keep PyMuPDF patched via Dependabot; for untrusted uploads, parse in a separate, network-less sandbox |
+| R7 | **Data loss** (database operations) | High: library, index and answer history lost | Low: local volumes survive restarts and rebuilds; loss needs disk failure or `down --volumes` | `make backup` with checksums; restore verified 2026-11-12 | Backups are manual, unencrypted and on the same machine by default | Schedule backups, copy them off the machine, and repeat the restore drill after schema changes |
+| R8 | **Database changes merge without integration tests** (database operations) | Medium: a migration or query bug reaches `main` | Medium: integration tests are run by hand before database changes | Migration test checks models and migrations agree, including downgrade on an empty database; offline tests in CI | Relies on the operator remembering to run `make test-integration` | Add a PostgreSQL service container to CI and run `make test-integration` on PRs |
+| R9 | **Disk growth from retired index versions** (database operations) | Low: wasted disk, slower backups | Medium over time: every reindex keeps the old version | Old versions make rollback easy | No cleanup job and no growth monitoring | Add a cleanup command for retired versions older than a set age |
+| R10 | **Dependency or image update breaks the stack** (dependency failures) | Medium: the stack fails to build or behaves differently | Medium: major-version Dependabot PRs are open (TypeScript 7, Python 3.15, Node 26, PyMuPDF 2.1) | Lock files; dependency review; CI on every PR; tested toolchain recorded in dependencies.md | CI doesn't cover integration, model or live tests, so some breakages show only at run time | Review major upgrades one at a time and run integration, model and smoke checks before merging |
+| R11 | **AGPL-3.0 obligations from PyMuPDF** (licensing) | Medium: distribution or hosting could require releasing source under AGPL | Low today: not distributed or hosted | Documented in dependencies.md and SECURITY.md | No project licence chosen | Decide the project licence and whether to replace PyMuPDF before any distribution |
+
+## Not rated as material
+
+- **Search latency**: p95 22 to 34 ms against a 500 ms gate at this corpus size.
+- **Load and concurrency**: one user; no load testing is needed until that changes.
+- **Cost of local processing**: embedding and search run on the operator's CPU with no per-use charge.
