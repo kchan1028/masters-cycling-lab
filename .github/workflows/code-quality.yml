@@ -44,6 +44,41 @@ jobs:
       - name: Production frontend build
         run: make build
 
+  # make test-integration against a throwaway PostgreSQL with pgvector, the same image as compose.yaml.
+  # The password is a fixed, non-secret value: the database lives only for this job and is reachable only from it.
+  integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      db:
+        image: pgvector/pgvector:0.8.7-pg17-trixie
+        env:
+          POSTGRES_USER: mcl
+          POSTGRES_PASSWORD: ci-only-not-secret
+          POSTGRES_DB: mcl
+        ports:
+          - "127.0.0.1:5433:5432"
+        options: >-
+          --health-cmd "pg_isready -U mcl -d mcl"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql+psycopg://mcl:ci-only-not-secret@127.0.0.1:5433/mcl
+      APP_ENV: test
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.13.7"
+          enable-cache: true
+      - name: Install locked backend dependencies
+        run: uv --directory backend sync --locked
+      - name: Integration tests (pytest against PostgreSQL)
+        run: make test-integration
+
   # Fails a PR that adds or upgrades a dependency with a known high or critical vulnerability.
   # Reads the PR's lockfile diff through GitHub's dependency graph; needs no secrets.
   dependency-review:
