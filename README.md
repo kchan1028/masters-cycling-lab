@@ -6,6 +6,11 @@ a hands-on project for learning how retrieval-augmented generation works, with e
 
 The app uses pretrained models only and gives no personal training or medical advice.
 
+![The Ask a question page: four numbered claims, each followed by evidence labels such as E2 and E3, with the cited passage from the source paper shown on the right](docs/images/ask-a-question.png)
+
+*A stored answer to "Does strength training help masters cyclists?" Each claim cites the passages it rests on;
+clicking a label shows that passage and its page.*
+
 ## How it works
 
 ```mermaid
@@ -48,6 +53,18 @@ Figures as of 2026-11-13; [evaluation](docs/evaluation.md) has the details and t
 | Answer evaluation | Partly done: whether the model declines no-evidence and out-of-scope questions is not tested yet |
 
 The [handoff](docs/handoff.md) lists what works, what was verified, the results and the next steps.
+
+## Inside the app
+
+**Search details** shows how an answer was built: which passages search found, how close each one was, and which
+ones were sent to the model.
+
+![The Search details page for one answer: the search and answer models, timings, and a table of candidate passages with their pages, distance and whether each was given to the answer model](docs/images/search-details.png)
+
+**Search scores** lists every evaluation run, with the scores for meaning-based search, keyword search and the two
+combined.
+
+![The Search scores page: a table of evaluation runs with expected papers found, how high the first right paper ranks, overall ranking quality and key passages found, each for three search methods](docs/images/search-scores.png)
 
 ## What runs where
 
