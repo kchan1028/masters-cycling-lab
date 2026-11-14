@@ -10,8 +10,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: code-quality-${{ github.ref }}
-  # Cancel superseded PR runs; let every main run finish so each merge has a result.
+  # PRs share a group per branch, so a newer push cancels the older run. Each push to main gets its own group
+  # (keyed by commit), because GitHub keeps only one pending run per group and would drop a queued main run.
+  group: code-quality-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
