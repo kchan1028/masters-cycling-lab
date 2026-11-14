@@ -199,6 +199,24 @@ named `mcl_test_*` next to your real one and drops them when it finishes, so it 
 `make test-model` loads the real embedding model (downloading it into `data/models/` on first use) and runs the
 tests that depend on its tokenizer and vectors.
 
+## Continuous integration
+
+[`code-quality.yml`](../.github/workflows/code-quality.yml) runs on every pull request and every push to `main`.
+
+| Job | Runs on | Checks | Fails when |
+|---|---|---|---|
+| `checks` | PRs and `main` | `make bootstrap` (locked installs), `make lint` (Ruff check and format, ESLint), `make typecheck` (mypy, tsc), `make test` (offline pytest and Vitest), `make check-api-types`, `make build` | Any command exits non-zero, including an OpenAPI file or generated types that differ from the code |
+| `dependency-review` | PRs only | New or upgraded dependencies against GitHub's advisory database | A PR introduces a high or critical vulnerability |
+
+The workflow has read-only repository access, doesn't keep the checkout token, pins every action to a commit, and
+uses no secrets, so it is safe for pull requests from forks. uv and npm downloads are cached between runs. A newer
+push to a PR cancels the older run; runs on `main` always finish.
+
+Not in CI: `make test-integration` (needs PostgreSQL), `make test-model` (downloads the embedding model) and
+`make test-live` (calls a paid provider). Run them locally before changes to the database, retrieval or answers.
+[Dependabot](../.github/dependabot.yml) opens update PRs for the uv and npm lockfiles, the Dockerfiles, the Compose
+images and the workflow actions.
+
 ## Troubleshooting
 
 - **A command ends with `Error 137`.** Docker killed the container for memory. The worker is capped at 3 GB, and

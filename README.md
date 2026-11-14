@@ -100,8 +100,9 @@ Each one has a decision record in [docs/decisions](docs/decisions/) with the con
 - **A pinned embedding model.** `bge-small-en-v1.5` at a fixed revision runs on CPU; changing it means re-embedding
   every document ([0002](docs/decisions/0002-embedding-model.md)).
 
-[GitHub Actions](.github/workflows/code-quality.yml) runs lint, type checks, the offline tests and an OpenAPI drift
-check on every pull request.
+[GitHub Actions](.github/workflows/code-quality.yml) runs lint, type checks, the offline tests, an OpenAPI drift
+check and the production build on every pull request and every merge to `main`, and blocks PRs that add dependencies
+with known high-severity vulnerabilities ([what CI checks](docs/operations.md#continuous-integration)).
 
 ## Known limitations
 
