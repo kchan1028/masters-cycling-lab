@@ -166,7 +166,7 @@ def test_search_endpoint(lab: Lab) -> None:
     assert len(body["results"]) <= 3 and body["searched_documents"] == 1
     top = body["results"][0]
     assert top["excerpt"] == target and abs(top["similarity"] - (1 - top["cosine_distance"])) < 1e-6
-    assert top["pages"][0]["page_number"] >= 1 and "not probabilities" in body["score_note"]
+    assert top["pages"][0]["page_number"] >= 1 and "not the chance" in body["score_note"]
 
     lexical = client.post("/api/v1/retrieval/search", json={"query": "cadence", "mode": "lexical"}).json()
     assert lexical["embedding_model_id"] is None and lexical["results"][0]["cosine_distance"] is None
