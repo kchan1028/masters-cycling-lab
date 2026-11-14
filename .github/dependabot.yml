@@ -11,14 +11,28 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 3
+    ignore:
+      # openapi-typescript 7 needs TypeScript 5.x (docs/dependencies.md). Upgrade TypeScript deliberately.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: docker
     directories: [/backend, /frontend]
     schedule:
       interval: monthly
+    # Base-image upgrades that change the runtime are planned changes, not routine bumps. Patch updates still come.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+      # A Python minor release (3.12 -> 3.13) is a runtime upgrade, so skip those too.
+      - dependency-name: python
+        update-types: ["version-update:semver-minor"]
   - package-ecosystem: docker-compose
     directory: /
     schedule:
       interval: monthly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
