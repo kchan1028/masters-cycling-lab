@@ -9,18 +9,17 @@ The app uses pretrained models only and gives no personal training or medical ad
 ## How it works
 
 ```mermaid
-flowchart LR
+flowchart TB
   subgraph add["Once, when you add a paper"]
-    direction TB
+    direction LR
     pdf["PDF"] --> pages["Text of each page"] --> passages["Passages of up to 300 tokens<br/>never crossing a page"] --> vectors["A vector per passage<br/>bge-small-en-v1.5, on CPU"]
   end
   subgraph ask["Every time you ask"]
-    direction TB
-    question["Your question"] --> nearest["10 nearest passages<br/>labelled E1 to E10"] --> model["Language model writes<br/>claims citing E-labels"] --> checked["Server checks every citation<br/>was one of the 10 sent"]
+    direction LR
+    question["Your question"] --> nearest["10 nearest passages<br/>labelled E1 to E10"] --> model["Language model writes<br/>claims citing E-labels"] --> checked["Server checks every citation<br/>was one of the 10 sent"] --> open["Click a citation:<br/>the PDF opens at that page"]
   end
-  vectors --> library[("Your library<br/>PostgreSQL + pgvector")]
-  library --> nearest
-  checked --> open["Click a citation:<br/>the PDF opens at that page"]
+  add -->|"stored in"| library[("Your library: PostgreSQL + pgvector")]
+  library -->|"searched by"| ask
 ```
 
 If search finds nothing, the app says there is not enough evidence and never calls the model. Searching and reading
