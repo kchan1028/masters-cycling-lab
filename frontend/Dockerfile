@@ -1,5 +1,5 @@
 # Static build served by nginx, which also proxies /api to the API container (one origin for the browser).
-FROM node:24.21.0-alpine AS build
+FROM node:26.13.0-alpine AS build
 WORKDIR /app
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
