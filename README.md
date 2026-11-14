@@ -82,6 +82,39 @@ flowchart LR
 Everything runs on your machine under Docker Compose, bound to `127.0.0.1`. The [code tour](docs/code-tour.md) follows
 an upload and a question through the code, with more diagrams.
 
+## Engineering decisions
+
+Each one has a decision record in [docs/decisions](docs/decisions/) with the context and the alternatives.
+
+- **No RAG framework.** Chunking, retrieval, prompt building and citation checks are small, and they are the parts
+  worth inspecting. A framework would hide them ([0001](docs/decisions/0001-stack-and-structure.md)).
+- **Model-independent answers.** Answers go to any OpenAI-compatible endpoint, and search works with no language
+  model at all. Swapping providers is a configuration change.
+- **PostgreSQL as the job queue.** Workers claim jobs with `FOR UPDATE SKIP LOCKED` and a lease, so a killed or
+  stalled worker can't overwrite newer work, and a reindex never takes a working document out of search
+  ([0003](docs/decisions/0003-postgres-job-queue-and-index-versions.md)). No Celery or Redis.
+- **Exact search before approximate.** At this corpus size a sequential pgvector scan is fast and exact. An HNSW
+  index waits until its recall can be compared against exact results ([0004](docs/decisions/0004-retrieval-and-citations.md)).
+- **Citations resolved on the server.** The model can only cite passages it was sent, and the server checks every
+  label before an answer is stored ([0004](docs/decisions/0004-retrieval-and-citations.md)).
+- **A pinned embedding model.** `bge-small-en-v1.5` at a fixed revision runs on CPU; changing it means re-embedding
+  every document ([0002](docs/decisions/0002-embedding-model.md)).
+
+[GitHub Actions](.github/workflows/code-quality.yml) runs lint, type checks, the offline tests and an OpenAPI drift
+check on every pull request.
+
+## Known limitations
+
+- Passage retrieval is the main weakness: 0.45 and 0.41 against a 0.60 target (see [At a glance](#at-a-glance)).
+- Answer evaluation is partial. Whether the model declines no-evidence and out-of-scope questions is untested.
+- 74 questions and 20 papers is a small set. One question moves a dev average by about 3 points and a `test2`
+  average by about 6, so differences of a few points are noise.
+- No OCR: scanned PDFs are rejected, two-column pages can interleave, tables lose their layout and figures are
+  skipped.
+- Local and single-user, with no authentication. Don't expose it beyond `127.0.0.1`.
+
+The [handoff](docs/handoff.md) and [evaluation caveats](docs/evaluation.md#caveats) have the full list.
+
 ## Requirements
 
 - Docker with Compose
