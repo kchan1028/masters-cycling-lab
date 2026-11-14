@@ -58,7 +58,7 @@ def test_evidence_selection_skips_overlaps_and_respects_limits() -> None:
     hits = [hit(1, 0, 100), hit(2, 50, 150), hit(3, 200, 300), hit(4, 400, 500, "x" * 4000)]
     choices = choose_evidence(hits, max_passages=5, token_budget=200)
     assert [c.label for c in choices] == ["E1", None, "E2", None]
-    assert "overlaps" in choices[1].reason and "budget" in choices[3].reason
+    assert "overlaps" in choices[1].reason and "space left" in choices[3].reason
     limited = choose_evidence([hit(1, 0, 10), hit(2, 20, 30)], max_passages=1, token_budget=10_000)
     assert "limit" in limited[1].reason
 

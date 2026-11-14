@@ -47,9 +47,9 @@ first appearance, so several chunks from one paper never count as several studie
 Only answerable and partially answerable questions are scored. Insufficient-evidence and out-of-scope questions are
 kept for answer evaluation (correct and false abstention).
 
-Not measured: anything about answers. Citation validity is enforced by the server for every answer, but whether
+The retrieval runs measure nothing about answers. Citation validity is enforced by the server for every answer, but whether
 cited passages support the claims (answer-support review), abstention accuracy and faithfulness need generated
-answers, and no LLM provider has been configured, so no answers exist to review. Automated LLM grading, if added,
+answers; the first answers and their review are reported under the answer sections below. Automated LLM grading, if added,
 will be reported as model judgment and kept apart from human review.
 
 ## Targets

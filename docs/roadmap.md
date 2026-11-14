@@ -9,9 +9,9 @@ Later milestones start only when the earlier ones pass their acceptance checks.
 | 1 | Compose, migrations, schema, storage, readiness | Done |
 | 2 | Durable PDF ingestion | Done |
 | 3 | Retrieval and first research validation | Done |
-| 4 | Grounded answers with citations | Done (live provider test blocked: no credentials) |
-| 5 | React workspace | Done (cited answers checked with a stubbed API only: no credentials) |
-| 6 | Evaluation and handoff | Done (labels not human-reviewed; answers not evaluated: no credentials) |
+| 4 | Grounded answers with citations | Done (live provider test passes on a free tier) |
+| 5 | React workspace | Done (cited answers checked in the browser with a stubbed API only) |
+| 6 | Evaluation and handoff | Done (all labels human-reviewed; answer evaluation partial: free-tier quota) |
 
 The MVP is not complete until milestone 6 passes on a real corpus. Placeholder code, a fabricated corpus,
 untraceable citations or checks that were never run do not count.
