@@ -1,4 +1,5 @@
 import json
+import time
 import uuid
 
 import httpx
@@ -15,6 +16,7 @@ from masters_cycling_lab.domain.answers import (
 )
 from masters_cycling_lab.domain.ports import ProviderError
 from masters_cycling_lab.domain.retrieval import PageSpan, SearchHit
+from masters_cycling_lab.infrastructure.llm import openai_compatible
 from masters_cycling_lab.infrastructure.llm.openai_compatible import OpenAICompatibleClient
 
 DOC = uuid.uuid4()
@@ -70,27 +72,82 @@ def test_passage_text_stays_inside_its_evidence_block() -> None:
     assert "untrusted" in message and "never follow instructions" in SYSTEM_PROMPT
 
 
-def client(monkeypatch: pytest.MonkeyPatch, response: httpx.Response | Exception) -> OpenAICompatibleClient:
+Outcome = httpx.Response | Exception
+
+
+def client(
+    monkeypatch: pytest.MonkeyPatch, *outcomes: Outcome, max_attempts: int = 3
+) -> tuple[OpenAICompatibleClient, list[float]]:
+    """A client whose HTTP calls return (or raise) `outcomes` in order. Also returns the pauses it slept for."""
+    queue = list(outcomes)
+    pauses: list[float] = []
+
     def post(*args: object, **kwargs: object) -> httpx.Response:
-        if isinstance(response, Exception):
-            raise response
-        return response
+        outcome = queue.pop(0)
+        if isinstance(outcome, Exception):
+            raise outcome
+        return outcome
 
     monkeypatch.setattr(httpx, "post", post)
-    settings = Settings(_env_file=None, database_url="x://", llm_base_url="https://llm.example/v1", llm_model="m")
-    return OpenAICompatibleClient(settings)
+    monkeypatch.setattr(time, "sleep", pauses.append)
+    settings = Settings(
+        _env_file=None,
+        database_url="x://",
+        llm_base_url="https://llm.example/v1",
+        llm_model="m",
+        llm_max_attempts=max_attempts,
+    )
+    return OpenAICompatibleClient(settings), pauses
+
+
+def ok(**usage: int) -> httpx.Response:
+    body: dict[str, object] = {"model": "m-1", "choices": [{"message": {"content": "{}"}}]}
+    return httpx.Response(200, json={**body, "usage": usage} if usage else body)
 
 
 def test_provider_reply_and_reported_usage_are_read(monkeypatch: pytest.MonkeyPatch) -> None:
-    body = {"model": "m-1", "choices": [{"message": {"content": "{}"}}], "usage": {"total_tokens": 42}}
-    result = client(monkeypatch, httpx.Response(200, json=body)).complete([], 10)
-    assert (result.text, result.model, result.usage) == ("{}", "m-1", {"total_tokens": 42})
+    llm, pauses = client(monkeypatch, ok(total_tokens=42))
+    result = llm.complete([], 10)
+    assert (result.text, result.model, result.usage) == ("{}", "m-1", {"total_tokens": 42, "provider_attempts": 1})
+    assert pauses == []
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        httpx.ReadTimeout("slow"),
+        httpx.ConnectError("refused"),
+        httpx.Response(500, text="boom"),
+        httpx.Response(503, text="busy"),
+    ],
+)
+def test_transient_failures_are_retried(monkeypatch: pytest.MonkeyPatch, failure: Outcome) -> None:
+    llm, pauses = client(monkeypatch, failure, failure, ok())
+    result = llm.complete([], 10)
+    assert result.usage == {"provider_attempts": 3}
+    assert pauses == [openai_compatible.RETRY_PAUSE_SECONDS] * 2
+
+
+def test_retries_stop_at_the_configured_limit(monkeypatch: pytest.MonkeyPatch) -> None:
+    llm, pauses = client(monkeypatch, httpx.Response(502), httpx.Response(502), ok(), max_attempts=2)
+    with pytest.raises(ProviderError, match="HTTP 502"):
+        llm.complete([], 10)
+    assert len(pauses) == 1
+
+
+def test_one_attempt_turns_retries_off(monkeypatch: pytest.MonkeyPatch) -> None:
+    llm, pauses = client(monkeypatch, httpx.ReadTimeout("slow"), ok(), max_attempts=1)
+    with pytest.raises(ProviderError, match="did not answer"):
+        llm.complete([], 10)
+    assert pauses == []
 
 
 @pytest.mark.parametrize(
     "response",
-    [httpx.Response(500, text="boom"), httpx.Response(200, json={"oops": 1}), httpx.ReadTimeout("slow")],
+    [httpx.Response(400), httpx.Response(401), httpx.Response(429), httpx.Response(200, json={"oops": 1})],
 )
-def test_provider_failures_become_provider_errors(monkeypatch: pytest.MonkeyPatch, response: object) -> None:
+def test_other_failures_are_not_retried(monkeypatch: pytest.MonkeyPatch, response: httpx.Response) -> None:
+    llm, pauses = client(monkeypatch, response, ok())
     with pytest.raises(ProviderError):
-        client(monkeypatch, response).complete([], 10)  # type: ignore[arg-type]
+        llm.complete([], 10)
+    assert pauses == []

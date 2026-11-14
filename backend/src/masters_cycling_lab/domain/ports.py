@@ -46,7 +46,8 @@ class LanguageModelReply:
 
     text: str
     model: str
-    # Token counts exactly as the provider reported them. None when it reported nothing; never estimated here.
+    # Token counts exactly as the provider reported them, never estimated here. An adapter may add its own counters
+    # (the OpenAI-compatible client adds `provider_attempts`). None when there is nothing to record.
     usage: dict[str, int] | None
 
 

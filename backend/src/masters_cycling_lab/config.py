@@ -40,6 +40,8 @@ class Settings(BaseSettings):
     llm_api_key: SecretStr | None = None
     llm_model: str | None = None
     llm_timeout_seconds: float = Field(default=60, gt=0, le=600)
+    # Tries per model call, counting the first. Only timeouts, connection errors and 5xx replies are retried.
+    llm_max_attempts: int = Field(default=3, ge=1, le=5)
     llm_max_output_tokens: int = Field(default=1024, gt=0)
     llm_context_window_tokens: int = Field(default=8192, gt=0)
 
