@@ -14,8 +14,8 @@ feature (documents, ingestion, retrieval, answering, evaluation, corpus); each f
 transaction. `domain/` is plain Python with no database or web imports: chunking, choosing passages, checking the
 model's reply, and the evaluation metrics. `infrastructure/` is the code that talks to something outside Python:
 PostgreSQL, the file system, PyMuPDF, the embedding model and the language model provider. Dependencies point inward:
-routes call application code, application code calls domain and infrastructure code, and domain code calls nothing
-outside itself.
+routes call application code, application code calls domain and infrastructure code, and domain code imports nothing
+from the other layers.
 
 ## 1. Uploading a PDF
 
