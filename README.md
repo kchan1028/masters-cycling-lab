@@ -248,4 +248,5 @@ This is a single-user app for your own machine. It has no login, so don't expose
 
 Research PDFs are not stored in git. The corpus manifest records where each paper came from and whether it may be
 redistributed. PyMuPDF is AGPL-3.0, which matters if you distribute the app or run it for other people; see
-[dependencies.md](docs/dependencies.md#licensing-implications). The project itself has no licence yet.
+[dependencies.md](docs/dependencies.md#licensing-implications). The project's own code is MIT-licensed ([LICENSE](LICENSE));
+that doesn't change PyMuPDF's AGPL terms for anyone distributing the app with it.

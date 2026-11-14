@@ -103,7 +103,8 @@ downloaded by `make download-model` (milestone 2) into a local cache and never c
   would mean sharing those changes.
 - **MPL-2.0 packages** (certifi, pathspec, tqdm and some frontend tooling) only require sharing changes to those
   files.
-- **The project itself has no licence yet.** Pick one before publishing the repository. Given PyMuPDF, AGPL-3.0
-  is the simplest compatible choice for an open-source release.
+- **The project's own code is MIT-licensed** ([LICENSE](../LICENSE)). MIT code can be combined with AGPL code, but
+  the MIT licence covers only this repository's files: anyone who distributes the app with PyMuPDF, or runs it for
+  other people over a network, still has to meet PyMuPDF's AGPL terms (or buy Artifex's licence).
 - **Research PDFs** keep their own copyright. They are git-ignored; the corpus manifest records where each came
   from and whether it may be redistributed.
