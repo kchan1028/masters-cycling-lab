@@ -7,6 +7,23 @@ why the code is laid out this way; this page shows where each step happens.
 Paths are relative to the repository root. Backend code lives in `backend/src/masters_cycling_lab/`, shortened
 below to `mcl/`.
 
+## What runs where
+
+Five containers, started by Docker Compose. Only the API and the worker run project code; `migrate` runs once and
+exits. The language model is the only thing outside your machine, and only the API calls it.
+
+```mermaid
+flowchart LR
+  browser["Browser"] -->|"pages and /api calls"| frontend["frontend<br/>nginx serving the React build"]
+  frontend -->|"proxies /api"| api["api<br/>FastAPI + query embedder"]
+  api -->|"SQL"| db[("db<br/>PostgreSQL + pgvector")]
+  api -->|"save, read, delete PDFs"| files[("PDF files<br/>Docker volume")]
+  worker["worker<br/>ingestion loop + embedder"] -->|"claim jobs, write index"| db
+  worker -->|"read PDFs"| files
+  migrate["migrate<br/>runs once"] -->|"schema changes"| db
+  api -->|"question + 10 passages<br/>answers only"| llm["Language model provider<br/>OpenAI-compatible, outside"]
+```
+
 ## The four layers in one paragraph
 
 `api/routes/` turns HTTP into function calls and back, and does nothing else. `application/` holds one module per
@@ -17,7 +34,34 @@ PostgreSQL, the file system, PyMuPDF, the embedding model and the language model
 routes call application code, application code calls domain and infrastructure code, and domain code imports nothing
 from the other layers.
 
+```mermaid
+flowchart TB
+  routes["api/routes<br/>HTTP in and out"] --> application["application<br/>one module per feature, owns transactions"]
+  application --> domain["domain<br/>plain Python rules: chunking, evidence, metrics"]
+  application --> infrastructure["infrastructure<br/>db, storage, pdf, embeddings, llm"]
+  infrastructure -->|"implements ports, returns domain types"| domain
+```
+
 ## 1. Uploading a PDF
+
+```mermaid
+sequenceDiagram
+  participant B as Browser (Papers page)
+  participant A as API
+  participant S as File storage
+  participant D as PostgreSQL
+  B->>A: POST /api/v1/documents (PDF + metadata)
+  A->>A: first 1 KB contains %PDF-?
+  A->>S: save under a random key, hashing as it writes
+  A->>D: same SHA-256 already in the library?
+  alt duplicate
+    A->>S: delete the new copy
+    A-->>B: 200, the existing paper
+  else new paper
+    A->>D: insert document + queued ingestion job
+    A-->>B: 202, paper with job status "queued"
+  end
+```
 
 | Step | Where |
 |---|---|
@@ -33,6 +77,24 @@ library is recognised as a duplicate and changes nothing.
 ## 2. The worker builds the index
 
 The worker is a separate process (`python -m masters_cycling_lab.worker`) with its own copy of the embedding model.
+
+```mermaid
+sequenceDiagram
+  participant W as Worker
+  participant D as PostgreSQL
+  participant S as File storage
+  participant M as Embedding model (in the worker)
+  W->>D: claim oldest due job, set lease + claim token
+  W->>S: read PDF, check SHA-256 still matches
+  W->>W: extract pages, clean text, cut into passages
+  W->>D: write index version, pages, passages, spans (lease checked)
+  loop each batch of passages
+    W->>M: embed batch
+    W->>D: write vectors, update progress (lease checked, lease renewed)
+  end
+  W->>D: count vectors, mark version ready, point document at it, retire old version
+  Note over W,D: Any write after the lease is lost fails, so a stalled worker never publishes
+```
 
 | Step | Where |
 |---|---|
@@ -52,6 +114,35 @@ index. A document that can't be indexed (scanned, encrypted, too many pages) rai
 once with a stable code; any other error is retried with a growing delay, up to the job's attempt limit.
 
 ## 3. Asking a question
+
+```mermaid
+sequenceDiagram
+  participant B as Browser (Ask a question)
+  participant A as API
+  participant D as PostgreSQL
+  participant L as Language model
+  B->>A: POST /api/v1/answers (question, filters)
+  A->>A: embed the question
+  A->>D: nearest passages by cosine distance (active, ready versions only)
+  A->>A: choose up to 10 that fit, label E1..E10
+  A->>D: store run + snapshot of every candidate
+  alt no passages
+    A->>D: store "insufficient evidence"
+    A-->>B: answer without calling the model
+  else passages chosen
+    A->>L: system prompt + question + labelled passages
+    L-->>A: JSON reply
+    A->>A: parse_answer: shape OK, every label was sent?
+    opt reply unusable
+      A->>L: one repair request quoting the problem
+      L-->>A: JSON reply (a second failure returns 502)
+    end
+    A->>D: store claims + citations
+    A-->>B: claims with citations built from the stored snapshots
+  end
+  B->>A: GET /api/v1/documents/{id}/file#page=N
+  A-->>B: the PDF, opened at the cited page
+```
 
 | Step | Where |
 |---|---|
