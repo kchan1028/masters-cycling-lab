@@ -1,5 +1,5 @@
 # API and migration image. Build from the repository root: docker compose build.
-FROM python:3.15.0-slim-trixie
+FROM python:3.12.16-slim-trixie
 
 COPY --from=ghcr.io/astral-sh/uv:0.13.7 /uv /bin/uv
 
