@@ -39,3 +39,18 @@ numbers are starting points to tune on the dev split only.
 - The settings validator rejects revisions that are not full commit hashes, because branch names move.
 - all-MiniLM-L6-v2 is faster but its 256-token limit forces smaller chunks. It is the first alternative to try if
   CPU ingestion is too slow.
+
+## Review notes (added 2026-11-14)
+
+Label: **Current Design**. Added during a documentation review; the decision above is unchanged.
+
+**Alternatives.** `all-MiniLM-L6-v2` (table above). Smaller chunks at the same token budget were later tested on dev
+and did not improve evidence coverage ([evaluation](../evaluation.md#experiments-dev-only)).
+
+**Risks and limits.** A small English model trained for web-style retrieval; it is not tuned for sports-science
+text, and passage-level evidence coverage (0.45 dev, 0.41 `test2`) is the main weakness. Changing the model means
+re-embedding every document.
+
+**When to revisit.** The record already says to re-evaluate after the first dev results. Those results are in, and
+the cheap retrieval levers did not help ([0006](0006-retrieval-evaluation-method.md)), so a stronger or
+domain-adapted embedding model is a candidate, judged on `dev` and confirmed on a fresh held-out split.
