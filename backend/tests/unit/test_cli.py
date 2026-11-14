@@ -76,5 +76,6 @@ def test_review_refuses_without_a_terminal(monkeypatch: pytest.MonkeyPatch, caps
     monkeypatch.setattr(sys.stdin, "isatty", lambda: False)
     monkeypatch.setattr(cli, "connected_engine", lambda url: pytest.fail("refused before touching the database"))
 
-    assert cli.review("KC", "dev", None) == 1
+    # A named question is always reviewable, so this does not depend on any label still being provisional.
+    assert cli.review("KC", None, "q001") == 1
     assert "interactive terminal" in capsys.readouterr().out
