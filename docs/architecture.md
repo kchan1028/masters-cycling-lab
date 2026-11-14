@@ -131,6 +131,47 @@ passages, nothing else: no file names, IDs or other documents. Generation is off
 - Logs do not include full questions, document text or provider payloads by default. Validation errors leave out
   submitted values.
 
+## Deployment and infrastructure
+
+The app runs only as a local Docker Compose stack. That's a deliberate scope decision, not a gap: it has no
+authentication, so the only safe deployment is one that nobody else can reach.
+
+```mermaid
+flowchart LR
+  host["Your machine<br/>127.0.0.1 only"] -->|":8080"| frontend["frontend<br/>nginx, unprivileged"]
+  host -.->|":5433, tests and psql"| db
+  frontend -->|"edge network: /api"| api["api<br/>on both networks"]
+  api -->|"data network"| db[("db<br/>PostgreSQL + pgvector")]
+  worker["worker<br/>2 CPUs, 3 GB"] -->|"data network"| db
+  migrate["migrate<br/>on demand"] -->|"data network"| db
+  frontend --x|"no route"| db
+```
+
+- **Network boundaries.** `frontend` is on `edge` only and cannot resolve or reach `db`. `worker` and `migrate`
+  are on `data` only. `api` joins both and is the one path from the browser to data. Published ports are bound to
+  `127.0.0.1`.
+- **Least privilege in the images.** The API and worker run as a non-root user (UID 10001). nginx runs from the
+  unprivileged image on port 8080. The model is downloaded once (`make download-model`), and containers then run
+  with `HF_HUB_OFFLINE=1`.
+- **Health and startup order.** `db` must pass `pg_isready` before the backend starts, `api` must answer
+  `/api/v1/health/live` before `frontend` starts, and `make up` waits for all health checks.
+- **Persistent state.** Three named volumes hold `pgdata`, `storage` (PDFs) and `models`. `make backup` and
+  `make restore` copy the database and files; see [operations.md](operations.md#backup-and-restore).
+- **Resources.** Only the worker has CPU and memory caps, because PDF parsing and embedding are the expensive,
+  input-dependent work. The other services aren't capped, because no measurements exist yet to set limits from.
+
+### Why there is no Terraform or cloud deployment
+
+No cloud environment exists for this app, and writing Terraform for one would describe infrastructure that has never
+been applied or tested. A hosted version would first need:
+
+1. authentication and per-user authorization, since today any client that reaches the API has full access
+2. object storage for PDFs instead of a local volume
+3. a managed PostgreSQL with pgvector and backups
+4. a decision on where the embedding model and LLM calls run, and what that costs per query
+
+Until those decisions are made, Compose is the whole deployment architecture.
+
 ## Future training module
 
 Not built in the MVP. If added, it lives in its own `training/` package with its own tables:
