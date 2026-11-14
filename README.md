@@ -84,12 +84,15 @@ an upload and a question through the code, with more diagrams.
 
 ## Engineering decisions
 
-Each one has a decision record in [docs/decisions](docs/decisions/) with the context and the alternatives.
+Each one has a decision record with the context, the alternatives, the risks and when to revisit it. The
+[decision index](docs/decisions/README.md) lists all seven.
 
 - **No RAG framework.** Chunking, retrieval, prompt building and citation checks are small, and they are the parts
   worth inspecting. A framework would hide them ([0001](docs/decisions/0001-stack-and-structure.md)).
 - **Model-independent answers.** Answers go to any OpenAI-compatible endpoint, and search works with no language
-  model at all. Swapping providers is a configuration change.
+  model at all. Swapping providers is a configuration change ([0007](docs/decisions/0007-model-provider-abstraction.md)).
+- **pgvector, not a separate vector database.** Vectors live next to the chunks, index versions and citations they
+  belong to, so publishing a new index is one transaction ([0005](docs/decisions/0005-pgvector-instead-of-a-vector-database.md)).
 - **PostgreSQL as the job queue.** Workers claim jobs with `FOR UPDATE SKIP LOCKED` and a lease, so a killed or
   stalled worker can't overwrite newer work, and a reindex never takes a working document out of search
   ([0003](docs/decisions/0003-postgres-job-queue-and-index-versions.md)). No Celery or Redis.
@@ -99,6 +102,8 @@ Each one has a decision record in [docs/decisions](docs/decisions/) with the con
   label before an answer is stored ([0004](docs/decisions/0004-retrieval-and-citations.md)).
 - **A pinned embedding model.** `bge-small-en-v1.5` at a fixed revision runs on CPU; changing it means re-embedding
   every document ([0002](docs/decisions/0002-embedding-model.md)).
+- **Changes must hold on held-out questions.** Hybrid search and a reranker both helped on dev questions and were
+  not adopted because the gain did not hold on the held-out split ([0006](docs/decisions/0006-retrieval-evaluation-method.md)).
 
 [GitHub Actions](.github/workflows/code-quality.yml) runs lint, type checks, the offline tests, an OpenAPI drift
 check and the production build on every pull request and every merge to `main`, and blocks PRs that add dependencies
@@ -232,7 +237,7 @@ each one. Things to know:
 - [Operations](docs/operations.md): running, checking and resetting the local stack
 - [Evaluation](docs/evaluation.md): metrics, targets and results
 - [Dependencies and licences](docs/dependencies.md): pinned versions and what the licences mean
-- [Decisions](docs/decisions/): why the stack, model, queue and retrieval work the way they do
+- [Decisions](docs/decisions/README.md): why the stack, model, queue, retrieval, evaluation and provider interface work the way they do
 
 ## Data and licensing
 

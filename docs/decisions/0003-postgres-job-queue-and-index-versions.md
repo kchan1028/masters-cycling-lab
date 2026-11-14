@@ -36,3 +36,17 @@ is `queued` or `running`.
 - No extra infrastructure, and the queue is inspectable with SQL.
 - Polling adds up to `WORKER_POLL_SECONDS` of latency. `LISTEN/NOTIFY` can be added later if that matters.
 - Retired index versions keep their rows until cleaned up, which costs disk but makes rollback easy.
+
+## Review notes (added 2026-11-14)
+
+Label: **Current Design**. Added during a documentation review; the decision above is unchanged.
+
+**Alternatives.** Celery or RQ with Redis (ruled out in [0001](0001-stack-and-structure.md)); in-place reindexing
+that overwrites the current version.
+
+**Risks and limits.** Retired index versions are kept until cleaned up and use disk; no cleanup job exists yet. A
+worker killed repeatedly (seen once, most likely memory) ends jobs in `WORKER_LOST`, and Reindex recovers them
+([handoff](../handoff.md#checks-run)). Polling adds up to `WORKER_POLL_SECONDS` of latency.
+
+**When to revisit.** Multiple workers on separate machines, many more documents per hour, or a need for
+priorities would justify `LISTEN/NOTIFY` or a broker. Disk use from retired versions would justify a cleanup job.

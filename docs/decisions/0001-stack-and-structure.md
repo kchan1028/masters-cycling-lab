@@ -33,3 +33,18 @@ PostgreSQL with pgvector, SQLAlchemy 2, Alembic, PyMuPDF, sentence-transformers,
   in the debug output.
 - We write a little more code ourselves (the job queue, the prompt builder) and own its tests.
 - Moving to async later would touch every database call. That is acceptable at this scale.
+
+## Review notes (added 2026-11-14)
+
+Label: **Current Design**. The sections below were added during a documentation review; the decision above is
+unchanged.
+
+**Alternatives named in this record:** LangChain or LlamaIndex instead of our own retrieval and prompt code; Celery
+and Redis instead of a PostgreSQL queue; async SQLAlchemy instead of sync; generic repository classes.
+
+**Risks and limits.** Owning the job queue, prompt builder and citation checks means owning their bugs and tests.
+The sync session model would make an async migration touch every database call.
+
+**When to revisit.** If request concurrency grows past what the thread pool handles comfortably, reconsider async.
+If a second person maintains the code and the hand-written RAG parts become a burden, reconsider a framework for
+the parts that are not being studied.

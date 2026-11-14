@@ -34,3 +34,19 @@ service error, never an "insufficient evidence" answer.
 - Retrieval cost grows linearly with the corpus. Fine for hundreds of papers; revisit beyond that.
 - Valid citation IDs only prove the citation is structurally correct. Whether the passage supports the claim is
   measured separately, by human review and labelled clearly when any automated judge is used.
+
+## Review notes (added 2026-11-14)
+
+Label: **Current Design**. Added during a documentation review; the decision above is unchanged.
+
+**Alternatives.** An HNSW index (deferred until its recall is measured); letting the model write page numbers or
+excerpts (rejected: they must come from storage); a distance threshold for abstention (tested and not added,
+because answerable and unanswerable questions overlap in distance, see
+[evaluation](../evaluation.md#why-answers-miss-the-gold-passage-often-never-reaches-the-model-2026-11-13)).
+
+**Risks and limits.** A structurally valid citation can still point at a passage that doesn't support the claim.
+Support is checked by human review, which covers 19 claims so far. Abstention on no-evidence and out-of-scope
+questions is left to the model and is untested.
+
+**When to revisit.** Exact search: see [0005](0005-pgvector-instead-of-a-vector-database.md). Abstention: once the
+dev answer run includes the no-evidence and out-of-scope questions.
