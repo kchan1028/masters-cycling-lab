@@ -91,6 +91,8 @@ an upload and a question through the code, with more diagrams.
 
 ## Setup
 
+[SETUP.md](SETUP.md) walks through a first install step by step, with troubleshooting. The short version:
+
 ```bash
 cp .env.example .env
 ```
@@ -185,6 +187,8 @@ each one. Things to know:
 
 ## Documentation
 
+- [Setup](SETUP.md): first install, step by step, with troubleshooting
+- [Security policy](SECURITY.md): how to report a vulnerability, the threat model and safe-use guidance
 - [Plain-English overview](docs/overview.html): what the app does, how it answers and how well it works, without jargon
 - [Handoff](docs/handoff.md): what works, what was verified, results, open blockers and next steps
 - [Roadmap](docs/roadmap.md): milestones, acceptance checks, assumptions and blockers
