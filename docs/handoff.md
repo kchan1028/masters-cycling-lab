@@ -148,8 +148,8 @@ Resolved on 2026-11-13: every one of the 74 labels has been reviewed by a person
   only with a stubbed API; real answers so far came from `answer_run.py` (blocker 1). The other steps were checked
   in the browser.
 - Milestone 6: answer-support review covers only the first 7 answers (blockers 1 and 2).
-- Retrieval targets, which are quality goals rather than gates: dev evidence coverage 0.53 (target 0.60) and test
-  recall 0.62 (target 0.80) missed.
+- Retrieval targets, which are quality goals rather than gates: recall@10 (0.76 dev, 0.77 test2; target 0.80) and
+  evidence coverage@10 (0.45 dev, 0.41 test2; target 0.60) missed.
 
 ## Known limitations
 
