@@ -4,12 +4,83 @@ A local research workspace for evidence relevant to masters cyclists: upload res
 ask questions and get answers whose citations point to the exact passage and PDF page they came from. It is also
 a hands-on project for learning how retrieval-augmented generation works, with every step inspectable.
 
-It uses pretrained models only. It does not give personal training or medical advice.
+The app uses pretrained models only and gives no personal training or medical advice.
 
-**Status: MVP complete, with two open blockers.** Upload papers, search them, ask questions and check every citation
-against the PDF page in the browser. Not done yet: no LLM provider has been tested (no credentials), so answers return
-`503` until one is configured; and none of the evaluation labels has been reviewed by a person. The
-[handoff](docs/handoff.md) lists what works, what was verified, the results and the next steps.
+![The Ask a question page: four numbered claims, each followed by evidence labels such as E2 and E3, with the cited passage from the source paper shown on the right](docs/images/ask-a-question.png)
+
+*A stored answer to "Does strength training help masters cyclists?" Each claim cites the passages it rests on;
+clicking a label shows that passage and its page.*
+
+## How it works
+
+```mermaid
+flowchart TB
+  subgraph add["Once, when you add a paper"]
+    direction LR
+    pdf["PDF"] --> pages["Text of each page"] --> passages["Passages of up to 300 tokens<br/>never crossing a page"] --> vectors["A vector per passage<br/>bge-small-en-v1.5, on CPU"]
+  end
+  subgraph ask["Every time you ask"]
+    direction LR
+    question["Your question"] --> nearest["10 nearest passages<br/>labelled E1 to E10"] --> model["Language model writes<br/>claims citing E-labels"] --> checked["Server checks every citation<br/>was one of the 10 sent"] --> open["Click a citation:<br/>the PDF opens at that page"]
+  end
+  add -->|"stored in"| library[("Your library: PostgreSQL + pgvector")]
+  library -->|"searched by"| ask
+```
+
+If search finds nothing, the app says there is not enough evidence and never calls the model. Searching and reading
+work without a language model; only answers need one.
+
+## At a glance
+
+| | |
+|---|---|
+| Test library | 20 open-access (CC BY) papers on masters and older cyclists: 259 pages, 1,269 passages |
+| Test questions | 74, each with the papers that answer it and the exact quotations, page by page; all reviewed by a person |
+| Finding the right paper | 0.76 of relevant papers in the top 10 on practice questions, 0.77 on fresh ones (target 0.80) |
+| Finding the right passage | 0.45 practice, 0.41 fresh (target 0.60): the main weakness |
+| Answers checked so far | 19 of 19 claims supported by their cited passages, in the first 7 answers rated |
+| Search time | 22 to 34 ms at the 95th percentile, on CPU |
+
+Figures as of 2026-11-13; [evaluation](docs/evaluation.md) has the details and the caveats.
+
+## Status
+
+| Area | State |
+|---|---|
+| Upload, indexing, search, PDF viewer | Working and checked end to end (`make smoke`) |
+| Answers with citations | Working with a real provider (Gemini 3.6 Flash on a free tier); a partial run on the practice questions so far |
+| Search evaluation | Working: 74 reviewed questions, every run stored with its settings |
+| Answer evaluation | Partly done: whether the model declines no-evidence and out-of-scope questions is not tested yet |
+
+The [handoff](docs/handoff.md) lists what works, what was verified, the results and the next steps.
+
+## Inside the app
+
+**Search details** shows how an answer was built: which passages search found, how close each one was, and which
+ones were sent to the model.
+
+![The Search details page for one answer: the search and answer models, timings, and a table of candidate passages with their pages, distance and whether each was given to the answer model](docs/images/search-details.png)
+
+**Search scores** lists every evaluation run, with the scores for meaning-based search, keyword search and the two
+combined.
+
+![The Search scores page: a table of evaluation runs with expected papers found, how high the first right paper ranks, overall ranking quality and key passages found, each for three search methods](docs/images/search-scores.png)
+
+## What runs where
+
+```mermaid
+flowchart LR
+  browser["Browser"] --> frontend["frontend<br/>nginx + React build"]
+  frontend -->|"/api"| api["api<br/>FastAPI"]
+  api --> db[("db<br/>PostgreSQL + pgvector")]
+  worker["worker<br/>reads and indexes PDFs"] --> db
+  api --> files[("PDF files")]
+  worker --> files
+  api -.->|"answers only"| llm["Language model<br/>any OpenAI-compatible endpoint"]
+```
+
+Everything runs on your machine under Docker Compose, bound to `127.0.0.1`. The [code tour](docs/code-tour.md) follows
+an upload and a question through the code, with more diagrams.
 
 ## Requirements
 
