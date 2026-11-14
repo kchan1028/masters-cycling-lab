@@ -60,7 +60,7 @@ These are outside the code and can stall acceptance:
   the provider is never called.
 - `Host` allow-list (blocks DNS rebinding) and an `Origin` check on browser writes.
 - `make check-api-types` fails when `backend/openapi.json` or the generated frontend types are stale. Checks run
-  locally; the project has no hosted CI.
+  locally; pull requests also run lint, typecheck, offline tests and this check in GitHub Actions.
 
 Verified: fresh database migrates; downgrade and re-upgrade work; 31 integration tests on constraints, migrations
 and readiness pass; data in both volumes survived `make down && make up`. See [operations.md](operations.md).
