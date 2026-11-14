@@ -1,7 +1,8 @@
 # Handoff
 
-State of Masters Cycling Lab at the end of milestone 6, on 2026-11-12. Everything below was run, not assumed;
-anything not verified says so.
+State of Masters Cycling Lab at the end of milestone 6, on 2026-11-12, updated 2026-11-14 for the first real answers
+and the finished label review. Everything below was run, not assumed; anything not verified says so. The checks
+table records the fresh-clone run of 2026-11-12 as it happened.
 
 ## What works
 
@@ -13,7 +14,8 @@ anything not verified says so.
   document and publication year, scores labelled as ordering only.
 - **Answers:** passages labelled `E1..En`, a versioned prompt, strict JSON validation with one repair attempt,
   citations built from stored snapshots, abstention without calling the model when evidence is missing, `502`/`503`
-  for provider problems. Works with any OpenAI-compatible endpoint; **never run against a real one** (no credentials).
+  for provider problems. Works with any OpenAI-compatible endpoint; checked with `gemini/gemini-3.6-flash` on a free
+  tier (`make test-live` passes; a partial dev answer run, see [evaluation.md](evaluation.md)).
 - **Workspace:** Ask a question (claims, citation passages, PDF at the physical page), Papers, Search details
   (including how an answer was built) and Search scores pages.
 - **Evaluation:** 74 labelled questions (43 dev, 11 held-out test, 20 fresh held-out test2) over 20 CC BY papers,
@@ -123,30 +125,29 @@ Latest retrieval results, dataset v2 (74 questions), vector search (details and 
 The paper that answers a question is usually found and ranked near the top; the passage that answers it much less
 often, so recall and evidence coverage miss their targets on both splits. Dev and fresh held-out numbers agree,
 which suggests the dev numbers are representative. Vector search beats the lexical baseline on every measure; hybrid ranking is no better on fresh
-questions. Every number is against labels no person has reviewed.
+questions. These numbers were measured before the label review; every label has since been reviewed by a person and
+accepted unchanged (dataset v5), so they stand as reported.
 
 ## Open blockers
 
-1. **The LLM provider is only partly tested.** Update 2026-11-13: `make test-live` passes with
-   `gemini/gemini-3.6-flash` through OmniRoute, and 13 real dev answers were generated before the free tier's daily cap
-   (see [evaluation.md](evaluation.md#first-answers-from-a-real-provider-dev-partial)). The text below was written
-   before that. `make test-live` skips, and no answer has been generated outside tests with a
-   fake model. Answer quality, answer-support review, abstention accuracy and the browser's ask → cited answer path
-   with a real model are all unverified. Needs: `LLM_BASE_URL`, `LLM_MODEL` and, if required, `LLM_API_KEY` for a
-   provider you accept sending questions and passages to.
-2. **Most labels are not reviewed by a person yet.** All 74 questions are AI drafts. On 2026-11-13 KC reviewed
-   and accepted unchanged 19 of the 20 `test2` questions and 10 of the 43 dev questions (q001 to q015); the other 45
-   (q033, 33 dev from q017 on, and all 11 test) are `provisional`: their quotations are proven to exist on their pages, but the relevance grades, expected points and
-   limitations are one model's reading. Needs: more of a person's time with `make review`.
+1. **The answer evaluation is partial.** `make test-live` passes with `gemini/gemini-3.6-flash` through OmniRoute,
+   but the free tier allows about a dozen answers a day: 15 dev replies with 6 passages and 7 with 10 so far (see
+   [evaluation.md](evaluation.md#first-answers-from-a-real-provider-dev-partial)). Untested: abstention on the six
+   no-evidence and out-of-scope dev questions (and the four in the other splits), synthesis and population-mismatch
+   answers, any held-out answers, and the browser's ask → cited answer path with a real model. Needs: a provider
+   with paid credits or a higher quota.
+2. **Answer support has one rater on a small, easy sample.** KC rated the 19 claims of the first 7 answers (all
+   supported). These are direct questions rated by the person who built the system. Needs: the remaining answers
+   rated, ideally by a second person, before quoting a support rate.
+
+Resolved on 2026-11-13: every one of the 74 labels has been reviewed by a person and accepted unchanged (dataset v5).
 
 ## Acceptance criteria not met
 
-- Milestone 4: "Live provider behavior is tested when credentials are available": not available (blocker 1).
-- Milestone 5: the "ask" step of upload → ready → ask → inspect passage → open PDF works only with a stubbed API in
-  tests; with the real stack it returns `503 LLM_NOT_CONFIGURED` (blocker 1). The other steps were checked in the
-  browser.
-- Milestone 6: answer-support review is not reported because there are no answers to review (blocker 1); labels are
-  not human-reviewed (blocker 2).
+- Milestone 5: the "ask" step of upload → ready → ask → inspect passage → open PDF has been checked in the browser
+  only with a stubbed API; real answers so far came from `answer_run.py` (blocker 1). The other steps were checked
+  in the browser.
+- Milestone 6: answer-support review covers only the first 7 answers (blockers 1 and 2).
 - Retrieval targets, which are quality goals rather than gates: dev evidence coverage 0.53 (target 0.60) and test
   recall 0.62 (target 0.80) missed.
 
