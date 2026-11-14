@@ -206,16 +206,19 @@ tests that depend on its tokenizer and vectors.
 | Job | Runs on | Checks | Fails when |
 |---|---|---|---|
 | `checks` | PRs and `main` | `make bootstrap` (locked installs), `make lint` (Ruff check and format, ESLint), `make typecheck` (mypy, tsc), `make test` (offline pytest and Vitest), `make check-api-types`, `make build` | Any command exits non-zero, including an OpenAPI file or generated types that differ from the code |
+| `integration` | PRs and `main` | `make test-integration` against a `pgvector/pgvector` service container (the image in [`compose.yaml`](../compose.yaml)), with locked backend dependencies | A migration, query or schema-constraint test fails, or PostgreSQL never becomes healthy |
 | `dependency-review` | PRs only | New or upgraded dependencies against GitHub's advisory database | A PR introduces a high or critical vulnerability |
 
 The workflow has read-only repository access, doesn't keep the checkout token, pins every action to a commit, and
-uses no secrets, so it is safe for pull requests from forks. uv and npm downloads are cached between runs. A newer
-push to a PR cancels the older run; runs on `main` always finish.
+uses no secrets, so it is safe for pull requests from forks. The `integration` job's database password is a fixed,
+non-secret value in the workflow; the database exists only for that job. uv and npm downloads are cached between
+runs. A newer push to a PR cancels the older run; runs on `main` always finish.
 
-Not in CI: `make test-integration` (needs PostgreSQL), `make test-model` (downloads the embedding model) and
-`make test-live` (calls a paid provider). Run them locally before changes to the database, retrieval or answers.
+Not in CI: `make test-model` (downloads the embedding model) and `make test-live` (calls a paid provider). Run them
+locally before changes to retrieval or answers.
 [Dependabot](../.github/dependabot.yml) opens update PRs for the uv and npm lockfiles, the Dockerfiles, the Compose
-images and the workflow actions.
+images and the workflow actions. It does not update the `integration` job's service image, so when it bumps the
+`db` image in `compose.yaml`, change the workflow's image in the same PR.
 
 ## Troubleshooting
 

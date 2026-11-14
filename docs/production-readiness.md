@@ -24,7 +24,7 @@ The material risks, with impact, likelihood and next actions, are in the [risk r
 | Area | Status | Evidence | Gaps and limits |
 |---|---|---|---|
 | Unit, contract and frontend tests | Verified | `make test` (pytest and Vitest, offline) runs in CI on every PR and every push to `main` | |
-| Integration and model tests | Partial | `make test-integration` (PostgreSQL in throwaway databases) and `make test-model` pass locally ([handoff](handoff.md#checks-run)) | Not in CI: they need PostgreSQL and a model download. A change can merge without them |
+| Integration and model tests | Partial | `make test-integration` runs in CI on every PR and push to `main` against a pgvector service container ([operations](operations.md#continuous-integration)); `make test-model` passes locally ([handoff](handoff.md#checks-run)) | `make test-model` is not in CI because it downloads the model, so a change to embedding code can merge without it |
 | End-to-end check | Verified | `make smoke`: upload, index, search, page, file, answer, delete against the running stack | Run by hand. The answer step is skipped without a provider |
 | CI | Verified | [code-quality.yml](../.github/workflows/code-quality.yml): lint, type checks, tests, OpenAPI drift check, build; read-only token, pinned actions, no secrets | Branch protection and required checks are GitHub settings, not visible in the repo |
 | Dependencies | Verified | `uv.lock` and `package-lock.json`; dependency review blocks high and critical advisories on PRs; Dependabot for uv, npm, Dockerfiles, Compose and actions; [dependencies.md](dependencies.md) records versions and licences | Container images are pinned by tag, not digest. Major-version Dependabot PRs are open and unreviewed |
