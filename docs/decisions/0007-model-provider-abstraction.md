@@ -31,7 +31,7 @@ dozen answers a day. Providers change quickly, and free tiers run out.
   `ProviderError`. Tests replace it with a fake.
 - `infrastructure/llm/openai_compatible.py` posts to `{LLM_BASE_URL}/chat/completions` with `httpx`, with a
   configurable timeout (`LLM_TIMEOUT_SECONDS`, default 60). Timeouts, connection errors, non-2xx replies and
-  malformed replies all become `ProviderError`.
+  malformed replies all become `ProviderError`, after bounded retries for the transient ones (see Consequences).
 - Generation is off until `LLM_BASE_URL` and `LLM_MODEL` are set. Without them, `POST /answers` returns
   `503 LLM_NOT_CONFIGURED`; everything else works.
 - A provider failure returns `503 PROVIDER_UNAVAILABLE`. A reply that fails citation validation gets one repair
@@ -51,8 +51,12 @@ because abstention accuracy is one of the things still to be measured.
 
 - Swapping providers is a `.env` change, tested once with `make test-live`.
 - Provider-specific features (tool calls, structured-output modes, prompt caching) are not used.
-- There is no automatic retry or fallback provider. A transient failure surfaces as a `503` and the user asks again.
-  `answer_run.py` resumes batch runs instead.
+- Each model call is tried up to `LLM_MAX_ATTEMPTS` times (default 3, 1 second apart), but only after a timeout, a
+  connection error or a 5xx reply. A 4xx (including `429`) or a malformed reply fails at once. When the last try
+  fails, the answer still surfaces as a `503` and `answer_run.py` resumes batch runs. The number of tries for the
+  kept reply is stored in the answer's `usage` as `provider_attempts`.
+- A retried timeout can mean the provider did the work twice, so a slow provider can cost up to `LLM_MAX_ATTEMPTS`
+  calls and `LLM_MAX_ATTEMPTS x LLM_TIMEOUT_SECONDS` of waiting. There is still no fallback provider.
 
 ## Risks and limits
 
@@ -66,6 +70,6 @@ because abstention accuracy is one of the things still to be measured.
 ## When to revisit
 
 - If a second provider shape is needed that the chat-completions endpoint can't express.
-- If transient failures become common enough to matter: add bounded retries with backoff for timeouts and 5xx
-  replies only, and record attempts in `usage`.
+- If `provider_attempts` above 1 becomes common: look at the provider before raising the limit, and consider
+  honouring `Retry-After` on `429`.
 - If answers are offered to anyone other than the operator: add per-request cost limits and provider fallbacks.
