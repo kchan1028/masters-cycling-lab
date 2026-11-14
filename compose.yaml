@@ -21,6 +21,8 @@ x-backend: &backend
   volumes:
     - storage:/data/storage
     - models:/data/models
+  # The worker and migrations only need the database. The api also joins `edge` (below) so nginx can reach it.
+  networks: [data]
   depends_on:
     db:
       condition: service_healthy
@@ -37,6 +39,7 @@ services:
       - "127.0.0.1:5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks: [data]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U mcl -d mcl"]
       interval: 5s
@@ -53,6 +56,7 @@ services:
   api:
     <<: *backend
     restart: unless-stopped
+    networks: [edge, data]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health/live', timeout=3)"]
       interval: 10s
@@ -77,6 +81,8 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:8080:8080"
+    # Only the api is reachable from nginx; the database and worker are not.
+    networks: [edge]
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:8080/"]
       interval: 10s
@@ -85,6 +91,12 @@ services:
     depends_on:
       api:
         condition: service_healthy
+
+# Two networks so the browser-facing container can't reach the database.
+# edge: frontend <-> api. data: api, worker, migrate <-> db.
+networks:
+  edge:
+  data:
 
 volumes:
   pgdata:
