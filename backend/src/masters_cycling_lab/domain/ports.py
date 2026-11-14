@@ -15,6 +15,8 @@ PdfExtractor = Callable[[Path, int], ExtractedPdf]
 
 
 class Embedder(Protocol):
+    """The embedding model as ingestion, search and evaluation use it. Tests swap in a small fake."""
+
     model_id: str
     revision: str
     dimension: int
@@ -40,6 +42,8 @@ class Embedder(Protocol):
 
 @dataclass(frozen=True)
 class LanguageModelReply:
+    """The text of one model reply, the model that wrote it, and token usage if the provider sent it."""
+
     text: str
     model: str
     # Token counts exactly as the provider reported them. None when it reported nothing; never estimated here.
@@ -51,6 +55,10 @@ class ProviderError(Exception):
 
 
 class LanguageModel(Protocol):
+    """A chat model that answers a list of messages. The real one is OpenAICompatibleClient."""
+
     model: str
 
-    def complete(self, messages: list[dict[str, str]], max_tokens: int) -> LanguageModelReply: ...
+    def complete(self, messages: list[dict[str, str]], max_tokens: int) -> LanguageModelReply:
+        """Send the messages and return the reply. Raises ProviderError when the provider fails."""
+        ...

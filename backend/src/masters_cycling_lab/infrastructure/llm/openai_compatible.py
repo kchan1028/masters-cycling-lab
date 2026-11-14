@@ -13,6 +13,8 @@ from masters_cycling_lab.domain.ports import LanguageModelReply, ProviderError
 
 
 class OpenAICompatibleClient:
+    """Calls the configured model at temperature 0. Raises ProviderError if it isn't configured."""
+
     def __init__(self, settings: Settings) -> None:
         if not settings.llm_base_url or not settings.llm_model:
             raise ProviderError("LLM_BASE_URL and LLM_MODEL are not set.")
@@ -23,6 +25,11 @@ class OpenAICompatibleClient:
         self.timeout = settings.llm_timeout_seconds
 
     def complete(self, messages: list[dict[str, str]], max_tokens: int) -> LanguageModelReply:
+        """Send the messages and return the reply text. Raises ProviderError.
+
+        Timeouts, network errors, non-200 statuses and replies without text all become ProviderError. Messages carry
+        only the status, never the response body, because a body can echo the request.
+        """
         body = {"model": self.model, "messages": messages, "temperature": 0, "max_tokens": max_tokens}
         try:
             response = httpx.post(self.url, json=body, headers=self.headers, timeout=self.timeout)

@@ -20,6 +20,7 @@ class EvidenceSpan:
     end: int
 
     def overlaps(self, other: "EvidenceSpan") -> bool:
+        """True when both spans are on the same page of the same document and share characters."""
         return (
             self.document == other.document
             and self.page == other.page
@@ -38,16 +39,19 @@ def find_quote(page_text: str, quote: str) -> tuple[int, int] | None:
 
 
 def documents_in_order(chunk_documents: Sequence[str]) -> list[str]:
+    """Documents in order of first appearance, each once."""
     return list(dict.fromkeys(chunk_documents))
 
 
 def recall(ranked_documents: Sequence[str], relevant: set[str]) -> float | None:
+    """Share of the relevant documents that were returned. None when the question has no relevant documents."""
     if not relevant:
         return None
     return len(set(ranked_documents) & relevant) / len(relevant)
 
 
 def reciprocal_rank(ranked_documents: Sequence[str], relevant: set[str]) -> float | None:
+    """1 / position of the first relevant document, 0 if none was returned, None if none exist."""
     if not relevant:
         return None
     for position, document in enumerate(ranked_documents, start=1):
@@ -67,6 +71,7 @@ def ndcg(ranked_documents: Sequence[str], grades: dict[str, int], k: int) -> flo
 
 
 def discounted_gain(grades: Sequence[int]) -> float:
+    """Sum of (2^grade - 1) / log2(position + 1), with positions counted from 1."""
     return float(sum((2**grade - 1) / math.log2(position + 2) for position, grade in enumerate(grades)))
 
 
@@ -78,4 +83,5 @@ def span_coverage(retrieved: Sequence[EvidenceSpan], gold: Sequence[EvidenceSpan
 
 
 def unjudged(ranked_documents: Sequence[str], judged: set[str]) -> int:
+    """How many returned documents have no relevance judgment for this question."""
     return sum(document not in judged for document in ranked_documents)

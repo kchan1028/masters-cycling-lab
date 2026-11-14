@@ -2,6 +2,7 @@
 
 A modular monolith: one Python package, run as two processes (API and worker), plus PostgreSQL and a static
 React frontend. Nothing else. No queue broker, no separate vector database, no RAG framework.
+[Code tour](code-tour.md) follows an upload and a question through the code, file by file.
 
 ```
 browser ── frontend (static build) ──/api──► api (FastAPI)  ──► PostgreSQL + pgvector

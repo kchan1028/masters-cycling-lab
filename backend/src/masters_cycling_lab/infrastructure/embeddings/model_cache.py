@@ -1,3 +1,5 @@
+"""Check whether the pinned embedding model is downloaded, without loading it."""
+
 from pathlib import Path
 
 from huggingface_hub import try_to_load_from_cache

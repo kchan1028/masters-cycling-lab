@@ -1,3 +1,5 @@
+"""The pinned embedding model (bge-small-en-v1.5 by default), run on the CPU with sentence-transformers."""
+
 import numpy as np
 import numpy.typing as npt
 from sentence_transformers import SentenceTransformer
@@ -10,6 +12,8 @@ QUERY_INSTRUCTION = "Represent this sentence for searching relevant passages: "
 
 
 class ModelNotDownloaded(Exception):
+    """The pinned model revision is not in the local cache. `make download-model` fixes it."""
+
     pass
 
 
@@ -54,13 +58,16 @@ class SentenceTransformerEmbedder:
             )
 
     def token_offsets(self, text: str) -> list[tuple[int, int]]:
+        """Character range of each token, without special tokens. Chunking cuts on these."""
         encoded = self.model.tokenizer(text, add_special_tokens=False, return_offsets_mapping=True, verbose=False)
         return [(int(start), int(end)) for start, end in encoded["offset_mapping"]]
 
     def count_tokens(self, text: str) -> int:
+        """Tokens the model will see for this text, including [CLS] and [SEP]."""
         return len(self.model.tokenizer(text, add_special_tokens=True, verbose=False)["input_ids"])
 
     def embed_documents(self, texts: list[str]) -> npt.NDArray[np.float32]:
+        """Unit-length vectors for passages, computed in batches of EMBEDDING_BATCH_SIZE."""
         # Passages get no instruction prefix; only queries do (bge's recommended setup).
         vectors = self.model.encode(
             texts,
@@ -72,6 +79,7 @@ class SentenceTransformerEmbedder:
         return np.asarray(vectors, dtype=np.float32)
 
     def embed_query(self, text: str) -> npt.NDArray[np.float32]:
+        """A unit-length vector for a search query, with bge's query instruction in front."""
         vector = self.model.encode(
             [text],
             prompt=self.query_instruction,
