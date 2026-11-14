@@ -17,6 +17,8 @@ class IngestionProblem(Exception):
 
 @dataclass(frozen=True)
 class ExtractedPage:
+    """One physical page's cleaned text, its printed label, and any extraction warnings."""
+
     page_number: int  # physical page in the PDF, starting at 1
     label: str | None  # printed page label ("iv", "S12") when the PDF defines one
     text: str
@@ -25,6 +27,8 @@ class ExtractedPage:
 
 @dataclass(frozen=True)
 class ExtractedPdf:
+    """Every page of a PDF, the title from its metadata, and which extractor produced it."""
+
     pages: tuple[ExtractedPage, ...]
     title: str | None  # from the PDF's own metadata, so unverified
     extractor: str

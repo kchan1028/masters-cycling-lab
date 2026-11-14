@@ -42,6 +42,8 @@ def estimate_tokens(text: str) -> int:
 
 @dataclass(frozen=True)
 class EvidenceChoice:
+    """One search hit and whether it was sent to the model: its label if sent, and the reason either way."""
+
     hit: SearchHit
     label: str | None  # E1.. for passages sent to the model
     reason: str  # why it was or wasn't sent
@@ -76,6 +78,7 @@ def choose_evidence(hits: Sequence[SearchHit], max_passages: int, token_budget: 
 
 
 def user_message(question: str, chosen: Sequence[EvidenceChoice]) -> str:
+    """The user turn of the prompt: the question, then each chosen passage in a labelled <evidence> tag."""
     blocks = []
     for choice in chosen:
         hit = choice.hit
@@ -92,12 +95,16 @@ def escape(text: str) -> str:
 
 @dataclass(frozen=True)
 class Claim:
+    """One statement in the answer and the evidence labels it cites."""
+
     text: str
     evidence_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
 class AnswerDraft:
+    """A reply that passed validation: its status, claims and limitations."""
+
     status: AnswerStatus
     claims: tuple[Claim, ...]
     limitations: tuple[str, ...]
@@ -108,6 +115,12 @@ class InvalidAnswer(Exception):
 
 
 def parse_answer(reply: str, allowed_ids: set[str]) -> AnswerDraft:
+    """Validate the model's reply and return it as an AnswerDraft. Raises InvalidAnswer.
+
+    Reads the first {...} block, so text around the JSON is ignored. Every claim needs text and at least one evidence ID
+    from `allowed_ids`. An "answered" reply needs claims, and an "insufficient_evidence" reply must have none. Repeated
+    IDs within a claim are kept once.
+    """
     match = re.search(r"\{.*\}", reply, flags=re.S)
     if match is None:
         raise InvalidAnswer("The reply did not contain a JSON object.")
@@ -147,6 +160,7 @@ def parse_answer(reply: str, allowed_ids: set[str]) -> AnswerDraft:
 
 
 def render_answer(draft: AnswerDraft) -> str:
+    """The answer as plain text: each claim followed by its labels, or the stock not-enough-evidence sentence."""
     if draft.status == "insufficient_evidence":
         return "The indexed research does not contain enough evidence to answer this question."
     return "\n\n".join(f"{claim.text} [{', '.join(claim.evidence_ids)}]" for claim in draft.claims)

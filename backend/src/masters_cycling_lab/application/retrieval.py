@@ -41,6 +41,8 @@ TIE_BREAK = (Document.sha256, Chunk.ordinal)
 
 @dataclass
 class SearchResult:
+    """Ranked hits, how many documents could have matched, and timings in milliseconds."""
+
     hits: list[SearchHit]
     # Documents that could have matched (searchable and inside the filters). Zero explains an empty result.
     searched_documents: int
@@ -55,6 +57,11 @@ def search(
     mode: SearchMode,
     embedder: Embedder | None = None,
 ) -> SearchResult:
+    """The top k passages for a query, in vector, lexical or hybrid mode.
+
+    Searches only the active, ready index version of each live document. Vector and hybrid modes need the embedder.
+    Results are exact, and ties are broken by paper hash and passage position, so the same index gives the same results.
+    """
     timings: dict[str, float] = {}
     started = time.perf_counter()
     if mode == "lexical":
@@ -83,6 +90,7 @@ def vector_rows(
     model_id: str,
     revision: str,
 ) -> list[Any]:
+    """The k nearest chunks by cosine distance, comparing only vectors from the query's model and revision."""
     distance = ChunkEmbedding.embedding.cosine_distance(query_vector).label("score")
     query = (
         searchable_chunks(filters)
@@ -128,6 +136,7 @@ def searchable_chunks(filters: SearchFilters) -> ChunkRow:
 
 
 def filter_clauses(filters: SearchFilters) -> list[ColumnElement[bool]]:
+    """SQL conditions for the document and publication-year filters."""
     clauses: list[ColumnElement[bool]] = []
     if filters.document_ids:
         clauses.append(Document.id.in_(filters.document_ids))
@@ -139,6 +148,7 @@ def filter_clauses(filters: SearchFilters) -> list[ColumnElement[bool]]:
 
 
 def searchable_document_count(session: Session, filters: SearchFilters) -> int:
+    """How many documents could match under these filters. Zero explains an empty result."""
     query = (
         select(func.count())
         .select_from(Document)
@@ -149,6 +159,7 @@ def searchable_document_count(session: Session, filters: SearchFilters) -> int:
 
 
 def to_hits(session: Session, rows: list[Any], mode: SearchMode) -> list[SearchHit]:
+    """Turn database rows into ranked SearchHits with their page spans."""
     spans = spans_by_chunk(session, [row[0] for row in rows])
     hits = []
     for rank, (chunk_id, text, version_id, document_id, title, year, score) in enumerate(rows, start=1):
@@ -170,6 +181,7 @@ def to_hits(session: Session, rows: list[Any], mode: SearchMode) -> list[SearchH
 
 
 def spans_by_chunk(session: Session, chunk_ids: list[uuid.UUID]) -> dict[uuid.UUID, list[PageSpan]]:
+    """The page spans of each chunk, in order, loaded in one query."""
     spans: dict[uuid.UUID, list[PageSpan]] = defaultdict(list)
     if not chunk_ids:
         return spans
@@ -191,4 +203,5 @@ def spans_by_chunk(session: Session, chunk_ids: list[uuid.UUID]) -> dict[uuid.UU
 
 
 def elapsed_ms(started: float) -> float:
+    """Milliseconds since `started` (a perf_counter value), to one decimal place."""
     return round((time.perf_counter() - started) * 1000, 1)

@@ -23,6 +23,7 @@ RETRY_SECONDS = 30
 
 
 def load_embedder(settings: Settings, stop: threading.Event) -> SentenceTransformerEmbedder | None:
+    """Load the embedding model, checking again every 30 seconds until it is downloaded or the worker stops."""
     # Wait instead of crashing, so `make up` works before `make download-model` and picks the model up after.
     while not stop.is_set():
         try:
@@ -34,6 +35,7 @@ def load_embedder(settings: Settings, stop: threading.Event) -> SentenceTransfor
 
 
 def main() -> None:
+    """Run until SIGTERM or SIGINT: claim a job, build its index, repeat."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     settings = get_settings()
     stop = threading.Event()

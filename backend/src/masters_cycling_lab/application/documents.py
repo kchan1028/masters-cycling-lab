@@ -31,6 +31,8 @@ CONTROL_CHARS = re.compile(r"[\x00-\x1f\x7f]")
 
 @dataclass(frozen=True)
 class DocumentView:
+    """A document with its most recent ingestion job, which gives the Papers page its status."""
+
     document: Document
     latest_job: IngestionJob | None
 
@@ -72,6 +74,11 @@ def upload_document(
 def record_upload(
     session: Session, settings: Settings, stored: StoredFile, filename: str | None, metadata: Mapping[str, Any]
 ) -> tuple[DocumentView, bool]:
+    """Create the document row and its first ingestion job for a stored file. Returns (view, duplicate).
+
+    If a live document already has this SHA-256, including one inserted by a concurrent upload, returns that document
+    with duplicate=True and creates nothing.
+    """
     existing = find_by_sha256(session, stored.sha256)
     if existing is not None:
         return view_of(session, existing), True
@@ -102,6 +109,7 @@ def record_upload(
 
 
 def list_documents(session: Session, limit: int, offset: int) -> tuple[list[DocumentView], int]:
+    """Live documents, newest first, one page at a time. Returns the page and the total count."""
     not_deleted = Document.deleted_at.is_(None)
     total = session.scalar(select(func.count()).select_from(Document).where(not_deleted)) or 0
     documents = session.scalars(
@@ -116,6 +124,7 @@ def list_documents(session: Session, limit: int, offset: int) -> tuple[list[Docu
 
 
 def get_document(session: Session, document_id: uuid.UUID) -> DocumentView:
+    """One live document with its latest job. Raises NotFound for unknown or deleted documents."""
     return view_of(session, live_document(session, document_id))
 
 
@@ -147,6 +156,7 @@ def request_ingestion(session: Session, settings: Settings, document_id: uuid.UU
 
 
 def get_job(session: Session, job_id: uuid.UUID) -> IngestionJob:
+    """One ingestion job by ID. Raises NotFound."""
     job = session.get(IngestionJob, job_id)
     if job is None:
         raise NotFound("JOB_NOT_FOUND", "No processing job with this ID.")
@@ -154,6 +164,10 @@ def get_job(session: Session, job_id: uuid.UUID) -> IngestionJob:
 
 
 def get_page(session: Session, document_id: uuid.UUID, page_number: int) -> DocumentPage:
+    """One page of the document's active index version, with its stored text and extraction warnings.
+
+    Raises Conflict while the document has no active version, and NotFound for a page that doesn't exist.
+    """
     document = live_document(session, document_id)
     if document.active_index_version_id is None:
         raise Conflict("DOCUMENT_NOT_READY", "This paper is not ready to search yet.")
@@ -202,6 +216,7 @@ def delete_document(session: Session, storage: LocalFileStorage, document_id: uu
 
 
 def live_document(session: Session, document_id: uuid.UUID) -> Document:
+    """The document, or NotFound if it is unknown or deleted."""
     document = session.get(Document, document_id)
     if document is None or document.deleted_at is not None:
         raise NotFound("DOCUMENT_NOT_FOUND", "No paper with this ID.")
@@ -209,14 +224,17 @@ def live_document(session: Session, document_id: uuid.UUID) -> Document:
 
 
 def find_by_sha256(session: Session, sha256: str) -> Document | None:
+    """The live document with this file hash, if there is one."""
     return session.scalars(select(Document).where(Document.sha256 == sha256, Document.deleted_at.is_(None))).first()
 
 
 def view_of(session: Session, document: Document) -> DocumentView:
+    """Pair a document with its latest job."""
     return DocumentView(document, latest_jobs(session, [document.id]).get(document.id))
 
 
 def latest_jobs(session: Session, document_ids: list[uuid.UUID]) -> dict[uuid.UUID, IngestionJob]:
+    """The newest job for each of the given documents, in one query."""
     if not document_ids:
         return {}
     jobs = session.scalars(

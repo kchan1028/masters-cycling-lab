@@ -54,6 +54,8 @@ class LeaseLost(Exception):
 
 @dataclass(frozen=True)
 class Claim:
+    """This worker's hold on one job. The token proves ownership on every later write."""
+
     job_id: uuid.UUID
     document_id: uuid.UUID
     token: uuid.UUID
@@ -143,6 +145,11 @@ class JobRunner:
         self.lease = lease
 
     def run(self) -> None:
+        """Build the index and record the outcome. Job-level failures are recorded, not raised.
+
+        A document that can't be indexed as it is fails at once. Any other error is retried later. A lost lease stops
+        the job quietly, because another worker or a deletion now owns it.
+        """
         job_id = self.claim.job_id
         try:
             self.build_index()
@@ -181,6 +188,11 @@ class JobRunner:
                 )
 
     def build_index(self) -> None:
+        """Read, clean, chunk and embed the PDF, then make the new index version the active one.
+
+        Writes happen in short transactions that each check the lease, and no transaction stays open while the PDF is
+        read or vectors are computed. The previous version stays searchable until the last transaction switches over.
+        """
         with self.owned_job() as (session, job):
             document = session.get_one(Document, self.claim.document_id)
             if document.deleted_at is not None:
@@ -334,6 +346,10 @@ class JobRunner:
             job.index_version_id = version_id
 
     def chunking_config(self, requested: Mapping[str, Any]) -> ChunkingConfig:
+        """The chunking settings this job asked for, checked against the loaded model.
+
+        Raises IngestionProblem when the job was queued for a different model or the settings don't fit its input limit.
+        """
         model = (requested.get("embedding_model_id"), requested.get("embedding_model_revision"))
         if model != (None, None) and model != (self.embedder.model_id, self.embedder.revision):
             raise IngestionProblem(
@@ -352,6 +368,7 @@ class JobRunner:
         return config
 
     def check_chunks(self, chunks: list[ChunkDraft], page_texts: Mapping[int, str]) -> None:
+        """Check that every chunk can be rebuilt from its page spans and fits the model's input limit."""
         for chunk in chunks:
             if rebuild_text(chunk.spans, page_texts) != chunk.text:
                 raise RuntimeError(f"Chunk {chunk.ordinal} does not match its page spans")
@@ -362,10 +379,12 @@ class JobRunner:
                 )
 
     def check_vectors(self, vectors: npt.NDArray[np.float32], expected_rows: int) -> None:
+        """Check that the model returned one finite vector of the configured size per chunk."""
         if vectors.shape != (expected_rows, self.settings.embedding_dimension) or not np.isfinite(vectors).all():
             raise RuntimeError(f"Embedder returned unusable vectors with shape {vectors.shape}")
 
     def give_up(self, code: str, message: str) -> None:
+        """Fail the job for good with a stable code. For documents that can't be indexed as they are."""
         try:
             with self.owned_job() as (session, job):
                 self.mark_unfinished_version_failed(session)
@@ -377,6 +396,7 @@ class JobRunner:
             pass
 
     def retry_later(self) -> None:
+        """Queue the job again after a doubling delay (30 s, 60 s, ...), or fail it once attempts run out."""
         try:
             with self.owned_job() as (session, job):
                 self.mark_unfinished_version_failed(session)
@@ -394,6 +414,7 @@ class JobRunner:
             pass
 
     def mark_unfinished_version_failed(self, session: Session) -> None:
+        """Mark any index version of this document still in "building" as failed."""
         session.execute(
             update(IndexVersion)
             .where(IndexVersion.document_id == self.claim.document_id, IndexVersion.status == "building")
@@ -402,6 +423,7 @@ class JobRunner:
 
 
 def sha256_of_file(path: Path) -> str:
+    """SHA-256 of a file, read in 1 MB blocks."""
     digest = hashlib.sha256()
     with path.open("rb") as file:
         while block := file.read(1024 * 1024):
@@ -410,4 +432,5 @@ def sha256_of_file(path: Path) -> str:
 
 
 def sha256_of_json(value: object) -> str:
+    """SHA-256 of a value's JSON form with sorted keys, so equal values give equal hashes."""
     return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()

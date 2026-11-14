@@ -1,3 +1,5 @@
+"""PDF files on local disk, under random keys: files/<first two characters of the key>/<key>.pdf."""
+
 import hashlib
 import os
 import re
@@ -14,12 +16,16 @@ READ_SIZE = 1024 * 1024
 
 @dataclass(frozen=True)
 class StoredFile:
+    """Where an upload was stored, its SHA-256 and its size in bytes."""
+
     key: str
     sha256: str
     byte_size: int
 
 
 class FileTooLarge(Exception):
+    """The upload went over the size limit while it was being copied."""
+
     def __init__(self, max_bytes: int) -> None:
         super().__init__(f"File is larger than {max_bytes} bytes")
         self.max_bytes = max_bytes
@@ -61,11 +67,13 @@ class LocalFileStorage:
         return StoredFile(key=key, sha256=digest.hexdigest(), byte_size=size)
 
     def path(self, key: str) -> Path:
+        """Disk path for a key. Anything but a 32-character hex key raises ValueError, so keys stay inside storage."""
         if not KEY_PATTERN.fullmatch(key):
             raise ValueError("Not a valid storage key")
         return self.root / "files" / key[:2] / f"{key}.pdf"
 
     def delete(self, key: str) -> None:
+        """Remove a stored file. Does nothing if it is already gone."""
         self.path(key).unlink(missing_ok=True)
 
     def remove_stale_temp_files(self, older_than_seconds: float = 3600) -> int:
@@ -82,6 +90,7 @@ class LocalFileStorage:
         return removed
 
     def is_writable(self) -> bool:
+        """True if a file can be created in the storage folder. The readiness check uses this."""
         try:
             self.root.mkdir(parents=True, exist_ok=True)
             with tempfile.TemporaryFile(dir=self.root):

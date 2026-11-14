@@ -12,15 +12,19 @@ TokenOffsets = Callable[[str], list[tuple[int, int]]]
 
 @dataclass(frozen=True)
 class ChunkingConfig:
+    """Passage size and overlap in model tokens. Its hash is stored with every index version."""
+
     max_tokens: int
     overlap_tokens: int
     # Bump when the algorithm changes, so old and new index versions are never mistaken for each other.
     strategy: str = "page_token_window_v1"
 
     def as_dict(self) -> dict[str, object]:
+        """The settings as stored in index_versions.chunking_config."""
         return {"strategy": self.strategy, "max_tokens": self.max_tokens, "overlap_tokens": self.overlap_tokens}
 
     def sha256(self) -> str:
+        """Hash of as_dict(), stored as index_versions.chunking_hash."""
         return hashlib.sha256(json.dumps(self.as_dict(), sort_keys=True).encode()).hexdigest()
 
 
@@ -36,6 +40,8 @@ class Span:
 
 @dataclass(frozen=True)
 class ChunkDraft:
+    """One passage before it is stored: its position, text, token count and where it sits on its page."""
+
     ordinal: int
     text: str
     token_count: int  # tokens of text only, without the model's special tokens
@@ -89,4 +95,5 @@ def token_windows(offsets: list[tuple[int, int]], config: ChunkingConfig) -> Ite
 
 
 def rebuild_text(spans: Sequence[Span], page_texts: Mapping[int, str]) -> str:
+    """A chunk's text rebuilt from its spans. Ingestion checks it matches the chunk text exactly."""
     return "".join(span.separator + page_texts[span.page_number][span.start : span.end] for span in spans)

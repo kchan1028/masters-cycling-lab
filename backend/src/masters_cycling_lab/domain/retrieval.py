@@ -17,6 +17,8 @@ HYBRID_CANDIDATES = 100
 
 @dataclass(frozen=True)
 class SearchFilters:
+    """Limits on what search looks at: chosen documents and a publication-year range."""
+
     document_ids: tuple[uuid.UUID, ...] = ()  # empty means every document
     publication_year_from: int | None = None
     publication_year_to: int | None = None
@@ -24,6 +26,8 @@ class SearchFilters:
 
 @dataclass(frozen=True)
 class PageSpan:
+    """Where part of a passage sits: physical page, printed label, and characters in the stored page text."""
+
     page_number: int  # physical page, starting at 1
     page_label: str | None
     start: int  # [start, end) in the stored page text
@@ -32,6 +36,8 @@ class PageSpan:
 
 @dataclass(frozen=True)
 class SearchHit:
+    """One ranked passage with its paper, text, page spans and score. Vector hits carry a distance."""
+
     rank: int
     chunk_id: uuid.UUID
     document_id: uuid.UUID

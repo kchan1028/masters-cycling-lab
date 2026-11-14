@@ -52,6 +52,8 @@ Day = date  # inside Annotation, "date" is a field name
 
 
 class GoldEvidence(BaseModel):
+    """A quotation that answers the question: paper, physical page, exact text and how relevant it is."""
+
     model_config = ConfigDict(extra="forbid")
 
     corpus_id: str = Field(pattern=r"^mcl-\d{3}$")
@@ -61,6 +63,8 @@ class GoldEvidence(BaseModel):
 
 
 class Annotation(BaseModel):
+    """Who drafted a question's labels and when, why, and whether a person has reviewed them."""
+
     model_config = ConfigDict(extra="forbid")
 
     author: str
@@ -74,12 +78,15 @@ class Annotation(BaseModel):
 
     @model_validator(mode="after")
     def reviewed_by_someone(self) -> Self:
+        """A reviewed question must say who reviewed it and when."""
         if self.review_status == "reviewed" and not (self.reviewed_by and self.reviewed_on):
             raise ValueError("a reviewed question needs reviewed_by and reviewed_on")
         return self
 
 
 class Question(BaseModel):
+    """One labelled question: its split and type, which papers are relevant, and the gold quotations."""
+
     model_config = ConfigDict(extra="forbid")
 
     id: str = Field(pattern=r"^q\d{3}$")
@@ -97,6 +104,7 @@ class Question(BaseModel):
 
     @model_validator(mode="after")
     def consistent(self) -> Self:
+        """Gold evidence must come from a relevant paper, and an answerable question needs some."""
         for item in self.evidence:
             if self.document_relevance.get(item.corpus_id, 0) < 1:
                 raise ValueError(f"evidence from {item.corpus_id} needs a document_relevance of 1 or 2")
@@ -106,10 +114,13 @@ class Question(BaseModel):
 
 
 class LabelError(Exception):
+    """The questions file has invalid or duplicate entries, a quotation can't be found, or an ID is unknown."""
+
     pass
 
 
 def review_counts(questions: list[Question]) -> dict[str, int]:
+    """How many questions a person has reviewed and how many are still provisional."""
     reviewed = sum(question.annotation.review_status == "reviewed" for question in questions)
     return {"reviewed": reviewed, "provisional": len(questions) - reviewed}
 
@@ -137,6 +148,7 @@ def record_review(path: Path, question_id: str, *, reviewer: str, reviewed: bool
 
 
 def load_questions(path: Path) -> list[Question]:
+    """Read and validate every question. Collects all problems and raises them together as LabelError."""
     questions, problems = [], []
     for number, line in enumerate(path.read_text().splitlines(), start=1):
         if line.strip():
@@ -160,6 +172,7 @@ class CorpusIndex:
 
 
 def corpus_index(session: Session, entries: list[ManifestEntry]) -> CorpusIndex:
+    """Match manifest entries to ingested documents by file hash."""
     by_sha = {entry.sha256: entry.corpus_id for entry in entries}
     rows = session.execute(
         select(Document.id, Document.sha256, Document.active_index_version_id).where(
@@ -199,6 +212,7 @@ def locate_evidence(
 
 
 def page_text(session: Session, index_version_id: uuid.UUID, page: int) -> str:
+    """The stored text of one page of an index version, or an empty string if there is no such page."""
     text = session.scalar(
         select(DocumentPage.text).where(
             DocumentPage.index_version_id == index_version_id, DocumentPage.page_number == page
@@ -210,6 +224,7 @@ def page_text(session: Session, index_version_id: uuid.UUID, page: int) -> str:
 def score_question(
     question: Question, hits: list[SearchHit], gold: list[EvidenceSpan], index: CorpusIndex
 ) -> dict[str, Any]:
+    """Every metric at each cutoff (5 and 10) for one question. A metric is None when it doesn't apply."""
     scores: dict[str, Any] = {}
     relevant = {doc for doc, grade in question.document_relevance.items() if grade >= 1}
     for k in CUTOFFS:
@@ -229,6 +244,7 @@ def score_question(
 
 
 def summarize(per_question: list[dict[str, Any]], latencies: list[float]) -> dict[str, Any]:
+    """Mean of each metric over the questions that have it, with their count, plus mean and p95 latency."""
     summary: dict[str, Any] = {}
     for name in per_question[0] if per_question else []:
         values = [scores[name] for scores in per_question if scores[name] is not None]
@@ -255,6 +271,13 @@ def run_evaluation(
     code_revision: str | None,
     artifacts_dir: Path,
 ) -> tuple[uuid.UUID, Path, dict[str, Any]]:
+    """Search every question of one split in each mode, score the results, and save the run.
+
+    Raises LabelError before searching if any gold quotation can't be found on its page. Only answerable and partially
+    answerable questions are scored; the others are searched and stored for answer evaluation. Saves an evaluation run
+    row with one result row per question, and the same data as a JSON file in `artifacts_dir`. Returns the run ID, the
+    file path and the summary.
+    """
     index = corpus_index(session, entries)
     chosen = [question for question in questions if question.split == split]
     gold, problems = locate_evidence(session, chosen, index)
@@ -320,6 +343,7 @@ def run_evaluation(
 def run_config(
     session: Session, embedder: Embedder, modes: tuple[SearchMode, ...], k: int, index: CorpusIndex
 ) -> dict[str, Any]:
+    """Everything about the setup that affects the scores, saved with each run so runs can be compared."""
     versions = session.scalars(select(IndexVersion).where(IndexVersion.id.in_(index.active_versions.values())))
     pipelines = sorted({json.dumps({"extractor": f"{v.extractor} {v.extractor_version}", "chunking": v.chunking_config},
                                    sort_keys=True) for v in versions})  # fmt: skip
@@ -339,6 +363,7 @@ def run_config(
 
 
 def hit_record(hit: SearchHit, index: CorpusIndex) -> dict[str, Any]:
+    """One search hit as a run stores it: rank, paper, pages, scores and the first 300 characters."""
     return {
         "rank": hit.rank,
         "corpus_id": index.corpus_ids.get(hit.document_id),
@@ -351,4 +376,5 @@ def hit_record(hit: SearchHit, index: CorpusIndex) -> dict[str, Any]:
 
 
 def file_sha256(path: Path) -> str:
+    """SHA-256 of a whole file, read at once. The label and manifest files are small."""
     return hashlib.sha256(path.read_bytes()).hexdigest()

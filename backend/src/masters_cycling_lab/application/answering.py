@@ -41,6 +41,15 @@ def answer_question(
     question: str,
     filters: SearchFilters,
 ) -> uuid.UUID:
+    """Answer one question and store the run. Returns the run's ID.
+
+    Searches, picks up to RETRIEVAL_CONTEXT_K passages that fit in the model's context, and snapshots every candidate.
+    Then asks the model and validates its reply, sending one repair request if the first reply is unusable. When search
+    finds nothing, it stores an "insufficient evidence" answer without calling the model.
+
+    Raises ProviderUnavailable when no provider is configured or the call fails, and GenerationFailed when the reply is
+    unusable twice. Both leave a failed run in the history.
+    """
     # Reserve room for the instructions, the question, the answer and some slack; passages get what is left.
     budget = (
         settings.llm_context_window_tokens
@@ -167,12 +176,15 @@ def store_evidence(session: Session, run_id: uuid.UUID, choices: list[EvidenceCh
 
 
 def fail(session: Session, run: QueryRun, code: str, timings: dict[str, float]) -> None:
+    """Mark the run failed with a stable error code and commit it, so the failure stays in the history."""
     run.status, run.error_code, run.timings = "failed", code, timings
     session.commit()
 
 
 @dataclass
 class CitationView:
+    """One citation of a claim: its evidence label, the stored snapshot, and whether the paper still exists."""
+
     label: str
     evidence: QueryEvidence
     document_exists: bool
@@ -180,12 +192,15 @@ class CitationView:
 
 @dataclass
 class AnswerView:
+    """A stored answer run with its claims and citations, plus every candidate passage for the debug view."""
+
     run: QueryRun
     claims: list[tuple[AnswerClaim, list[CitationView]]] = field(default_factory=list)
     candidates: list[QueryEvidence] = field(default_factory=list)
 
 
 def get_answer(session: Session, run_id: uuid.UUID) -> AnswerView:
+    """Load a stored answer run with its claims, citations and candidate passages. Raises NotFound."""
     run = session.get(QueryRun, run_id)
     if run is None:
         raise NotFound("ANSWER_NOT_FOUND", "No answer with this ID.")

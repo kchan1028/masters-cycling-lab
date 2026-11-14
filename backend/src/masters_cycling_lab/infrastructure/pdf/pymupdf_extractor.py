@@ -1,3 +1,5 @@
+"""Read the text of each PDF page with PyMuPDF."""
+
 from pathlib import Path
 
 import pymupdf
@@ -46,6 +48,7 @@ def extract_pdf(path: Path, max_pages: int) -> ExtractedPdf:
 
 
 def read_page(page: pymupdf.Page) -> ExtractedPage:
+    """Cleaned text, printed label and warnings for one page. A page with no letters or digits is kept empty."""
     text = normalize_text(page.get_text("text", flags=TEXT_FLAGS))
     warnings: tuple[str, ...] = ()
     if not any(char.isalnum() for char in text):

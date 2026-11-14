@@ -118,6 +118,7 @@ each one. Things to know:
 - [Handoff](docs/handoff.md): what works, what was verified, results, open blockers and next steps
 - [Roadmap](docs/roadmap.md): milestones, acceptance checks, assumptions and blockers
 - [Architecture](docs/architecture.md): processes, layers, data model, security boundaries
+- [Code tour](docs/code-tour.md): follow an upload and a question through the code, file by file
 - [Operations](docs/operations.md): running, checking and resetting the local stack
 - [Evaluation](docs/evaluation.md): metrics, targets and results
 - [Dependencies and licences](docs/dependencies.md): pinned versions and what the licences mean

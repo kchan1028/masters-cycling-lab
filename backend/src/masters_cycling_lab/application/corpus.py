@@ -40,6 +40,8 @@ PopulationRelevance = Literal[
 
 
 class ManifestEntry(BaseModel):
+    """One paper in research/corpus/manifest.jsonl: bibliographic data, licence, source and file checksum."""
+
     model_config = ConfigDict(extra="forbid")
 
     corpus_id: str = Field(pattern=r"^mcl-\d{3}$")
@@ -76,10 +78,13 @@ class ManifestEntry(BaseModel):
 
 
 class ManifestError(Exception):
+    """The manifest has invalid lines, duplicate IDs or files, or a file path outside the corpus folder."""
+
     pass
 
 
 def load_manifest(path: Path) -> list[ManifestEntry]:
+    """Read and validate every line of the manifest. Collects all problems and raises them together."""
     entries: list[ManifestEntry] = []
     problems: list[str] = []
     for number, line in enumerate(path.read_text().splitlines(), start=1):
@@ -110,6 +115,8 @@ def local_path(manifest: Path, entry: ManifestEntry) -> Path:
 
 @dataclass(frozen=True)
 class FileCheck:
+    """The problems found with one corpus PDF. An empty list means it passed."""
+
     corpus_id: str
     problems: list[str]
 
@@ -203,6 +210,7 @@ def index_status(session: Session, entries: list[ManifestEntry]) -> dict[str, st
 
 
 def manifest_metadata(entry: ManifestEntry) -> dict[str, object]:
+    """The manifest's bibliographic fields, under the names the documents table uses."""
     return {
         "title": entry.title,
         "authors": entry.authors,
@@ -215,10 +223,12 @@ def manifest_metadata(entry: ManifestEntry) -> dict[str, object]:
 
 
 def normalize(text: str) -> str:
+    """Lowercase letters and digits only, single-spaced, for loose title matching."""
     return re.sub(r"[^a-z0-9]+", " ", unicodedata.normalize("NFKC", text).lower()).strip()
 
 
 def fetch_url(url: str) -> bytes:
+    """Download one file with a two-minute timeout."""
     request = urllib.request.Request(url, headers={"User-Agent": "masters-cycling-lab corpus download"})
     with urllib.request.urlopen(request, timeout=120) as response:
         content: bytes = response.read()
