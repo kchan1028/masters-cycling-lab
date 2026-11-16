@@ -5,18 +5,19 @@ controlled; evaluation runs only read it. Metrics and targets are in [docs/evalu
 
 ## Current set
 
-74 questions in three splits:
+114 questions in three splits:
 
-- `dev`, 43 questions: for tuning and experiments.
+- `dev`, 63 questions: for tuning and experiments.
 - `test`, 11 questions: held out. Results on it have been reported three times, so it is no longer fresh.
-- `test2`, 20 questions: held out, added on 2026-11-12 (q031 to q074 are split between `dev` and `test2`).
-  Reported three times: the dataset v2 run, and one check each of a reranker setting and a small-window ranking
-  setting chosen on dev (neither adopted). No setting has been chosen because of it.
+- `test2`, 40 questions: held out, added on 2026-11-12 (q031 to q074 are split between `dev` and `test2`) and
+  extended on 2026-11-16 (q075 to q114, 20 to each). Its first 20 were reported three times: the dataset v2 run,
+  and one check each of a reranker setting and a small-window ranking setting chosen on dev (neither adopted). No
+  setting has been chosen because of it, and the 20 added on 2026-11-16 have never been run.
 
 | `question_type` | Count | What it tests |
 |---|---|---|
-| `direct` | 48 | One paper answers it |
-| `synthesis` | 7 | The answer combines several papers |
+| `direct` | 80 | One paper answers it |
+| `synthesis` | 15 | The answer combines several papers |
 | `population_mismatch` | 9 | Relevant evidence exists, but for another population (runners, young athletes) |
 | `insufficient_evidence` | 6 | The corpus does not answer it; the system should say so |
 | `out_of_scope` | 4 | Not a research question for this app (personal coaching, equipment) |
@@ -40,9 +41,16 @@ text, including line-break hyphenation such as `lit- tle`; matching ignores whit
 
 ## Review status
 
-Every question here was drafted by Claude (an AI) on 2026-11-12 from the stored text of the papers. On 2026-11-13 KC
-reviewed with `make review` and accepted unchanged 19 of the 20 `test2` questions (q033 was skipped) and 10 of the 43
-`dev` questions (q001 to q015); the other 45 are still `provisional`. q001 to q030 were written in one pass. For q031 to q074, four agents each drafted questions from five
+Every question here was drafted by Claude (an AI) from the stored text of the papers: q001 to q074 on 2026-11-12,
+q075 to q114 on 2026-11-16. KC reviewed all of q001 to q074 with `make review` on 2026-11-13 and accepted every one
+unchanged (dataset v5). On 2026-11-16 KC reviewed q075 to q114 and accepted 39 unchanged; q076 was skipped and is
+still `provisional` (dataset v6).
+
+q075 to q114 were added because 18 to 37 scored questions per split could not tell a gain under about 5 points from
+noise. Four agents each drafted 10 answerable questions (8 direct, 2 synthesis) from five papers' stored text, told
+not to reuse existing questions or copy distinctive phrases from the papers. All 40 were checked mechanically: schema,
+every quotation on its page, near-duplicates (none). Splits alternate within each question type, except that q111
+and q112 swapped so both core-training questions (q079, q112) are in `dev`. q001 to q030 were written in one pass. For q031 to q074, four agents each drafted questions from five
 papers' stored text; the five questions without evidence (q070 to q074) were written after a text search of all 20
 papers showed no paper covers their topic. All 44 drafts were checked mechanically (schema, every quotation on its
 page, near-duplicates); one near-duplicate was dropped, one grade lowered, and questions on the same topic kept in
@@ -101,6 +109,7 @@ versions reported in [docs/evaluation.md](../../docs/evaluation.md) are:
 | v3 | `8feb3b48f2228fdf…` | `e68d33b48785581c…` | 2026-11-13, commit `79dd4e2` | 19 reviewed (`test2`), 55 provisional; labels unchanged from v2 |
 | v4 | `a928b3a4f8b8292b…` | `e68d33b48785581c…` | 2026-11-13, commit `a60a3b5` | 62 reviewed (all 43 `dev`, 19 `test2`), 12 provisional (11 `test`, q033); labels unchanged from v2 |
 | v5 | `6d6b3e8009e4f373…` | `e68d33b48785581c…` | 2026-11-13, commit `977f0c7` | all 74 reviewed; labels unchanged from v2 |
+| v6 | `03936c090db38a35…` | `e68d33b48785581c…` | 2026-11-16, commit `540772a` | 114 questions: adds q075 to q114; 113 reviewed, q076 provisional |
 
 Changing the file (including recording reviews) makes a new version. Add a row here when results are reported on
 it. Split membership is fixed: questions never move between splits. `mcl evaluate --split test` (or `test2`) runs only

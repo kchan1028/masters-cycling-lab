@@ -29,8 +29,8 @@ Retrieval quality is the main weakness: passage-level evidence coverage is 0.45 
 
 ## Decision
 
-- **Labelled questions in git** (`research/evaluation/questions.jsonl`): 74 questions with graded relevant papers and
-  exact gold quotations by page, all reviewed by a person (dataset v5). `make labels-check` fails if any quotation is
+- **Labelled questions in git** (`research/evaluation/questions.jsonl`): 114 questions with graded relevant papers and
+  exact gold quotations by page; the first 74 reviewed by a person (dataset v5), q075 to q114 awaiting review. `make labels-check` fails if any quotation is
   not on its stated page.
 - **Splits.** Tune only on `dev`. `test2` is the fresh held-out split; `test` has been reported three times and is no
   longer treated as fresh. Held-out splits run only from a clean checkout.

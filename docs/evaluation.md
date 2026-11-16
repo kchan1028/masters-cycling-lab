@@ -72,8 +72,9 @@ the same index, and query latency p95 stays under 500 ms on CPU once the model i
 
 ## Caveats
 
-- 74 questions and 20 papers. With 37 scored dev questions one question moves an average by about 3 points, and
-  with 18 scored `test2` questions by about 6; differences of a few points between runs are noise.
+- 114 questions and 20 papers from dataset v6 (74 before it). With 57 scored dev questions one question moves an
+  average by about 2 points, and with 38 scored `test2` questions by about 3 (3 and 6 on dataset v2 and earlier);
+  differences of a few points between runs are noise.
 - Relevance judgments are incomplete: only documents an annotator considered were graded. `unjudged@k` shows how
   often the system returns documents nobody judged.
 - Labels are AI drafts until a person reviews them with `make review` (see
@@ -315,6 +316,44 @@ be told from noise. The next step for retrieval is more scored questions, so a r
 another ranking method.
 
 ## Results
+
+### 2026-11-16, dataset v6 (114 questions), runs at commit 9f07dde
+
+40 new questions, q075 to q114, 20 to each split (see
+[research/evaluation/README.md](../research/evaluation/README.md#review-status)); 113 of 114 reviewed by a person,
+q076 (`test2`) still provisional. Same corpus, index and settings as the entries below. The 20 new `test2`
+questions had never been run.
+
+| Metric | Dev, vector | Dev, hybrid | Dev, lexical | Test2, vector | Test2, hybrid | Test2, lexical | Target (vector) |
+|---|---|---|---|---|---|---|---|
+| Questions scored | 57 | 57 | 57 | 38 | 38 | 38 | |
+| recall@5 | 0.72 | 0.62 | 0.49 | 0.60 | 0.64 | 0.44 | |
+| recall@10 | 0.75 | 0.75 | 0.59 | 0.75 | 0.73 | 0.62 | ≥ 0.80: **missed** on both |
+| mrr@10 | 0.86 | 0.78 | 0.56 | 0.82 | 0.85 | 0.55 | ≥ 0.60: met |
+| ndcg@10 | 0.77 | 0.72 | 0.48 | 0.73 | 0.75 | 0.50 | ≥ 0.60: met |
+| evidence_coverage@10 | 0.48 | 0.50 | 0.24 | 0.46 | 0.46 | 0.21 | ≥ 0.60: **missed** on both |
+| unjudged@10 | 1.6 | 1.6 | 2.9 | 1.9 | 1.7 | 2.4 | |
+
+Runs: dev `99b8c81d`, test2 `ed3b5486`, artifacts in `research/evaluation/results/`. Vector latency p95 was 19 ms
+on dev and 20 ms on test2.
+
+Vector search, split by when the questions were written:
+
+| Questions | Dev scored | recall@10 | MRR | nDCG | evidence coverage | Test2 scored | recall@10 | MRR | nDCG | evidence coverage |
+|---|---|---|---|---|---|---|---|---|---|---|
+| q001 to q074 | 37 | 0.76 | 0.90 | 0.80 | 0.45 | 18 | 0.77 | 0.81 | 0.72 | 0.41 |
+| q075 to q114 | 20 | 0.75 | 0.80 | 0.72 | 0.55 | 20 | 0.72 | 0.83 | 0.74 | 0.52 |
+
+- The original questions reproduce their dataset v2 numbers exactly, so nothing in the index or code drifted.
+- With twice the held-out questions, `test2` now agrees with dev to within 0.04 on every vector measure. One
+  `test2` question moves an average by about 3 points instead of 6.
+- The new questions find the answering passage more often (0.52 to 0.55 against 0.41 to 0.45). They were drafted to
+  aim at specific findings in a paper's results, which may sit in more distinctive passages; they have fewer gold
+  quotations each, too. The combined figures are the better estimate, and still miss the 0.60 target.
+- Hybrid is again no better than vector on fresh questions (evidence coverage 0.46 both, recall 0.73 against
+  0.75); answers stay on vector search.
+- This is the baseline for the next retrieval change: on 38 held-out questions, a gain under about 5 points is
+  still within noise, but one of 6 to 8 points would now show.
 
 ### 2026-11-12, dataset v2 (74 questions), runs at commit be07843
 
