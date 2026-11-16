@@ -277,6 +277,43 @@ found the answering passage less often (evidence coverage 0.41 to 0.36): the opp
 change is one or two questions and the direction flips between splits, so there is no reliable gain. Not adopted.
 With this, none of the five options tried beats plain vector search on held-out questions.
 
+### 2026-11-16: ranking passages by their best small window
+
+[small_to_big.py](../research/evaluation/experiments/small_to_big.py) keeps the 300-token passages the model sees
+(so the same ~3,000-token context at 10) and changes only their order. Each passage is split into small windows,
+each window is embedded with the same model, and a passage scores
+`alpha × similarity(passage) + (1 − alpha) × best similarity(window inside it)`. The idea: one embedding per
+300-token passage blurs a single finding into the rest of the page. alpha = 1 is plain vector search and
+reproduced the official dev run exactly. Dev, 37 scored questions, top 10 passages:
+
+| Windows | alpha | recall | MRR | nDCG | evidence coverage |
+|---|---|---|---|---|---|
+| (vector only) | 1.00 | 0.76 | 0.90 | 0.80 | 0.45 |
+| 100 tokens | 0.75 | 0.76 | 0.91 | 0.81 | 0.47 |
+| 100 tokens | 0.50 | 0.78 | 0.90 | 0.81 | 0.45 |
+| 60 tokens | 0.50 | 0.78 | 0.91 | 0.82 | 0.48 |
+| 60 tokens | 0.00 | 0.82 | 0.85 | 0.79 | 0.40 |
+| 40 tokens | 0.50 | 0.78 | 0.90 | 0.81 | 0.50 |
+| 40 tokens | 0.00 | 0.74 | 0.82 | 0.74 | 0.31 |
+
+Every gain on dev is one or two questions. Windows alone (alpha 0) rank the answering passage worse; an even mix
+is the only setting that does not lose anywhere. 40-token windows score the highest evidence coverage, but their
+neighbouring alphas fall back to the baseline, so 60-token windows at alpha 0.5, at or above vector search on every
+measure, were chosen for the held-out check.
+
+Held-out check, run once at commit `7ceb69d` with only that setting, on the 18 scored `test2` questions:
+
+| Variant (test2) | recall@10 | MRR | nDCG | evidence coverage |
+|---|---|---|---|---|
+| Vector only (same as the official test2 run) | 0.77 | 0.81 | 0.72 | 0.41 |
+| 60-token windows, alpha 0.5 | 0.73 | 0.83 | 0.72 | 0.42 |
+
+No reliable gain: evidence coverage moves by less than one question and recall drops by one. Not adopted. Six
+options have now been tried and none beats plain vector search on held-out questions. Every one changes ranking
+with the same small embedding model, and with 18 to 37 scored questions no change smaller than about 5 points can
+be told from noise. The next step for retrieval is more scored questions, so a real gain can be measured, before
+another ranking method.
+
 ## Results
 
 ### 2026-11-12, dataset v2 (74 questions), runs at commit be07843
