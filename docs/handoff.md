@@ -112,22 +112,21 @@ run.
 Provenance, licence and SHA-256 for each are in [research/corpus/manifest.jsonl](../research/corpus/manifest.jsonl);
 population notes are provisional.
 
-Latest retrieval results, dataset v2 (74 questions), vector search (details and earlier runs in
+Latest retrieval results, dataset v6 (114 questions, 113 reviewed), vector search (details and earlier runs in
 [evaluation.md](evaluation.md)):
 
-| Metric | Dev (37 scored) | Fresh held-out test2 (18 scored) | Target |
+| Metric | Dev (57 scored) | Held-out test2 (38 scored) | Target |
 |---|---|---|---|
-| recall@10 | 0.76 | 0.77 | ≥ 0.80 |
-| mrr@10 | 0.90 | 0.81 | ≥ 0.60 |
-| ndcg@10 | 0.80 | 0.72 | ≥ 0.60 |
-| evidence_coverage@10 | 0.45 | 0.41 | ≥ 0.60 |
-| latency p95 | 22 ms | 34 ms | < 500 ms |
+| recall@10 | 0.75 | 0.75 | ≥ 0.80 |
+| mrr@10 | 0.86 | 0.82 | ≥ 0.60 |
+| ndcg@10 | 0.77 | 0.73 | ≥ 0.60 |
+| evidence_coverage@10 | 0.48 | 0.46 | ≥ 0.60 |
+| latency p95 | 19 ms | 20 ms | < 500 ms |
 
 The paper that answers a question is usually found and ranked near the top; the passage that answers it much less
-often, so recall and evidence coverage miss their targets on both splits. Dev and fresh held-out numbers agree,
-which suggests the dev numbers are representative. Vector search beats the lexical baseline on every measure; hybrid ranking is no better on fresh
-questions. These numbers were measured before the label review; every label has since been reviewed by a person and
-accepted unchanged (dataset v5), so they stand as reported.
+often, so recall and evidence coverage miss their targets on both splits. Dev and held-out numbers agree within 0.04,
+so the dev numbers are representative. Vector search beats the lexical baseline on every measure; hybrid ranking is
+no better on fresh questions.
 
 ## Open blockers
 
@@ -186,8 +185,8 @@ Resolved on 2026-11-13: every one of the 74 labels has been reviewed by a person
    to 0.42, recall 0.77 to 0.73). None of the six options beats plain vector search on held-out questions, and with
    18 to 37 scored questions gains under about 5 points cannot be told from noise. The next useful step for
    retrieval is more scored questions, then an answer-level comparison, rather than another ranking experiment.
-   q075 to q114 (2026-11-16) add 40: review them with `make review`, record dataset v6, then re-run
-   `make evaluate SPLIT=dev` and, once, `SPLIT=test2` to get a vector baseline on the larger set.
+   q075 to q114 (2026-11-16) added 40 reviewed questions (dataset v6) and a new vector baseline on 57 dev and 38
+   held-out questions; a held-out gain of 6 to 8 points would now show. Review q076, still provisional.
 4. Answer evaluation: [answer_report.py](../research/evaluation/experiments/answer_report.py) summarises an answer
    run (abstention, grade-2 papers cited, citations on a gold page). Still missing: human ratings of whether each
    cited passage supports its claim, and a CLI command once the report's shape has settled.
