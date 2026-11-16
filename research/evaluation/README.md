@@ -43,7 +43,8 @@ text, including line-break hyphenation such as `lit- tle`; matching ignores whit
 
 Every question here was drafted by Claude (an AI) from the stored text of the papers: q001 to q074 on 2026-11-12,
 q075 to q114 on 2026-11-16. KC reviewed all of q001 to q074 with `make review` on 2026-11-13 and accepted every one
-unchanged (dataset v5). q075 to q114 are `provisional` until reviewed.
+unchanged (dataset v5). On 2026-11-16 KC reviewed q075 to q114 and accepted 39 unchanged; q076 was skipped and is
+still `provisional` (dataset v6).
 
 q075 to q114 were added because 18 to 37 scored questions per split could not tell a gain under about 5 points from
 noise. Four agents each drafted 10 answerable questions (8 direct, 2 synthesis) from five papers' stored text, told
@@ -108,6 +109,7 @@ versions reported in [docs/evaluation.md](../../docs/evaluation.md) are:
 | v3 | `8feb3b48f2228fdf…` | `e68d33b48785581c…` | 2026-11-13, commit `79dd4e2` | 19 reviewed (`test2`), 55 provisional; labels unchanged from v2 |
 | v4 | `a928b3a4f8b8292b…` | `e68d33b48785581c…` | 2026-11-13, commit `a60a3b5` | 62 reviewed (all 43 `dev`, 19 `test2`), 12 provisional (11 `test`, q033); labels unchanged from v2 |
 | v5 | `6d6b3e8009e4f373…` | `e68d33b48785581c…` | 2026-11-13, commit `977f0c7` | all 74 reviewed; labels unchanged from v2 |
+| v6 | `03936c090db38a35…` | `e68d33b48785581c…` | 2026-11-16, commit `540772a` | 114 questions: adds q075 to q114; 113 reviewed, q076 provisional |
 
 Changing the file (including recording reviews) makes a new version. Add a row here when results are reported on
 it. Split membership is fixed: questions never move between splits. `mcl evaluate --split test` (or `test2`) runs only
