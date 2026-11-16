@@ -180,9 +180,11 @@ Resolved on 2026-11-13: every one of the 74 labels has been reviewed by a person
    either. Re-run on the 37 scored dev questions of dataset v2, both experiments reach the same conclusions, and
    fusion's earlier dev gain mostly disappears. A larger general reranker, `BAAI/bge-reranker-base` (MIT, about
    1.1 GB), re-scoring the top 20 raised dev evidence coverage from 0.45 to 0.53, but on the held-out `test2` it
-   lowered it (0.41 to 0.36) while raising MRR, so it is not adopted either. None of the five options beats plain
-   vector search on held-out questions. The next useful step for retrieval is the reviewed labels (step 2), then an
-   answer-level comparison once answers exist, rather than another ranking experiment.
+   lowered it (0.41 to 0.36) while raising MRR, so it is not adopted either. Ranking each passage by its
+   best-matching 60-token window (2026-11-16) gained a little on dev and nothing on `test2` (evidence coverage 0.41
+   to 0.42, recall 0.77 to 0.73). None of the six options beats plain vector search on held-out questions, and with
+   18 to 37 scored questions gains under about 5 points cannot be told from noise. The next useful step for
+   retrieval is more scored questions, then an answer-level comparison, rather than another ranking experiment.
 4. Answer evaluation: [answer_report.py](../research/evaluation/experiments/answer_report.py) summarises an answer
    run (abstention, grade-2 papers cited, citations on a gold page). Still missing: human ratings of whether each
    cited passage supports its claim, and a CLI command once the report's shape has settled.
