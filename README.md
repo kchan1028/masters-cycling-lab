@@ -35,7 +35,7 @@ work without a language model; only answers need one.
 | | |
 |---|---|
 | Test library | 20 open-access (CC BY) papers on masters and older cyclists: 259 pages, 1,269 passages |
-| Test questions | 74, each with the papers that answer it and the exact quotations, page by page; all reviewed by a person |
+| Test questions | 114, each with the papers that answer it and the exact quotations, page by page; the first 74 reviewed by a person, 40 added on 2026-11-16 awaiting review |
 | Finding the right paper | 0.76 of relevant papers in the top 10 on practice questions, 0.77 on fresh ones (target 0.80) |
 | Finding the right passage | 0.45 practice, 0.41 fresh (target 0.60): the main weakness |
 | Answers checked so far | 19 of 19 claims supported by their cited passages, in the first 7 answers rated |
@@ -49,7 +49,7 @@ Figures as of 2026-11-13; [evaluation](docs/evaluation.md) has the details and t
 |---|---|
 | Upload, indexing, search, PDF viewer | Working and checked end to end (`make smoke`) |
 | Answers with citations | Working with a real provider (Gemini 3.6 Flash on a free tier); a partial run on the practice questions so far |
-| Search evaluation | Working: 74 reviewed questions, every run stored with its settings |
+| Search evaluation | Working: 114 questions (74 reviewed), every run stored with its settings |
 | Answer evaluation | Partly done: whether the model declines no-evidence and out-of-scope questions is not tested yet |
 
 The [handoff](docs/handoff.md) lists what works, what was verified, the results and the next steps.
@@ -113,8 +113,9 @@ with known high-severity vulnerabilities ([what CI checks](docs/operations.md#co
 
 - Passage retrieval is the main weakness: 0.45 and 0.41 against a 0.60 target (see [At a glance](#at-a-glance)).
 - Answer evaluation is partial. Whether the model declines no-evidence and out-of-scope questions is untested.
-- 74 questions and 20 papers is a small set. One question moves a dev average by about 3 points and a `test2`
-  average by about 6, so differences of a few points are noise.
+- 114 questions and 20 papers is a small set. The figures above are on the first 74, where one question moves a dev
+  average by about 3 points and a `test2` average by about 6, so differences of a few points are noise. The 40
+  questions added on 2026-11-16 bring that to about 2 and 3 once they are reviewed and run.
 - No OCR: scanned PDFs are rejected, two-column pages can interleave, tables lose their layout and figures are
   skipped.
 - Local and single-user, with no authentication. Don't expose it beyond `127.0.0.1`.

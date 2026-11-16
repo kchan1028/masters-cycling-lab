@@ -72,8 +72,10 @@ the same index, and query latency p95 stays under 500 ms on CPU once the model i
 
 ## Caveats
 
-- 74 questions and 20 papers. With 37 scored dev questions one question moves an average by about 3 points, and
-  with 18 scored `test2` questions by about 6; differences of a few points between runs are noise.
+- 74 questions and 20 papers in every result below. With 37 scored dev questions one question moves an average by
+  about 3 points, and with 18 scored `test2` questions by about 6; differences of a few points between runs are
+  noise. q075 to q114 (2026-11-16) add 20 scored questions to each split, about 2 and 3 points per question, once
+  reviewed.
 - Relevance judgments are incomplete: only documents an annotator considered were graded. `unjudged@k` shows how
   often the system returns documents nobody judged.
 - Labels are AI drafts until a person reviews them with `make review` (see

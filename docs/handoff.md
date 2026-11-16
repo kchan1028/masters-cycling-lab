@@ -18,7 +18,8 @@ table records the fresh-clone run of 2026-11-12 as it happened.
   tier (`make test-live` passes; a partial dev answer run, see [evaluation.md](evaluation.md)).
 - **Workspace:** Ask a question (claims, citation passages, PDF at the physical page), Papers, Search details
   (including how an answer was built) and Search scores pages.
-- **Evaluation:** 74 labelled questions (43 dev, 11 held-out test, 20 fresh held-out test2) over 20 CC BY papers,
+- **Evaluation:** 114 labelled questions (63 dev, 11 held-out test, 40 held-out test2; q075 to q114 awaiting review)
+  over 20 CC BY papers,
   gold quotations anchored to paper, physical page and exact text; recall, MRR, nDCG, evidence coverage, unjudged
   count and latency for vector, lexical and hybrid search; JSON artifacts with full provenance.
 - **Operations:** `make backup` / `make restore`, `make smoke`, readiness checks, a label review workflow
@@ -185,6 +186,8 @@ Resolved on 2026-11-13: every one of the 74 labels has been reviewed by a person
    to 0.42, recall 0.77 to 0.73). None of the six options beats plain vector search on held-out questions, and with
    18 to 37 scored questions gains under about 5 points cannot be told from noise. The next useful step for
    retrieval is more scored questions, then an answer-level comparison, rather than another ranking experiment.
+   q075 to q114 (2026-11-16) add 40: review them with `make review`, record dataset v6, then re-run
+   `make evaluate SPLIT=dev` and, once, `SPLIT=test2` to get a vector baseline on the larger set.
 4. Answer evaluation: [answer_report.py](../research/evaluation/experiments/answer_report.py) summarises an answer
    run (abstention, grade-2 papers cited, citations on a gold page). Still missing: human ratings of whether each
    cited passage supports its claim, and a CLI command once the report's shape has settled.
