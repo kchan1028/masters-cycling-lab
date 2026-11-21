@@ -6,7 +6,7 @@ requires-python = ">=3.12,<3.13"
 # Direct dependencies are pinned exactly; uv.lock pins everything else.
 dependencies = [
     "alembic==1.20.1",
-    "fastapi==0.162.5",
+    "fastapi==0.164.0",
     "httpx==0.28.1",
     "pgvector==0.5.1",
     "psycopg[binary]==3.3.9",
